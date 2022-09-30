@@ -1,0 +1,46 @@
+#+TITLE emacs config
+#+PROPERTY: header-args:emacs-lisp :tangle ~/.emacs.d/init.el
+
+* patch
+#+begin_src emacs-lisp
+  (setq user-full-name "meow")
+  (setq user-login-name "meow")
+  (setq user-real-login-name "meow")
+  (setq user-emacs-directory "/home/meow/.emacs.d")
+  (setq custom-file "/home/meow/.emacs.d/custom.el")
+#+end_src
+
+* package
+#+begin_src emacs-lisp
+  (setq package-archives '(("melpa" . "https://melpa.org/packages/")
+			   ("org" . "https://orgmode.org/elpa/")
+			   ("elpa" . "https://elpa.gnu.org/packages/")))
+
+  (let ((packages (directory-files "/home/meow/.emacs.d/packages" nil directory-files-no-dot-files-regexp)))
+    (dolist (package packages)
+      (add-to-list 'load-path (concat "/home/meow/.emacs.d/packages/" package))))
+
+  (require 'use-package)
+  (setq use-package-always-ensure t)
+#+end_src
+
+* gadget
+#+begin_src emacs-lisp
+  (defalias 'yes-or-no-p 'y-or-n-p)
+#+end_src
+
+* git
+#+begin_src emacs-lisp
+  (use-package magit)
+#+end_src
+
+* Meow
+#+begin_src emacs-lisp
+  (use-package meow)
+#+end_src
+
+* Shell
+** Vterm
+#+begin_src emacs-lisp
+  (use-package vterm)
+#+end_src
