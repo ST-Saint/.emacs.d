@@ -1,14 +1,26 @@
 #+TITLE emacs config
-#+PROPERTY: header-args:emacs-lisp :tangle ~/.emacs.d/init.el
+#+PROPERTY: header-args:emacs-lisp :tangle ~/.emacs.d/init.el :results none
 
 * patch
 #+begin_src emacs-lisp
+  ;; -*- lexical-binding: t -*-
   (setq user-full-name "meow")
   (setq user-login-name "meow")
   (setq user-real-login-name "meow")
   (setq user-emacs-directory "/home/meow/.emacs.d")
   (setq custom-file "/home/meow/.emacs.d/custom.el")
+
+
+  ;; Automatically tangle our Emacs.org config file when we save it
+  (defun org-babel-tangle-config ()
+    (when (string-equal (buffer-file-name) "/home/meow/.emacs.d/config.org")
+      ;; Dynamic scoping to the rescue
+      (let ((org-confirm-babel-evaluate nil))
+	(org-babel-tangle))))
+
+  (add-hook 'org-mode-hook (lambda () (add-hook 'after-save-hook #'org-babel-tangle-config)))
 #+end_src
+
 
 * package
 #+begin_src emacs-lisp
@@ -20,13 +32,348 @@
     (dolist (package packages)
       (add-to-list 'load-path (concat "/home/meow/.emacs.d/packages/" package))))
 
+  (package-initialize)
+
+  (unless package-archive-contents
+    (package-refresh-contents))
+
+  (unless (package-installed-p 'use-package)
+    (package-install 'use-package))
+
   (require 'use-package)
   (setq use-package-always-ensure t)
 #+end_src
 
-* gadget
+* handy
 #+begin_src emacs-lisp
   (defalias 'yes-or-no-p 'y-or-n-p)
+
+  (save-place-mode 't)
+
+  (setq scroll-margin 3)
+
+  (global-hl-line-mode 't)
+
+  (add-hook 'before-save-hook #'whitespace-cleanup)
+#+end_src
+
+** customize
+#+begin_src  emacs-lisp
+  (use-package helpful
+    :config
+    (global-set-key (kbd "C-h f") #'helpful-callable)
+    (global-set-key (kbd "C-h v") #'helpful-variable)
+    (global-set-key (kbd "C-h k") #'helpful-key)
+    (global-set-key (kbd "C-c C-d") #'helpful-at-point)
+    (global-set-key (kbd "C-h C") #'helpful-command)
+    )
+
+  (defun open-config-file ()
+    (interactive)
+    (find-file "~/.emacs.d/config.org"))
+
+
+  (use-package restart-emacs)
+#+end_src
+
+* meow
+#+begin_src emacs-lisp
+  (use-package meow
+    :init
+    (setq meow-space-keymap (make-keymap))
+    (define-key meow-space-keymap [(f) (p)] 'open-config-file)
+    (define-key meow-space-keymap [(s) (s)] 'consult-line)
+    (define-key meow-space-keymap [(s) (i)] 'consult-imenu)
+    (define-key meow-space-keymap [(r) (r)] 'restart-emacs)
+    (define-key meow-space-keymap [(g) (g)] 'magit)
+
+    (defun meow-setup-qwerty ()
+      (setq meow-cheatsheet-layout meow-cheatsheet-layout-qwerty)
+      (meow-motion-overwrite-define-key
+       '("j" . meow-next)
+       '("k" . meow-prev)
+       '("<escape>" . ignore))
+      (meow-leader-define-key
+       ;; SPC j/k will run the original command in MOTION state.
+       '("j" . "H-j")
+       '("k" . "H-k")
+       ;; Use SPC (0-9) for digit arguments.
+       '("1" . meow-digit-argument)
+       '("2" . meow-digit-argument)
+       '("3" . meow-digit-argument)
+       '("4" . meow-digit-argument)
+       '("5" . meow-digit-argument)
+       '("6" . meow-digit-argument)
+       '("7" . meow-digit-argument)
+       '("8" . meow-digit-argument)
+       '("9" . meow-digit-argument)
+       '("0" . meow-digit-argument)
+       '("/" . meow-keypad-describe-key)
+       '("?" . meow-cheatsheet)
+       (cons "SPC" meow-space-keymap)
+       )
+      (meow-normal-define-key
+       '("0" . meow-expand-0)
+       '("9" . meow-expand-9)
+       '("8" . meow-expand-8)
+       '("7" . meow-expand-7)
+       '("6" . meow-expand-6)
+       '("5" . meow-expand-5)
+       '("4" . meow-expand-4)
+       '("3" . meow-expand-3)
+       '("2" . meow-expand-2)
+       '("1" . meow-expand-1)
+       '("-" . negative-argument)
+       '(";" . meow-reverse)
+       '("," . meow-inner-of-thing)
+       '("." . meow-bounds-of-thing)
+       '("[" . meow-beginning-of-thing)
+       '("]" . meow-end-of-thing)
+       '("a" . meow-append)
+       '("A" . meow-open-below)
+       '("b" . meow-back-word)
+       '("B" . meow-back-symbol)
+       '("c" . meow-change)
+       '("d" . meow-delete)
+       '("D" . meow-kill)
+       '("e" . meow-next-word)
+       '("E" . meow-next-symbol)
+       '("f" . meow-find)
+       '("g" . meow-cancel-selection)
+       '("G" . meow-grab)
+       '("h" . meow-left)
+       '("H" . meow-left-expand)
+       '("i" . meow-insert)
+       '("I" . meow-open-above)
+       '("j" . meow-next)
+       '("J" . meow-next-expand)
+       '("k" . meow-prev)
+       '("K" . meow-prev-expand)
+       '("l" . meow-right)
+       '("L" . meow-right-expand)
+       '("m" . meow-join)
+       '("n" . meow-search)
+       '("o" . meow-block)
+       '("O" . meow-to-block)
+       '("p" . meow-yank)
+       '("q" . meow-quit)
+       '("Q" . meow-goto-line)
+       '("r" . meow-replace)
+       '("R" . meow-swap-grab)
+       '("s" . meow-search)
+       '("t" . meow-till)
+       '("u" . meow-undo)
+       '("U" . meow-undo-in-selection)
+       '("v" . meow-visit)
+       '("V" . meow-line)
+       '("w" . meow-mark-word)
+       '("W" . meow-mark-symbol)
+       '("x" . meow-delete)
+       '("X" . meow-goto-line)
+       '("y" . meow-save)
+       '("Y" . meow-sync-grab)
+       '("z" . meow-pop-selection)
+       '("'" . repeat)
+       '("<escape>" . ignore)))
+
+
+    :config
+    (setq meow-replace-state-name-list '((normal . "ಎ·ω·ಎ")
+					 (motion . "ಎ-ω-ಎ")
+					 (keypad . "/ᐠ.ˬ.ᐟ\\")
+					 (insert . "/ᐠ.ꞈ.ᐟ\\")
+					 (beacon . "/ᐠ..ᐟ\\")))
+
+    (set-face-attribute 'meow-normal-indicator nil :weight 'bold)
+    (set-face-attribute 'meow-motion-indicator nil :weight 'bold)
+    (set-face-attribute 'meow-keypad-indicator nil :weight 'bold)
+    (set-face-attribute 'meow-insert-indicator nil :weight 'bold)
+    (set-face-attribute 'meow-beacon-indicator nil :weight 'bold)
+
+    (meow-setup-qwerty)
+
+    (meow-global-mode 't)
+    )
+#+end_src
+
+* ui
+** emacs basic
+#+begin_src emacs-lisp
+  (setq inhibit-startup-message t)
+  (setq initial-scratch-message nil)
+
+  (scroll-bar-mode -1)        ; disable visible scrollbar
+  (tool-bar-mode -1)          ; disable the toolbar
+  (tooltip-mode -1)           ; disable tooltips
+  (menu-bar-mode -1)            ; disable the menu bar
+  (global-display-line-numbers-mode t)
+
+  ;; disable line numbers for some modes
+  (dolist (mode '(term-mode-hook
+		  shell-mode-hook
+		  treemacs-mode-hook
+		  eshell-mode-hook))
+    (add-hook mode (lambda () (display-line-numbers-mode 0)))
+    )
+#+end_src
+** font
+
+#+begin_src emacs-lisp
+  (set-face-attribute 'default nil :font "SauceCodePro Nerd Font" :height 160)
+
+  ;; Set the fixed pitch face
+  (set-face-attribute 'fixed-pitch nil :font "SauceCodePro Nerd Font" :height 160)
+
+  ;; Set the variable pitch face
+  (set-face-attribute 'variable-pitch nil :font "DejaVuSansMono Nerd Font Mono" :height 160)
+#+end_src
+
+** face
+#+begin_src emacs-lisp
+
+#+end_src
+
+** icon
+#+begin_src emacs-lisp
+  (use-package all-the-icons)
+#+end_src
+
+** theme
+#+begin_src emacs-lisp
+  (use-package doom-themes
+    :init (load-theme 'doom-one t)
+    :config
+    (setq doom-modeline-project-detection 'project)
+    (setq doom-modeline-buffer-file-name-style 'truncate-with-project)
+    )
+#+end_src
+
+** dashboard
+#+begin_src emacs-lisp
+  (use-package dashboard
+    :config
+    (setq dashboard-startup-banner "/home/yayu/org/emacs-dragon.svg"
+	  dashboard-image-banner-max-height 600)
+    (setq dashboard-center-content t)
+    (setq dashboard-set-heading-icons t)
+    (setq dashboard-set-file-icons t)
+    (setq dashboard-set-navigator t)
+    (setq dashboard-week-agenda t)
+    (setq dashboard-items '((recents  . 5)
+			    (bookmarks . 5)
+			    (projects . 5)
+			    (agenda . 5)
+			    (registers . 5)))
+    (dashboard-setup-startup-hook)
+    )
+#+end_src
+
+** doom-modeline
+#+begin_src emacs-lisp
+  (use-package doom-modeline
+    :init (doom-modeline-mode 't)
+    )
+#+end_src
+
+** centaur-tabs
+#+begin_src emacs-lisp
+  (use-package centaur-tabs
+    :config
+    (centaur-tabs-mode 't)
+    (setq centaur-tabs-adjust-buffer-order 't)
+    (setq centaur-tabs-set-bar 'under)
+    (setq x-underline-at-descent-line 't)
+    (setq centaur-tabs-height 60
+	  centaur-tabs-bar-height 60)
+    (defun centaur-tabs-adjust-buffer-order ()
+      (interactive)
+      "Put the two buffers switched to the adjacent position after current buffer changed."
+      ;; Don't trigger by centaur-tabs command, it's annoying.
+      ;; This feature should be trigger by search plugins, such as ibuffer, helm or ivy.
+      (unless (or (not centaur-tabs-mode)
+		  (string-prefix-p "centaur-tabs" (format "%s" this-command))
+		  (string-prefix-p "mouse-drag-header-line" (format "%s" this-command))
+		  (string-prefix-p "mouse-drag-tab-line" (format "%s" this-command))
+		  ;; (string-prefix-p "(lambda (event) (interactive e)" (format "%s" this-command))
+		  )
+	(when (and centaur-tabs-adjust-buffer-order
+		   ;; (not (eq (current-buffer) centaur-tabs-last-focused-buffer))
+		   (not (minibufferp)))
+	  ;; Just continue when the buffer has changed.
+	  (let* ((current (current-buffer))
+		 (current-group (cl-first (funcall centaur-tabs-buffer-groups-function))))
+	    ;; Record the last focused buffer.
+	    (setq centaur-tabs-last-focused-buffer current)
+
+	    ;; Just continue if two buffers are in the same group.
+	    (when (string= current-group centaur-tabs-last-focused-buffer-group)
+	      (let* ((bufset (centaur-tabs-get-tabset current-group))
+		     (current-group-tabs (centaur-tabs-tabs bufset))
+		     (current-group-buffers (cl-mapcar 'car current-group-tabs))
+		     (current-buffer-index (cl-position current current-group-buffers)))
+
+		(unless (or (not current-buffer-index)
+			    (eq current-buffer-index 0))
+		  (let* ((copy-group-tabs (cl-copy-list current-group-tabs))
+			 (current-tab (nth current-buffer-index copy-group-tabs))
+			 (first-tab (nth 0 copy-group-tabs))
+			 (base-group-tabs (centaur-tabs-remove-nth-element current-buffer-index copy-group-tabs))
+			 new-group-tabs)
+		    (setq new-group-tabs (centaur-tabs-insert-before base-group-tabs first-tab current-tab))
+		    (set bufset new-group-tabs)
+		    (centaur-tabs-set-template bufset nil)
+		    (centaur-tabs-display-update)))
+		;; If the tabs are not adjacent, swap their positions.
+		))
+
+	    ;; Update the group name of the last accessed tab.
+	    (setq centaur-tabs-last-focused-buffer-group current-group)))))
+    (centaur-tabs-group-by-projectile-project)
+    (centaur-tabs-enable-buffer-reordering)
+    )
+#+end_src
+
+** winnum
+#+begin_src emacs-lisp
+  (use-package winum
+    :config
+    (winum-mode 't))
+#+end_src
+
+** highlight
+*** rainbow-delimiters
+#+begin_src emacs-lisp
+  (use-package rainbow-delimiters
+    :hook
+    (prog-mode . rainbow-delimiters-mode)
+    )
+#+end_src
+
+** which key
+#+begin_src emacs-lisp
+  (use-package which-key
+    :config
+    (which-key-mode)
+    (setq which-key-idle-delay 0.5)
+    )
+#+end_src
+
+** keycast
+#+begin_src emacs-lisp
+  (use-package keycast
+    :config
+
+    (defun toggle-keycast()
+      (interactive)
+      (if (member '("" keycast-mode-line " ") global-mode-string)
+	  (progn (setq global-mode-string (delete '("" keycast-mode-line " ") global-mode-string))
+		 (remove-hook 'pre-command-hook 'keycast--update))
+	(add-to-list 'global-mode-string '("" keycast-mode-line " "))
+	(add-hook 'pre-command-hook 'keycast--update t)
+	))
+
+    (toggle-keycast)
+    )
 #+end_src
 
 * git
@@ -34,13 +381,349 @@
   (use-package magit)
 #+end_src
 
-* Meow
+* project
+** projectile
 #+begin_src emacs-lisp
-  (use-package meow)
+  (use-package projectile)
 #+end_src
 
-* Shell
-** Vterm
+* navigate
+* completion
+
+** consult
+#+begin_src emacs-lisp
+  (use-package consult
+    ;; Replace bindings. Lazily loaded due by `use-package'.
+    :bind (
+	   ;; C-c bindings (mode-specific-map)
+	   ("C-c h" . consult-history)
+	   ("C-c m" . consult-mode-command)
+	   ("C-c k" . consult-kmacro)
+	   ;; C-x bindings (ctl-x-map)
+	   ("C-x M-:" . consult-complex-command)     ;; orig. repeat-complex-command
+	   ("C-x b" . consult-buffer)                ;; orig. switch-to-buffer
+	   ("C-x 4 b" . consult-buffer-other-window) ;; orig. switch-to-buffer-other-window
+	   ("C-x 5 b" . consult-buffer-other-frame)  ;; orig. switch-to-buffer-other-frame
+	   ("C-x r b" . consult-bookmark)            ;; orig. bookmark-jump
+	   ("C-x p b" . consult-project-buffer)      ;; orig. project-switch-to-buffer
+	   ;; Custom M-# bindings for fast register access
+	   ("M-#" . consult-register-load)
+	   ("M-'" . consult-register-store)          ;; orig. abbrev-prefix-mark (unrelated)
+	   ("C-M-#" . consult-register)
+	   ;; Other custom bindings
+	   ("M-y" . consult-yank-pop)                ;; orig. yank-pop
+	   ("<help> a" . consult-apropos)            ;; orig. apropos-command
+	   ;; M-g bindings (goto-map)
+	   ("M-g e" . consult-compile-error)
+	   ("M-g f" . consult-flymake)               ;; Alternative: consult-flycheck
+	   ("M-g g" . consult-goto-line)             ;; orig. goto-line
+	   ("M-g M-g" . consult-goto-line)           ;; orig. goto-line
+	   ("M-g o" . consult-outline)               ;; Alternative: consult-org-heading
+	   ("M-g m" . consult-mark)
+	   ("M-g k" . consult-global-mark)
+	   ("M-g i" . consult-imenu)
+	   ("M-g I" . consult-imenu-multi)
+	   ;; M-s bindings (search-map)
+	   ("M-s d" . consult-find)
+	   ("M-s D" . consult-locate)
+	   ("M-s g" . consult-grep)
+	   ("M-s G" . consult-git-grep)
+	   ("M-s r" . consult-ripgrep)
+	   ("M-s l" . consult-line)
+	   ("M-s L" . consult-line-multi)
+	   ("M-s m" . consult-multi-occur)
+	   ("M-s k" . consult-keep-lines)
+	   ("M-s u" . consult-focus-lines)
+	   ;; Isearch integration
+	   ("M-s e" . consult-isearch-history)
+	   :map isearch-mode-map
+	   ("M-e" . consult-isearch-history)         ;; orig. isearch-edit-string
+	   ("M-s e" . consult-isearch-history)       ;; orig. isearch-edit-string
+	   ("M-s l" . consult-line)                  ;; needed by consult-line to detect isearch
+	   ("M-s L" . consult-line-multi)            ;; needed by consult-line to detect isearch
+	   ;; Minibuffer history
+	   :map minibuffer-local-map
+	   ("M-s" . consult-history)                 ;; orig. next-matching-history-element
+	   ("M-r" . consult-history))                ;; orig. previous-matching-history-element
+
+    ;; Enable automatic preview at point in the *Completions* buffer. This is
+    ;; relevant when you use the default completion UI.
+    :hook (completion-list-mode . consult-preview-at-point-mode)
+
+    ;; The :init configuration is always executed (Not lazy)
+    :init
+
+    ;; Optionally configure the register formatting. This improves the register
+    ;; preview for `consult-register', `consult-register-load',
+    ;; `consult-register-store' and the Emacs built-ins.
+    (setq register-preview-delay 0.5
+	  register-preview-function #'consult-register-format)
+
+    ;; Optionally tweak the register preview window.
+    ;; This adds thin lines, sorting and hides the mode line of the window.
+    (advice-add #'register-preview :override #'consult-register-window)
+
+    ;; Use Consult to select xref locations with preview
+    (setq xref-show-xrefs-function #'consult-xref
+	  xref-show-definitions-function #'consult-xref)
+
+
+    ;; Configure other variables and modes in the :config section,
+    ;; after lazily loading the package.
+    :config
+
+    ;; Optionally configure preview. The default value
+    ;; is 'any, such that any key triggers the preview.
+    ;; (setq consult-preview-key 'any)
+    ;; (setq consult-preview-key (kbd "M-."))
+    ;; (setq consult-preview-key (list (kbd "<S-down>") (kbd "<S-up>")))
+    ;; For some commands and buffer sources it is useful to configure the
+    ;; :preview-key on a per-command basis using the `consult-customize' macro.
+
+    (consult-customize consult-theme
+		       :preview-key '(:debounce 0.2 any)
+		       consult-ripgrep consult-git-grep consult-grep
+		       consult-bookmark consult-recent-file consult-xref
+		       consult--source-bookmark consult--source-recent-file
+		       consult--source-project-recent-file
+		       :preview-key (kbd "M-."))
+
+    ;; Optionally configure the narrowing key.
+    ;; Both < and C-+ work reasonably well.
+    (setq consult-narrow-key "<") ;; (kbd "C-+")
+
+    ;; Optionally make narrowing help available in the minibuffer.
+    ;; You may want to use `embark-prefix-help-command' or which-key instead.
+    ;; (define-key consult-narrow-map (vconcat consult-narrow-key "?") #'consult-narrow-help)
+
+    ;; By default `consult-project-function' uses `project-root' from project.el.
+    ;; Optionally configure a different project root function.
+    ;; There are multiple reasonable alternatives to chose from.
+    ;;;; 1. project.el (the default)
+    ;; (setq consult-project-function #'consult--default-project--function)
+    ;;;; 2. projectile.el (projectile-project-root)
+    ;; (autoload 'projectile-project-root "projectile")
+    ;; (setq consult-project-function (lambda (_) (projectile-project-root)))
+    ;;;; 3. vc.el (vc-root-dir)
+    ;; (setq consult-project-function (lambda (_) (vc-root-dir)))
+    ;;;; 4. locate-dominating-file
+    ;; (setq consult-project-function (lambda (_) (locate-dominating-file "." ".git")))
+    )
+#+end_src
+
+** vertico
+#+begin_src emacs-lisp
+  (use-package vertico
+    :init
+    ;; Grow and shrink the Vertico minibuffer
+    ;; (setq vertico-resize t)
+    ;; Optionally enable cycling for `vertico-next' and `vertico-previous'.
+    (setq vertico-cycle t)
+    ;; Show more candidates
+    (setq vertico-count 15)
+    :config
+    (vertico-mode)
+    )
+
+  (use-package savehist
+    :init
+    (savehist-mode))
+#+end_src
+
+** orderless
+#+begin_src emacs-lisp
+  (use-package orderless
+    :init
+    ;; Configure a custom style dispatcher (see the Consult wiki)
+    ;; (setq orderless-style-dispatchers '(+orderless-dispatch)
+    ;;       orderless-component-separator #'orderless-escapable-split-on-space)
+    (setq completion-styles '(orderless)
+	  completion-category-defaults nil
+	  completion-category-overrides '((file (styles partial-completion)))
+	  orderless-component-separator #'orderless-escapable-split-on-space)
+    )
+#+end_src
+
+
+** embark
+#+begin_src emacs-lisp
+
+  (use-package embark
+    :bind
+    (("C-." . embark-act)         ;; pick some comfortable binding
+     ("C-;" . embark-dwim)        ;; good alternative: M-.
+     ("C-h B" . embark-bindings)) ;; alternative for `describe-bindings'
+
+    :init
+
+    ;; Optionally replace the key help with a completing-read interface
+    (setq prefix-help-command #'embark-prefix-help-command)
+
+    :config
+
+    ;; Hide the mode line of the Embark live/completions buffers
+    (add-to-list 'display-buffer-alist
+		 '("\\`\\*Embark Collect \\(Live\\|Completions\\)\\*"
+		   nil
+		   (window-parameters (mode-line-format . none)))))
+
+  (use-package marginalia
+    :config
+    (marginalia-mode t))
+
+  (use-package wgrep)
+
+
+  ;; Consult users will also want the embark-consult package.
+  (use-package embark-consult
+    :after (embark consult)
+    :demand t ; only necessary if you have the hook below
+    ;; if you want to have consult previews as you move around an
+    ;; auto-updating embark collect buffer
+    :hook
+    (embark-collect-mode . consult-preview-at-point-mode))
+#+end_src
+
+** company
+
+#+begin_src emacs-lisp
+  ;; (use-package company)
+#+end_src
+
+#+begin_src emacs-lisp
+#+end_src
+
+** corfu
++ [ ] won't auto show completion list
+#+begin_src emacs-lisp :tangle no
+  (use-package corfu
+    ;; Optional customizations
+    :custom
+    (corfu-cycle t)                ;; Enable cycling for `corfu-next/previous'
+    (corfu-auto t)                 ;; Enable auto completion
+    (corfu-separator ?\s)          ;; Orderless field separator
+    (corfu-quit-at-boundary nil)   ;; Never quit at completion boundary
+    (corfu-quit-no-match nil)      ;; Never quit, even if there is no match
+    ;; (corfu-preview-current nil)    ;; Disable current candidate preview
+    (corfu-preselect-first nil)    ;; Disable candidate preselection
+    (corfu-on-exact-match nil)     ;; Configure handling of exact matches
+    (corfu-echo-documentation nil) ;; Disable documentation in the echo area
+    (corfu-scroll-margin 5)        ;; Use scroll margin
+
+    :bind
+    (:map corfu-map
+	  ("TAB" . corfu-next)
+	  ([tab] . corfu-next)
+	  ("S-TAB" . corfu-previous)
+	  ([backtab] . corfu-previous))
+
+    ;; Enable Corfu only for certain modes.
+    ;; :hook ((prog-mode . corfu-mode)
+    ;;        (shell-mode . corfu-mode)
+    ;;        (eshell-mode . corfu-mode))
+
+    ;; Recommended: Enable Corfu globally.
+    ;; This is recommended since Dabbrev can be used globally (M-/).
+    ;; See also `corfu-excluded-modes'.
+    :config
+    (global-corfu-mode 't))
+
+  (use-package cape
+    ;; Bind dedicated completion commands
+    ;; Alternative prefix keys: C-c p, M-p, M-+, ...
+    ;; :bind (("C-c p p" . completion-at-point) ;; capf
+    ;;	 ("C-c p t" . complete-tag)        ;; etags
+    ;;	 ("C-c p d" . cape-dabbrev)        ;; or dabbrev-completion
+    ;;	 ("C-c p h" . cape-history)
+    ;;	 ("C-c p f" . cape-file)
+    ;;	 ("C-c p k" . cape-keyword)
+    ;;	 ("C-c p s" . cape-symbol)
+    ;;	 ("C-c p a" . cape-abbrev)
+    ;;	 ("C-c p i" . cape-ispell)
+    ;;	 ("C-c p l" . cape-line)
+    ;;	 ("C-c p w" . cape-dict)
+    ;;	 ("C-c p \\" . cape-tex)
+    ;;	 ("C-c p _" . cape-tex)
+    ;;	 ("C-c p ^" . cape-tex)
+    ;;	 ("C-c p &" . cape-sgml)
+    ;;	 ("C-c p r" . cape-rfc1345))
+    :init
+    ;; Add `completion-at-point-functions', used by `completion-at-point'.
+    (add-to-list 'completion-at-point-functions #'cape-dabbrev)
+    (add-to-list 'completion-at-point-functions #'cape-file)
+    ;;(add-to-list 'completion-at-point-functions #'cape-history)
+    ;;(add-to-list 'completion-at-point-functions #'cape-keyword)
+    ;;(add-to-list 'completion-at-point-functions #'cape-tex)
+    ;;(add-to-list 'completion-at-point-functions #'cape-sgml)
+    ;;(add-to-list 'completion-at-point-functions #'cape-rfc1345)
+    ;;(add-to-list 'completion-at-point-functions #'cape-abbrev)
+    ;;(add-to-list 'completion-at-point-functions #'cape-ispell)
+    ;;(add-to-list 'completion-at-point-functions #'cape-dict)
+    ;;(add-to-list 'completion-at-point-functions #'cape-symbol)
+    ;;(add-to-list 'completion-at-point-functions #'cape-line)
+    )
+
+  (use-package corfu-doc
+    :config
+    (define-key corfu-map (kbd "M-p") #'corfu-doc-scroll-down) ;; corfu-next
+    (define-key corfu-map (kbd "M-n") #'corfu-doc-scroll-up)  ;; corfu-previous
+    (add-hook 'corfu-mode-hook #'corfu-doc-mode)
+    )
+
+  ;; A few more useful configurations...
+  (use-package emacs
+    :init
+    ;; TAB cycle if there are only few candidates
+    (setq completion-cycle-threshold 3)
+
+    ;; Emacs 28: Hide commands in M-x which do not apply to the current mode.
+    ;; Corfu commands are hidden, since they are not supposed to be used via M-x.
+    ;; (setq read-extended-command-predicate
+    ;;       #'command-completion-default-include-p)
+
+    ;; Enable indentation+completion using the TAB key.
+    ;; `completion-at-point' is often bound to M-TAB.
+    (setq tab-always-indent 'complete))
+#+end_src
+
+
+* org
+#+begin_src emacs-lisp
+  (use-package org
+    :hook
+    (org-mode-hook . org-indent-mode)
+    :config
+
+    (setq org-directory "/home/yayu/org/"))
+#+end_src
+
+* undo
+** undo-fu-session
+#+begin_src emacs-lisp
+  (use-package undo-fu-session
+    :config
+    (global-undo-fu-session-mode))
+#+end_src
+** vundo
+#+begin_src emacs-lisp
+  (use-package vundo)
+#+end_src
+
+* shell
+** vterm
 #+begin_src emacs-lisp
   (use-package vterm)
+#+end_src
+
+* misc
+** subword
+#+begin_src emacs-lisp
+  (use-package subword
+    :hook (after-init . global-subword-mode))
+#+end_src
+
+* debug
+** commond-log
+#+begin_src emacs-lisp
+  (use-package command-log-mode)
 #+end_src
