@@ -93,6 +93,11 @@
   (meow-leader-define-key
    '("r r" . restart-emacs)))
 
+(use-package which-function-mode
+  :ensure nil
+  :hook
+  (prog-mode . which-function-mode))
+
 (use-package scratch)
 #+end_src
 
@@ -209,6 +214,7 @@
   (set-face-attribute 'meow-beacon-indicator nil :weight 'bold)
 
   (setq meow-keypad-start-keys nil
+        meow-keypad-literal-prefix nil
         meow-keypad-meta-prefix nil
         meow-keypad-ctrl-meta-prefix nil)
   (setq meow-use-clipboard t)
@@ -299,6 +305,7 @@
 #+begin_src emacs-lisp
 (use-package beacon
   :config
+  (add-to-list 'beacon-dont-blink-commands #'consult-line)
   (beacon-mode t))
 #+end_src
 
@@ -581,10 +588,9 @@
 
   ;; Optionally configure preview. The default value
   ;; is 'any, such that any key triggers the preview.
-  ;; (setq consult-preview-key 'any)
+  (setq consult-preview-key 'any)
   ;; (setq consult-preview-key (kbd "M-."))
   ;; (setq consult-preview-key (list (kbd "<S-down>") (kbd "<S-up>")))
-  (setq consult-preview-key (kbd "<tab>"))
   ;; For some commands and buffer sources it is useful to configure the
   ;; :preview-key on a per-command basis using the `consult-customize' macro.
   (consult-customize
@@ -619,8 +625,8 @@
 
   (meow-leader-define-key
    '("s s" . consult-line)
-   '("s i" . consult-imenu))
-  )
+   '("s i" . consult-imenu)
+   '("s <SPC>" . consult-global-mark)))
 #+end_src
 
 ** vertico
@@ -840,6 +846,7 @@
      (org . t)
      (shell . t)
      (C . t)
+     ;; (latex . t)
      (python . t)
      (dot . t)
      (awk . t)
@@ -851,8 +858,11 @@
   (setq org-cycle-separator-lines 1)
   (setq org-return-follows-link t)
   (setq org-src-window-setup 'current-window)
+  (setq org-confirm-babel-evaluate nil)
+
   (setq org-list-demote-modify-bullet
         '(("+" . "-") ("-" . "+") ("*" . "+")))
+  (setq org-ellipsis " ר")
 
   (setq org-directory "/home/yayu/org/"))
 #+end_src
