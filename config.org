@@ -73,6 +73,8 @@
 
 (global-hl-line-mode 't)
 
+(setq compilation-scroll-output t)
+
 (add-hook 'before-save-hook #'whitespace-cleanup)
 #+end_src
 
@@ -913,19 +915,12 @@
 #+begin_src emacs-lisp
 (use-package format-all
   :config
+  (setq format-all-ensure-formatter t)
   (meow-leader-define-key
    '("c f" . format-all-buffer)))
 #+end_src
 
 ** pair
-
-*** electric-pair
-#+begin_src emacs-lisp
-(use-package electric-pair-mode
-  :ensure nil
-  :hook
-  (prog-mode . electric-pair-mode))
-#+end_src
 
 *** smartparens
 #+begin_src emacs-lisp
@@ -969,6 +964,7 @@
   (setq-local completion-at-point-functions (list (cape-capf-buster #'lsp-completion-at-point)))
 
   (meow-leader-define-key
+   '("c l S" . lsp)
    '("c l s" . consult-lsp-symbols)
    '("c l d" . lsp-find-definition)
    '("c l r" . lsp-find-references)
@@ -1047,6 +1043,33 @@
   )
 #+end_src
 
+* pdf
+
+** pdf-tools
+
+#+begin_src emacs-lisp
+(use-package pdf-tools)
+#+end_src
+
+** org-noter
+#+begin_src emacs-lisp
+(use-package org-noter
+  :init
+  (setq org-noter-notes-search-path '("~/org/roam/thesis/note"))
+  (setq org-noter-always-create-frame nil)
+  (setq org-noter-doc-split-fraction '(0.6 . 0.4)))
+#+end_src
+
+* shell
+** vterm
+#+begin_src emacs-lisp
+(use-package vterm
+  :config
+  (setq vterm-max-scrollback 65536)
+  (meow-leader-define-key
+   '("o t" . vterm)))
+#+end_src
+
 * undo
 ** undo-fu-session
 #+begin_src emacs-lisp
@@ -1059,16 +1082,6 @@
 ** vundo
 #+begin_src emacs-lisp
 (use-package vundo)
-#+end_src
-
-* shell
-** vterm
-#+begin_src emacs-lisp
-(use-package vterm
-  :config
-  (setq vterm-max-scrollback 65536)
-  (meow-leader-define-key
-   '("o t" . vterm)))
 #+end_src
 
 * email
@@ -1134,9 +1147,7 @@
                                               (:maildir "/gmail/drafts"      :key ?d)
                                               (:maildir "/gmail/trash"      :key ?t)
                                               (:maildir "/gmail/all"   :key ?a)))
-                  (mu4e-compose-signature  . (concat
-                                              "Best,\n"
-                                              "Yayu\n"))))
+                  ))
 
          (make-mu4e-context
           :name "ubc"
@@ -1162,9 +1173,7 @@
                                              (:maildir "/UBC/Sent" :key ?s)
                                              (:maildir "/UBC/Draft" :key ?d)
                                              (:maildir "/UBC/Trash" :key ?t)))
-                  (mu4e-compose-signature  . (concat
-                                              "Best,\n"
-                                              "Yayu\n"))))))
+                  ))))
 
   (setq sendmail-program (executable-find "msmtp")
         send-mail-function #'smtpmail-send-it
@@ -1198,7 +1207,8 @@
                                        (reply-to-html	. (text html))
                                        (reply-to-text	. (text)))
         org-msg-convert-citation t)
-  (setq org-msg-signature "#+begin_signature\nBest,\n\n-- *Yayu*\n#+end_signature"))
+  (setq org-msg-signature "#+begin_signature\nBest,\n\n-- *Yayu*\n#+end_signature")
+  (org-msg-mode))
 #+end_src
 
 
