@@ -86,8 +86,7 @@
   (global-set-key (kbd "C-h v") #'helpful-variable)
   (global-set-key (kbd "C-h k") #'helpful-key)
   (global-set-key (kbd "C-c C-d") #'helpful-at-point)
-  (global-set-key (kbd "C-h C") #'helpful-command)
-  )
+  (global-set-key (kbd "C-h C") #'helpful-command))
 
 (defun open-config-file ()
   (interactive)
@@ -237,6 +236,9 @@
 (setq inhibit-startup-message t)
 (setq initial-scratch-message nil)
 
+(meow-leader-define-key
+ '("l l" . visual-line-mode))
+
 (scroll-bar-mode -1)        ; disable visible scrollbar
 (tool-bar-mode -1)          ; disable the toolbar
 (tooltip-mode -1)           ; disable tooltips
@@ -245,6 +247,7 @@
 
 ;; disable line numbers for some modes
 (dolist (mode '(term-mode-hook
+                vterm-mode-hook
                 treemacs-mode-hook
                 dashboard-mook-hook))
   (add-hook mode (lambda () (display-line-numbers-mode 0)))
@@ -909,6 +912,23 @@
   (setq org-directory "/home/yayu/org/"))
 #+end_src
 
+** org-reveal
+#+begin_src emacs-lisp
+(use-package ox-reveal
+  :config
+  (setq org-reveal-theme "blood")
+  (setq org-reveal-transition "slide")
+  (setq org-reveal-width 1080)
+  (setq org-reveal-height 720)
+  (setq org-reveal-margin "0.1")
+  (setq org-reveal-min-scale "0.2")
+  (setq org-reveal-max-scale "1.5")
+  (setq org-reveal-plugins '(markdown notes search zoom))
+  (setq org-reveal-control 't)
+  (setq org-reveal-center 't)
+  (setq org-reveal-progress 't)
+  (setq org-reveal-history nil))
+#+end_src
 
 * code
 ** format
