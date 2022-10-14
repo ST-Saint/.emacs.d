@@ -406,12 +406,13 @@
 ** workspace
 #+begin_src emacs-lisp
 (use-package perspective
+  :init
+  (setq persp-suppress-no-prefix-key-warning t)
   :custom
-  (persp-mode-prefix-key (kbd "C-c TAB"))
-  (persp-sort 'created)
+  (persp-mode-prefix-key nil)
+  (persp-sort 'access)
   :config
   (meow-leader-define-key
-   ;; '("0" . (lambda() (persp-switch-by-number 0)))
    '("1" . (lambda() (interactive) (persp-switch-by-number 1)))
    '("2" . (lambda() (interactive) (persp-switch-by-number 2)))
    '("3" . (lambda() (interactive) (persp-switch-by-number 3)))
@@ -421,7 +422,7 @@
    '("7" . (lambda() (interactive) (persp-switch-by-number 7)))
    '("8" . (lambda() (interactive) (persp-switch-by-number 8)))
    '("9" . (lambda() (interactive) (persp-switch-by-number 9)))
-   ;; (cons "TAB" perspective-map))
+   '("S s" . persp-switch)
    '("TAB s" . persp-switch))
   (persp-mode))
 #+end_src
@@ -583,6 +584,7 @@
   ;; Enable indentation+completion using the TAB key.
   ;; `completion-at-point' is often bound to M-TAB.
   ;; (setq tab-always-indent 'complete)
+  (server-start)
   )
 #+end_src
 
@@ -652,6 +654,7 @@
    '("s s" . consult-line)
    '("s i" . consult-imenu)
    '("f r" . consult-recent-file)
+   '("s r" . consult-ripgrep)
    '("s <SPC>" . consult-global-mark)))
 #+end_src
 
@@ -918,8 +921,8 @@
   :config
   (setq org-reveal-theme "blood")
   (setq org-reveal-transition "slide")
-  (setq org-reveal-width 1080)
-  (setq org-reveal-height 720)
+  (setq org-reveal-width 1920)
+  (setq org-reveal-height 1080)
   (setq org-reveal-margin "0.1")
   (setq org-reveal-min-scale "0.2")
   (setq org-reveal-max-scale "1.5")
@@ -1002,7 +1005,6 @@
 ** elisp(emacs-lisp)
 #+begin_src emacs-lisp
 (use-package aggressive-indent
-  :load-path "/home/yayu/.emacs.d/elpa/aggressive-indent-20221003.2200"
   :hook
   (emacs-lisp-mode . aggressive-indent-mode))
 #+end_src
@@ -1236,7 +1238,8 @@
 ** subword
 #+begin_src emacs-lisp
 (use-package subword
-  :hook (after-init . global-subword-mode))
+  ;; :hook (after-init . global-subword-mode)
+  )
 #+end_src
 
 * debug
