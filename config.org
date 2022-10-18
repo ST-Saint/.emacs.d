@@ -51,16 +51,26 @@
 
 ** quelpa
 #+begin_src emacs-lisp
-(use-package quelpa)
+(use-package quelpa
+  :config
+  (setq quelpa-update-melpa-p nil)
+  )
 #+end_src
 
 *** quelpa-use-package
 #+begin_src emacs-lisp
 (use-package quelpa-use-package
-  :init
-  (setq use-package-ensure-function 'quelpa)
-  :config
-  (quelpa-use-package-activate-advice))
+  ;; :init
+  ;; (setq use-package-ensure-function 'quelpa)
+  )
+  ;; :config
+  ;; (quelpa-use-package-activate-advice))
+#+end_src
+
+* emacs
+#+begin_src elisp
+(use-package emacs)
+
 #+end_src
 
 * handy
@@ -86,7 +96,9 @@
   (global-set-key (kbd "C-h v") #'helpful-variable)
   (global-set-key (kbd "C-h k") #'helpful-key)
   (global-set-key (kbd "C-c C-d") #'helpful-at-point)
-  (global-set-key (kbd "C-h C") #'helpful-command))
+  (global-set-key (kbd "C-h C") #'helpful-command)
+  (global-set-key (kbd "C-h p") #'describe-package)
+  )
 
 (defun open-config-file ()
   (interactive)
@@ -104,6 +116,13 @@
   (prog-mode . which-function-mode))
 
 (use-package scratch)
+#+end_src
+
+** drag
+#+begin_src emacs-lisp
+(use-package drag-stuff
+  :config
+  (drag-stuff-global-mode t))
 #+end_src
 
 * meow
@@ -253,6 +272,19 @@
   (add-hook mode (lambda () (display-line-numbers-mode 0)))
   )
 #+end_src
+
+** visual
+
+*** visual-fill-column
+#+begin_src elisp
+(use-package visual-fill-column
+  :config
+  (setq visual-fill-column-width 120)
+  (setq visual-fill-column-center-text 't)
+  (meow-leader-define-key
+   '("l L" . visual-fill-column-mode)))
+#+end_src
+
 ** font
 #+begin_src emacs-lisp
 (set-frame-font "SauceCodePro Nerd Font 16" nil t)
@@ -412,6 +444,13 @@
   (persp-mode-prefix-key nil)
   (persp-sort 'access)
   :config
+
+  (defun persp-show-persps ()
+    (interactive)
+    (message (concat "[ "
+                     (s-join " | " (persp-names))
+                     " ]")))
+
   (meow-leader-define-key
    '("1" . (lambda() (interactive) (persp-switch-by-number 1)))
    '("2" . (lambda() (interactive) (persp-switch-by-number 2)))
@@ -422,8 +461,11 @@
    '("7" . (lambda() (interactive) (persp-switch-by-number 7)))
    '("8" . (lambda() (interactive) (persp-switch-by-number 8)))
    '("9" . (lambda() (interactive) (persp-switch-by-number 9)))
-   '("S s" . persp-switch)
-   '("TAB s" . persp-switch))
+   '("w s" . persp-switch)
+   '("w b" . persp-scratch-buffer)
+   '("TAB s" . persp-switch)
+   '("TAB TAB" . persp-show-persps)
+   '("TAB b" . persp-switch-to-scratch-buffer))
   (persp-mode))
 #+end_src
 
@@ -514,6 +556,7 @@
 #+begin_src emacs-lisp
 (use-package ace-window
   :config
+  (setq aw-scope 'frame)
   (global-set-key (kbd "C-x o") 'ace-window))
 #+end_src
 
@@ -655,7 +698,9 @@
    '("s i" . consult-imenu)
    '("f r" . consult-recent-file)
    '("s r" . consult-ripgrep)
-   '("s <SPC>" . consult-global-mark)))
+   '("s SPC" . consult-mark)
+   '("s C-SPC" . consult-global-mark))
+  )
 #+end_src
 
 ** vertico
@@ -843,6 +888,7 @@
     (corfu-terminal-mode +1)))
 #+end_src
 
+
 ** template
 #+begin_src emacs-lisp
 (use-package tempel
@@ -851,7 +897,9 @@
   (tempel-trigger-prefix "<")
 
   :bind (("M-+" . tempel-complete) ;; Alternative tempel-expand
-         ("M-*" . tempel-insert))
+         ("M-*" . tempel-insert)
+         ("M-p" . tempel-previous)
+         ("M-n" . tempel-next))
 
   :init
   ;; Setup completion at point
@@ -949,6 +997,7 @@
 #+begin_src emacs-lisp
 (use-package smartparens
   :hook
+  (text-mode . smartparens-mode)
   (prog-mode . smartparens-mode))
 #+end_src
 
@@ -961,16 +1010,58 @@
   (prog-mode . hs-minor-mode)
   :init
   (meow-leader-define-key
-   '("TAB TAB" . hs-toggle-hiding)))
+   '("TAB C-t" . hs-toggle-hiding)))
+#+end_src
+
+* flycheck
+#+begin_src emacs-lisp
+(use-package flycheck
+  :defer t
+  :hook (prog-mode . flycheck-mode))
+#+end_src
+
+** flyspell-correct
+#+begin_src emacs-lisp
+(use-package flyspell-correct
+  :after flyspell
+  :bind (:map flyspell-mode-map ("C-;" . flyspell-correct-wrapper)))
 #+end_src
 
 * language
+
+** english
+#+begin_src elisp
+;; (use-package languagetool
+;;   :commands (languagetool-check
+;;              languagetool-clear-suggestions
+;;              languagetool-correct-at-point
+;;              languagetool-correct-buffer
+;;              languagetool-set-language
+;;              languagetool-server-mode
+;;              languagetool-server-start
+;;              languagetool-server-stop)
+;;   :config
+;;   (setq languagetool-java-arguments '("-Dfile.encoding=UTF-8")
+;;         languagetool-console-command "~/.languagetool/languagetool-commandline.jar"
+;;         languagetool-server-command "~/.languagetool/languagetool-server.jar"))
+#+end_src
+
+#+begin_src emacs-lisp
+;; (use-package langtool
+;;   :config
+;;   (setq langtool-language-tool-jar "~/.languagetool/languagetool-commandline.jar")
+;;   (setq langtool-language-tool-server-jar "~/.languagetool/languagetool-server.jar"))
+#+end_src
 
 ** lsp
 #+begin_src emacs-lisp
 (use-package lsp-mode
   :custom
   (lsp-completion-provider :none) ;; we use Corfu!
+
+  :bind
+  (:map lsp-mode-map
+        ([remap format-all-buffer] . lsp-format-buffer))
 
   :init
   (defun orderless-dispatch-flex-first (_pattern index _total)
