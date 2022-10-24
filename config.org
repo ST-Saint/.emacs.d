@@ -981,6 +981,14 @@
   (setq org-reveal-history nil))
 #+end_src
 
+** org-roam
+#+begin_src emacs-lisp
+(use-package org-roam
+  :config
+  (setq org-roam-directory "/home/yayu/org/")
+  (org-roam-db-autosync-mode))
+#+end_src
+
 * code
 ** format
 #+begin_src emacs-lisp
@@ -1155,6 +1163,7 @@
   (setq lsp-java-vmargs '("-XX:+UseParallelGC" "-XX:GCTimeRatio=4" "-XX:AdaptiveSizePolicyWeight=90" "-Xmx8G" "-Xms1024m"))
   )
 #+end_src
+
 
 * pdf
 
@@ -1334,10 +1343,21 @@
 #+end_src
 
 * debug
+** gdb
+#+begin_src emacs-lisp
+(setq gdb-stack-buffer-addresses t)
+#+end_src
+
 ** commond-log
 #+begin_src emacs-lisp
 (use-package command-log-mode
   :bind
   ("C-c o o" . clm/toggle-command-log-buffer)
   ("C-C o l" . command-log-mode))
+#+end_src
+
+
+** DAP
+#+begin_src elisp
+(use-package dap-mode)
 #+end_src
