@@ -125,6 +125,11 @@
   (drag-stuff-global-mode t))
 #+end_src
 
+** link
+#+begin_src emacs-lisp
+(use-package link-hint)
+#+end_src
+
 * meow
 + [ ] unbind C-M-
 
@@ -986,6 +991,7 @@
 (use-package org-roam
   :config
   (setq org-roam-directory "/home/yayu/org/")
+  (org-roam-completion-everywhere t)
   (org-roam-db-autosync-mode))
 #+end_src
 
@@ -1352,8 +1358,8 @@
 #+begin_src emacs-lisp
 (use-package command-log-mode
   :bind
-  ("C-c o o" . clm/toggle-command-log-buffer)
-  ("C-C o l" . command-log-mode))
+  ("C-c d o" . clm/toggle-command-log-buffer)
+  ("C-C d l" . command-log-mode))
 #+end_src
 
 
