@@ -260,9 +260,11 @@
 (setq inhibit-startup-message t)
 (setq initial-scratch-message nil)
 
+
 (meow-leader-define-key
  '("l l" . visual-line-mode))
 
+(blink-cursor-mode -1)
 (scroll-bar-mode -1)        ; disable visible scrollbar
 (tool-bar-mode -1)          ; disable the toolbar
 (tooltip-mode -1)           ; disable tooltips
@@ -273,9 +275,9 @@
 (dolist (mode '(term-mode-hook
                 vterm-mode-hook
                 treemacs-mode-hook
-                dashboard-mook-hook))
-  (add-hook mode (lambda () (display-line-numbers-mode 0)))
-  )
+                dashboard-mook-hook
+                pdf-view-mode-hook))
+  (add-hook mode (lambda () (display-line-numbers-mode 0))))
 #+end_src
 
 ** visual
@@ -442,36 +444,71 @@
 
 ** workspace
 #+begin_src emacs-lisp
-(use-package perspective
-  :init
-  (setq persp-suppress-no-prefix-key-warning t)
-  :custom
-  (persp-mode-prefix-key nil)
-  (persp-sort 'access)
-  :config
+  (use-package perspective
+    :init
+    (setq persp-suppress-no-prefix-key-warning t)
+    :custom
+    (persp-mode-prefix-key nil)
+    (persp-sort 'access)
+    :config
 
-  (defun persp-show-persps ()
-    (interactive)
-    (message (concat "[ "
-                     (s-join " | " (persp-names))
-                     " ]")))
+    (defun persp-show-persps ()
+      (interactive)
+      (message (concat "[ "
+		       (s-join " | " (persp-names))
+		       " ]")))
 
-  (meow-leader-define-key
-   '("1" . (lambda() (interactive) (persp-switch-by-number 1)))
-   '("2" . (lambda() (interactive) (persp-switch-by-number 2)))
-   '("3" . (lambda() (interactive) (persp-switch-by-number 3)))
-   '("4" . (lambda() (interactive) (persp-switch-by-number 4)))
-   '("5" . (lambda() (interactive) (persp-switch-by-number 5)))
-   '("6" . (lambda() (interactive) (persp-switch-by-number 6)))
-   '("7" . (lambda() (interactive) (persp-switch-by-number 7)))
-   '("8" . (lambda() (interactive) (persp-switch-by-number 8)))
-   '("9" . (lambda() (interactive) (persp-switch-by-number 9)))
-   '("w s" . persp-switch)
-   '("w b" . persp-scratch-buffer)
-   '("TAB s" . persp-switch)
-   '("TAB TAB" . persp-show-persps)
-   '("TAB b" . persp-switch-to-scratch-buffer))
-  (persp-mode))
+    (defun projectile-switch-perspective-project (project-to-switch)
+      (interactive (list (projectile-completing-read "Switch to project: "
+						     (projectile-relevant-known-projects))))
+      (let* ((name (or projectile-project-name
+		     (funcall projectile-project-name-function project-to-switch)))
+	   (persp (gethash name (perspectives-hash))))
+	(cond
+	 ;; project-specific perspective already exists
+	 ((and persp (not (equal persp (persp-curr))))
+	  (persp-switch name))
+	 ;; persp exists but not match with projectile-name
+	 ((and persp (not (equal persp name)))
+	  (persp-switch name)
+	  (projectile-switch-project-by-name project-to-switch))
+	 ;; project-specific perspective doesn't exist
+	 ((not persp)
+	  (let ((frame (selected-frame)))
+	  (persp-switch name)
+	  (projectile-switch-project-by-name project-to-switch)
+	  ;; Clean up if we switched to a new frame. `helm' for one allows finding
+	  ;; files in new frames so this is a real possibility.
+	  (when (not (equal frame (selected-frame)))
+	    (with-selected-frame frame
+	      (persp-kill name))))))))
+
+    (define-key projectile-mode-map [remap projectile-switch-project] 'projectile-switch-perspective-project)
+
+    ;; (defun persp-names ()
+    ;;   (let ((persps (hash-table-values (perspectives-hash))))
+    ;;     (message "zzz: %s" persps))
+    ;;   nil
+    ;;   )
+
+    (meow-leader-define-key
+     '("1" . (lambda() (interactive) (persp-switch-by-number 1)))
+     '("2" . (lambda() (interactive) (persp-switch-by-number 2)))
+     '("3" . (lambda() (interactive) (persp-switch-by-number 3)))
+     '("4" . (lambda() (interactive) (persp-switch-by-number 4)))
+     '("5" . (lambda() (interactive) (persp-switch-by-number 5)))
+     '("6" . (lambda() (interactive) (persp-switch-by-number 6)))
+     '("7" . (lambda() (interactive) (persp-switch-by-number 7)))
+     '("8" . (lambda() (interactive) (persp-switch-by-number 8)))
+     '("9" . (lambda() (interactive) (persp-switch-by-number 9)))
+     '("w s" . persp-switch)
+     '("w b" . persp-scratch-buffer)
+     '("TAB s" . persp-switch)
+     '("TAB TAB" . persp-show-persps)
+     '("TAB b" . persp-switch-to-scratch-buffer)
+     '("TAB d" . persp-kill)
+     '("TAB D" . (lambda () (interactive) (persp-kill (persp-current-name)))))
+    (persp-mode))
 #+end_src
 
 ** centaur-tabs
@@ -792,6 +829,7 @@
   (corfu-preselect-first t)    ;; Disable candidate preselection
   ;; (corfu-on-exact-match nil)     ;; Configure handling of exact matches
   ;; (corfu-echo-documentation nil) ;; Disable documentation in the echo area
+  (corfu-auto-delay 0.5)
   (corfu-scroll-margin 5)        ;; Use scroll margin
 
   :bind
@@ -991,7 +1029,7 @@
 (use-package org-roam
   :config
   (setq org-roam-directory "/home/yayu/org/")
-  (org-roam-completion-everywhere t)
+  (setq org-roam-completion-everywhere t)
   (org-roam-db-autosync-mode))
 #+end_src
 
@@ -1176,16 +1214,21 @@
 ** pdf-tools
 
 #+begin_src emacs-lisp
-(use-package pdf-tools)
+(use-package pdf-tools
+  :config
+  (pdf-tools-install))
 #+end_src
 
 ** org-noter
 #+begin_src emacs-lisp
 (use-package org-noter
   :init
-  (setq org-noter-notes-search-path '("~/org/roam/thesis/note"))
+  (setq org-noter-notes-search-path '("/home/yayu/org/roam/thesis/note"))
   (setq org-noter-always-create-frame nil)
-  (setq org-noter-doc-split-fraction '(0.6 . 0.4)))
+  (setq org-noter-doc-split-fraction '(0.6 . 0.4))
+  :config
+  (meow-leader-define-key
+   '("n o" . org-noter)))
 #+end_src
 
 * shell
