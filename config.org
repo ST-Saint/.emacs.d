@@ -60,11 +60,11 @@
 *** quelpa-use-package
 #+begin_src emacs-lisp
 (use-package quelpa-use-package
-  ;; :init
-  ;; (setq use-package-ensure-function 'quelpa)
-  )
+  :init
+  (setq use-package-ensure-function 'quelpa)
   ;; :config
-  ;; (quelpa-use-package-activate-advice))
+  ;; (quelpa-use-package-activate-advice)
+  )
 #+end_src
 
 * emacs
@@ -451,7 +451,7 @@
   (lazy-count-prefix-format "%s/%s "))
 #+end_src
 
-** workspace
+** perspective
 #+begin_src emacs-lisp
   (use-package perspective
     :init
@@ -492,7 +492,7 @@
             (with-selected-frame frame
               (persp-kill name))))))))
 
-    (define-key projectile-mode-map [remap projectile-switch-project] 'projectile-switch-perspective-project)
+    (define-key global-map [remap projectile-switch-project] 'projectile-switch-perspective-project)
 
     ;; (defun persp-names ()
     ;;   (let ((persps (hash-table-values (perspectives-hash))))
@@ -1241,6 +1241,39 @@
    '("n o" . org-noter)))
 #+end_src
 
+** org-pdftools
+#+begin_src emacs-lisp
+(use-package org-pdftools
+  :quelpa ((org-pdftools
+            :fetcher github
+            :repo "ST-Saint/org-pdftools")
+           :upgrade t)
+  :hook (org-mode . org-pdftools-setup-link))
+
+(use-package org-noter-pdftools
+  :after org-noter
+  :quelpa ((org-pdftools
+            :fetcher github
+            :repo "ST-Saint/org-pdftools")
+           :upgrade t)
+  :bind
+  (:map org-noter-notes-mode-map
+        ("C-." . #'org-noter-pdftools-activate-org-note)
+        ("M-." . #'org-noter-pdftools-embed-org-note-to-pdf))
+  (:map pdf-view-mode-map
+        ("C-x m i i" . #'org-noter-pdftools-insert-precise-note-underline)
+        ("C-x m i u" . #'org-noter-pdftools-insert-precise-note-underline)
+        ("C-x m i s" . #'org-noter-pdftools-insert-precise-note-squiggly)
+        ("C-a" . #'pdf-view-align-left)
+        ("C-e" . #'pdf-view-align-right)
+        ("M-i" . #'org-noter-pdftools-insert-precise-note-underline)
+        ("C-l" . #'pdf-view-center-in-window))
+
+  :config
+  (setq org-noter-pdftools-insert-content-heading nil)
+  (with-eval-after-load 'pdf-annot    (add-hook 'pdf-annot-activate-handler-functions #'org-noter-pdftools-jump-to-note)))
+#+end_src
+
 * shell
 ** vterm
 #+begin_src emacs-lisp
@@ -1411,7 +1444,6 @@
 #+begin_src emacs-lisp
 (use-package command-log-mode)
 #+end_src
-
 
 ** DAP
 #+begin_src elisp
