@@ -127,11 +127,15 @@
 
 ** link
 #+begin_src emacs-lisp
-(use-package link-hint)
+(use-package link-hint
+  :after meow
+  :config
+  (meow-leader-define-key
+   '("o l" . link-hint-open-link)))
 #+end_src
 
 * meow
-+ [ ] unbind C-M-
++ terminal ESC problem
 
 #+begin_src emacs-lisp
 (use-package meow
@@ -152,6 +156,9 @@
      '("j" . meow-next)
      '("k" . meow-prev)
      '("<escape>" . ignore))
+
+    (meow-define-keys 'insert
+      '("M-SPC" . meow-keypad))
 
     (meow-leader-define-key
      ;; SPC j/k will run the original command in MOTION state.
@@ -225,9 +232,9 @@
      '("Y" . meow-sync-grab)
      '("z" . meow-pop-selection)
      '("'" . repeat)
+     '("M-o" . meow-pop-marker)
      '("M-<SPC>" . meow-keypad)
      '("<escape>" . ignore)))
-
 
   :config
   (setq meow-replace-state-name-list '((normal . "ಎ·ω·ಎ")
@@ -270,6 +277,7 @@
 (tooltip-mode -1)           ; disable tooltips
 (menu-bar-mode -1)            ; disable the menu bar
 (global-display-line-numbers-mode t)
+(setq display-line-numbers-type 'relative)
 
 ;; disable line numbers for some modes
 (dolist (mode '(term-mode-hook
@@ -424,10 +432,11 @@
    '("p p" . projectile-switch-project)
    '("p f" . projectile-find-file)
    '("p c" . projectile-compile-project)
+   '("p d" . projectile-find-dir)
+   '("p i" . projectile-invalidate-cache)
    '("," . projectile-switch-to-buffer))
 
-  (projectile-global-mode t)
-  )
+  (projectile-global-mode t))
 #+end_src
 
 * navigate
@@ -455,33 +464,33 @@
     (defun persp-show-persps ()
       (interactive)
       (message (concat "[ "
-		       (s-join " | " (persp-names))
-		       " ]")))
+                       (s-join " | " (persp-names))
+                       " ]")))
 
     (defun projectile-switch-perspective-project (project-to-switch)
       (interactive (list (projectile-completing-read "Switch to project: "
-						     (projectile-relevant-known-projects))))
+                                                     (projectile-relevant-known-projects))))
       (let* ((name (or projectile-project-name
-		     (funcall projectile-project-name-function project-to-switch)))
-	   (persp (gethash name (perspectives-hash))))
-	(cond
-	 ;; project-specific perspective already exists
-	 ((and persp (not (equal persp (persp-curr))))
-	  (persp-switch name))
-	 ;; persp exists but not match with projectile-name
-	 ((and persp (not (equal persp name)))
-	  (persp-switch name)
-	  (projectile-switch-project-by-name project-to-switch))
-	 ;; project-specific perspective doesn't exist
-	 ((not persp)
-	  (let ((frame (selected-frame)))
-	  (persp-switch name)
-	  (projectile-switch-project-by-name project-to-switch)
-	  ;; Clean up if we switched to a new frame. `helm' for one allows finding
-	  ;; files in new frames so this is a real possibility.
-	  (when (not (equal frame (selected-frame)))
-	    (with-selected-frame frame
-	      (persp-kill name))))))))
+                     (funcall projectile-project-name-function project-to-switch)))
+           (persp (gethash name (perspectives-hash))))
+        (cond
+         ;; project-specific perspective already exists
+         ((and persp (not (equal persp (persp-curr))))
+          (persp-switch name))
+         ;; persp exists but not match with projectile-name
+         ((and persp (not (equal persp name)))
+          (persp-switch name)
+          (projectile-switch-project-by-name project-to-switch))
+         ;; project-specific perspective doesn't exist
+         ((not persp)
+          (let ((frame (selected-frame)))
+          (persp-switch name)
+          (projectile-switch-project-by-name project-to-switch)
+          ;; Clean up if we switched to a new frame. `helm' for one allows finding
+          ;; files in new frames so this is a real possibility.
+          (when (not (equal frame (selected-frame)))
+            (with-selected-frame frame
+              (persp-kill name))))))))
 
     (define-key projectile-mode-map [remap projectile-switch-project] 'projectile-switch-perspective-project)
 
@@ -623,7 +632,6 @@
 * completion
 
 + [ ] missing a consult selection indicator
-+ [ ] consult preview setting
 
 ** emacs-completion
 #+begin_src emacs-lisp
@@ -707,12 +715,11 @@
   ;; :preview-key on a per-command basis using the `consult-customize' macro.
   (consult-customize
    consult-theme
-   :preview-key '(:debounce 0.2 any)
+   :preview-key '(:debounce 0.1 any)
    consult-ripgrep consult-git-grep consult-grep
    consult-bookmark consult-recent-file consult-xref
    consult--source-bookmark consult--source-recent-file
-   consult--source-project-recent-file
-   :preview-key (kbd "M-."))
+   consult--source-project-recent-file)
 
   ;; Optionally configure the narrowing key.
   ;; Both < and C-+ work reasonably well. >
@@ -1003,7 +1010,10 @@
         '(("+" . "-") ("-" . "+") ("*" . "+")))
   (setq org-ellipsis " ר")
 
-  (setq org-directory "/home/yayu/org/"))
+  (setq org-directory "/home/yayu/org/")
+  (meow-leader-define-key
+   '("n L" . org-store-link))
+  )
 #+end_src
 
 ** org-reveal
@@ -1223,7 +1233,7 @@
 #+begin_src emacs-lisp
 (use-package org-noter
   :init
-  (setq org-noter-notes-search-path '("/home/yayu/org/roam/thesis/note"))
+  (setq org-noter-notes-search-path (list (concat org-directory "thesis/note")))
   (setq org-noter-always-create-frame nil)
   (setq org-noter-doc-split-fraction '(0.6 . 0.4))
   :config
@@ -1399,10 +1409,7 @@
 
 ** commond-log
 #+begin_src emacs-lisp
-(use-package command-log-mode
-  :bind
-  ("C-c d o" . clm/toggle-command-log-buffer)
-  ("C-C d l" . command-log-mode))
+(use-package command-log-mode)
 #+end_src
 
 
