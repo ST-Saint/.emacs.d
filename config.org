@@ -26,6 +26,7 @@
 * package
 
 + [ ] after load with-eval-after-load
++ [ ] quelpa force git fetcher
 
 ** use-package
 #+begin_src emacs-lisp
@@ -53,8 +54,7 @@
 #+begin_src emacs-lisp
 (use-package quelpa
   :config
-  (setq quelpa-update-melpa-p nil)
-  )
+  (setq quelpa-update-melpa-p nil))
 #+end_src
 
 *** quelpa-use-package
@@ -62,15 +62,13 @@
 (use-package quelpa-use-package
   :init
   (setq use-package-ensure-function 'quelpa)
-  ;; :config
-  ;; (quelpa-use-package-activate-advice)
-  )
+  :config
+  (quelpa-use-package-activate-advice))
 #+end_src
 
 * emacs
 #+begin_src elisp
 (use-package emacs)
-
 #+end_src
 
 * handy
@@ -1222,11 +1220,29 @@
 * pdf
 
 ** pdf-tools
-
 #+begin_src emacs-lisp
+(quelpa '(pdf-tools
+           :fetcher github
+           :repo "dalanicolai/pdf-tools"
+           :branch "pdf-roll"
+           :files ("lisp/*.el"
+                         "README"
+                         ("build" "Makefile")
+                         ("build" "server")
+                         (:exclude "lisp/tablist.el" "lisp/tablist-filter.el"))))
+
 (use-package pdf-tools
+  :ensure nil
   :config
   (pdf-tools-install))
+#+end_src
+
+** image-roll
+#+begin_src emacs-lisp
+(use-package image-roll
+  :quelpa  (image-roll
+            :fetcher github
+            :repo "dalanicolai/image-roll.el"))
 #+end_src
 
 ** org-noter
@@ -1243,27 +1259,29 @@
 
 ** org-pdftools
 #+begin_src emacs-lisp
+
+;; (quelpa '(org-pdftools
+;;             :fetcher github
+;;             :repo "ST-Saint/org-pdftools"))
+
 (use-package org-pdftools
-  :quelpa ((org-pdftools
-            :fetcher github
-            :repo "ST-Saint/org-pdftools")
-           :upgrade t)
+  :after quelpa quelpa-use-package pdf-tools
   :hook (org-mode . org-pdftools-setup-link))
 
+;; (quelpa '(org-noter-pdftools
+;;             :fetcher github
+;;             :repo "ST-Saint/org-pdftools"))
+
 (use-package org-noter-pdftools
-  :after org-noter
-  :quelpa ((org-pdftools
-            :fetcher github
-            :repo "ST-Saint/org-pdftools")
-           :upgrade t)
+  :after quelpa quelpa-use-package org-pdftools org-noter
   :bind
   (:map org-noter-notes-mode-map
         ("C-." . #'org-noter-pdftools-activate-org-note)
         ("M-." . #'org-noter-pdftools-embed-org-note-to-pdf))
   (:map pdf-view-mode-map
-        ("C-x m i i" . #'org-noter-pdftools-insert-precise-note-underline)
-        ("C-x m i u" . #'org-noter-pdftools-insert-precise-note-underline)
-        ("C-x m i s" . #'org-noter-pdftools-insert-precise-note-squiggly)
+        ("C-c m i i" . #'org-noter-pdftools-insert-precise-note-underline)
+        ("C-c m i u" . #'org-noter-pdftools-insert-precise-note-underline)
+        ("C-c m i s" . #'org-noter-pdftools-insert-precise-note-squiggly)
         ("C-a" . #'pdf-view-align-left)
         ("C-e" . #'pdf-view-align-right)
         ("M-i" . #'org-noter-pdftools-insert-precise-note-underline)
@@ -1271,7 +1289,8 @@
 
   :config
   (setq org-noter-pdftools-insert-content-heading nil)
-  (with-eval-after-load 'pdf-annot    (add-hook 'pdf-annot-activate-handler-functions #'org-noter-pdftools-jump-to-note)))
+
+  (with-eval-after-load 'pdf-annot (add-hook 'pdf-annot-activate-handler-functions #'org-noter-pdftools-jump-to-note)))
 #+end_src
 
 * shell
