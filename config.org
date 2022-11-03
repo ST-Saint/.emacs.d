@@ -102,6 +102,11 @@
   (interactive)
   (find-file "~/.emacs.d/config.org"))
 
+(defun copy-file-name ()
+  (interactive)
+  (message (buffer-file-name))
+  (kill-new (buffer-file-name)))
+
 (use-package restart-emacs
   :after meow
   :config
@@ -144,6 +149,7 @@
     (dolist (keybind '(("b r" revert-buffer)
                        ("f p" open-config-file)
                        ("f f" find-file)
+                       ("f y" copy-file-name)
                        ("`" meow-last-buffer)))
       (let ((key (car keybind))
             (func (cadr keybind)))
@@ -451,71 +457,72 @@
 
 ** perspective
 #+begin_src emacs-lisp
-  (use-package perspective
-    :init
-    (setq persp-suppress-no-prefix-key-warning t)
-    :custom
-    (persp-mode-prefix-key nil)
-    (persp-sort 'access)
-    :config
+(use-package perspective
+  :init
+  (setq persp-suppress-no-prefix-key-warning t)
+  :custom
+  (persp-mode-prefix-key nil)
+  (persp-sort 'access)
+  :config
 
-    (defun persp-show-persps ()
-      (interactive)
-      (message (concat "[ "
-                       (s-join " | " (persp-names))
-                       " ]")))
+  (defun persp-show-persps ()
+    (interactive)
+    (message (concat "[ "
+                     (s-join " | " (persp-names))
+                     " ]")))
 
-    (defun projectile-switch-perspective-project (project-to-switch)
-      (interactive (list (projectile-completing-read "Switch to project: "
-                                                     (projectile-relevant-known-projects))))
-      (let* ((name (or projectile-project-name
-                     (funcall projectile-project-name-function project-to-switch)))
-           (persp (gethash name (perspectives-hash))))
-        (cond
-         ;; project-specific perspective already exists
-         ((and persp (not (equal persp (persp-curr))))
-          (persp-switch name))
-         ;; persp exists but not match with projectile-name
-         ((and persp (not (equal persp name)))
-          (persp-switch name)
-          (projectile-switch-project-by-name project-to-switch))
-         ;; project-specific perspective doesn't exist
-         ((not persp)
-          (let ((frame (selected-frame)))
-          (persp-switch name)
-          (projectile-switch-project-by-name project-to-switch)
-          ;; Clean up if we switched to a new frame. `helm' for one allows finding
-          ;; files in new frames so this is a real possibility.
-          (when (not (equal frame (selected-frame)))
-            (with-selected-frame frame
-              (persp-kill name))))))))
+  (defun projectile-switch-perspective-project (project-to-switch)
+    (interactive (list (projectile-completing-read "Switch to project: "
+                                                   (projectile-relevant-known-projects))))
+    (let* ((name (or projectile-project-name
+                   (funcall projectile-project-name-function project-to-switch)))
+         (persp (gethash name (perspectives-hash))))
+      (cond
+       ;; project-specific perspective already exists
+       ((and persp (not (equal persp (persp-curr))))
+        (persp-switch name))
+       ;; persp exists but not match with projectile-name
+       ((and persp (not (equal persp name)))
+        (persp-switch name)
+        (projectile-switch-project-by-name project-to-switch))
+       ;; project-specific perspective doesn't exist
+       ((not persp)
+        (let ((frame (selected-frame)))
+        (persp-switch name)
+        (projectile-switch-project-by-name project-to-switch)
+        ;; Clean up if we switched to a new frame. `helm' for one allows finding
+        ;; files in new frames so this is a real possibility.
+        (when (not (equal frame (selected-frame)))
+          (with-selected-frame frame
+            (persp-kill name))))))))
 
-    (define-key global-map [remap projectile-switch-project] 'projectile-switch-perspective-project)
+  (define-key global-map [remap projectile-switch-project] 'projectile-switch-perspective-project)
 
-    ;; (defun persp-names ()
-    ;;   (let ((persps (hash-table-values (perspectives-hash))))
-    ;;     (message "zzz: %s" persps))
-    ;;   nil
-    ;;   )
+  ;; (defun persp-names ()
+  ;;   (let ((persps (hash-table-values (perspectives-hash))))
+  ;;     (message "zzz: %s" persps))
+  ;;   nil
+  ;;   )
 
-    (meow-leader-define-key
-     '("1" . (lambda() (interactive) (persp-switch-by-number 1)))
-     '("2" . (lambda() (interactive) (persp-switch-by-number 2)))
-     '("3" . (lambda() (interactive) (persp-switch-by-number 3)))
-     '("4" . (lambda() (interactive) (persp-switch-by-number 4)))
-     '("5" . (lambda() (interactive) (persp-switch-by-number 5)))
-     '("6" . (lambda() (interactive) (persp-switch-by-number 6)))
-     '("7" . (lambda() (interactive) (persp-switch-by-number 7)))
-     '("8" . (lambda() (interactive) (persp-switch-by-number 8)))
-     '("9" . (lambda() (interactive) (persp-switch-by-number 9)))
-     '("w s" . persp-switch)
-     '("w b" . persp-scratch-buffer)
-     '("TAB s" . persp-switch)
-     '("TAB TAB" . persp-show-persps)
-     '("TAB b" . persp-switch-to-scratch-buffer)
-     '("TAB d" . persp-kill)
-     '("TAB D" . (lambda () (interactive) (persp-kill (persp-current-name)))))
-    (persp-mode))
+  (meow-leader-define-key
+   '("1" . (lambda() (interactive) (persp-switch-by-number 1)))
+   '("2" . (lambda() (interactive) (persp-switch-by-number 2)))
+   '("3" . (lambda() (interactive) (persp-switch-by-number 3)))
+   '("4" . (lambda() (interactive) (persp-switch-by-number 4)))
+   '("5" . (lambda() (interactive) (persp-switch-by-number 5)))
+   '("6" . (lambda() (interactive) (persp-switch-by-number 6)))
+   '("7" . (lambda() (interactive) (persp-switch-by-number 7)))
+   '("8" . (lambda() (interactive) (persp-switch-by-number 8)))
+   '("9" . (lambda() (interactive) (persp-switch-by-number 9)))
+   '("w s" . persp-switch)
+   '("w b" . persp-scratch-buffer)
+   '("TAB s" . persp-switch)
+   '("TAB n" . persp-switch)
+   '("TAB TAB" . persp-show-persps)
+   '("TAB b" . persp-switch-to-scratch-buffer)
+   '("TAB d" . persp-kill)
+   '("TAB D" . (lambda () (interactive) (persp-kill (persp-current-name)))))
+  (persp-mode))
 #+end_src
 
 ** centaur-tabs
@@ -619,12 +626,12 @@
 
 ** better-jumper
 #+begin_src emacs-lisp
-(use-package better-jumper
-  :config
-  (meow-normal-define-key
-   '("M-i" . better-jumper-jump-forward)
-   '("M-o" . better-jumper-jump-backward))
-  (better-jumper-mode))
+;; (use-package better-jumper
+;;   :config
+;;   (meow-normal-define-key
+;;    '("M-i" . better-jumper-jump-forward)
+;;    '("M-o" . better-jumper-jump-backward))
+;;   (better-jumper-mode))
 #+end_src
 
 * completion
@@ -740,11 +747,21 @@
   ;; 4. locate-dominating-file
   ;; (setq consult-project-function (lambda (_) (locate-dominating-file "." ".git")))
 
+  (defun consult-ripgrep-at-point ()
+    (interactive)
+    (meow-mark-symbol 0)
+    (let ((symbol (buffer-substring-no-properties (region-beginning) (region-end))))
+      (message "%s" symbol)
+      (consult-ripgrep nil symbol)
+      )
+    )
+
   (meow-leader-define-key
    '("s s" . consult-line)
    '("s i" . consult-imenu)
    '("f r" . consult-recent-file)
    '("s r" . consult-ripgrep)
+   '("s R" . consult-ripgrep-at-point)
    '("s SPC" . consult-mark)
    '("s C-SPC" . consult-global-mark))
   )
@@ -1122,6 +1139,9 @@
   :bind
   (:map lsp-mode-map
         ([remap format-all-buffer] . lsp-format-buffer))
+  (:map meow--keypad-base-keymap
+        ([remap format-all-buffer] . lsp-format-buffer))
+
 
   :init
   (defun orderless-dispatch-flex-first (_pattern index _total)
@@ -1461,7 +1481,9 @@
 
 ** commond-log
 #+begin_src emacs-lisp
-(use-package command-log-mode)
+(use-package command-log-mode
+  :custom
+  (command-log-mode-key-binding-open-log nil))
 #+end_src
 
 ** DAP
