@@ -137,6 +137,16 @@
    '("o l" . link-hint-open-link)))
 #+end_src
 
+** multi-edit
+#+begin_src emacs-lisp
+(use-package multiple-cursors
+  :after meow
+  :config
+  (meow-leader-define-key
+   '("m c l" . mc/edit-lines)
+   '("m c r" . mc/mark-all-in-region-regexp)))
+#+end_src
+
 * meow
 + terminal ESC problem
 
