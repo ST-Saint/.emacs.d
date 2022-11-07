@@ -121,6 +121,11 @@
 (use-package scratch)
 #+end_src
 
+** jump
+#+begin_src emacs-lisp
+(add-hook 'xref-after-jump-hook 'set-mark-command)
+#+end_src
+
 ** drag
 #+begin_src emacs-lisp
 (use-package drag-stuff
@@ -466,6 +471,9 @@
 #+end_src
 
 ** perspective
+
++ [ ] create customized sort function
+
 #+begin_src emacs-lisp
 (use-package perspective
   :init
