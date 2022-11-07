@@ -508,12 +508,6 @@
 
   (define-key global-map [remap projectile-switch-project] 'projectile-switch-perspective-project)
 
-  ;; (defun persp-names ()
-  ;;   (let ((persps (hash-table-values (perspectives-hash))))
-  ;;     (message "zzz: %s" persps))
-  ;;   nil
-  ;;   )
-
   (meow-leader-define-key
    '("1" . (lambda() (interactive) (persp-switch-by-number 1)))
    '("2" . (lambda() (interactive) (persp-switch-by-number 2)))
@@ -762,13 +756,17 @@
     (interactive)
     (meow-mark-symbol 0)
     (let ((symbol (buffer-substring-no-properties (region-beginning) (region-end))))
-      (message "%s" symbol)
-      (consult-ripgrep nil symbol)
-      )
-    )
+      (consult-ripgrep nil symbol)))
+
+  (defun consult-line-at-point ()
+    (interactive)
+    (meow-mark-symbol 0)
+    (let ((symbol (buffer-substring-no-properties (region-beginning) (region-end))))
+      (consult-line symbol)))
 
   (meow-leader-define-key
    '("s s" . consult-line)
+   '("s S" . consult-line-at-point)
    '("s i" . consult-imenu)
    '("f r" . consult-recent-file)
    '("s r" . consult-ripgrep)
@@ -1453,7 +1451,7 @@
         message-send-mail-function #'message-send-mail-with-sendmail)
 
   (meow-leader-define-key
-   '("o m" . mu4e))
+   '("o m" . (lambda () (interactive) (persp-switch "mu4e") (mu4e))))
 
   (pinentry-start)
   (mu4e 't))
