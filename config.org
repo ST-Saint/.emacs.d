@@ -72,22 +72,20 @@
 #+end_src
 
 * handy
+
+** customize
 #+begin_src emacs-lisp
 (defalias 'yes-or-no-p 'y-or-n-p)
 
 (save-place-mode 't)
-
-(setq scroll-margin 3)
 
 (global-hl-line-mode 't)
 
 (setq compilation-scroll-output t)
 
 (add-hook 'before-save-hook #'whitespace-cleanup)
-#+end_src
 
-** customize
-#+begin_src emacs-lisp
+
 (use-package helpful
   :config
   (global-set-key (kbd "C-h f") #'helpful-callable)
@@ -121,9 +119,22 @@
 (use-package scratch)
 #+end_src
 
+** scroll
+#+begin_src emacs-lisp
+(setq scroll-conservatively 101
+      scroll-step 1
+      scroll-margin 3
+      hscroll-margin 2
+      hscroll-step 1
+      scroll-preserve-screen-position t
+      auto-window-vscroll nil
+      mouse-wheel-scroll-amount '(2 ((shift) . hscroll))
+      mouse-wheel-scroll-amount-horizontal 2)
+#+end_src
+
 ** jump
 #+begin_src emacs-lisp
-(add-hook 'xref-after-jump-hook 'set-mark-command)
+(add-hook 'xref-after-jump-hook (lambda () (set-mark-command nil) (set-mark-command nil)))
 #+end_src
 
 ** drag
@@ -185,8 +196,9 @@
      '("k" . "H-k")
      '("/" . meow-keypad-describe-key)
      '("?" . meow-cheatsheet)
-     (cons "<SPC>" meow-space-keymap)
-     )
+     '("<ESC>" . meow-normal-mode)
+     '("<escape>" . meow-normal-mode)
+     (cons "<SPC>" meow-space-keymap))
 
     (meow-normal-define-key
      '("0" . meow-expand-0)
@@ -478,11 +490,13 @@
 (use-package perspective
   :init
   (setq persp-suppress-no-prefix-key-warning t)
+
   :custom
   (persp-mode-prefix-key nil)
   (persp-sort 'access)
-  :config
+  (persp-modestring-short t)
 
+  :config
   (defun persp-show-persps ()
     (interactive)
     (message (concat "[ "
@@ -513,6 +527,13 @@
         (when (not (equal frame (selected-frame)))
           (with-selected-frame frame
             (persp-kill name))))))))
+
+
+  (defun open-config-file ()
+    (interactive)
+    (persp-switch "config")
+    (find-file "~/.emacs.d/config.org"))
+
 
   (define-key global-map [remap projectile-switch-project] 'projectile-switch-perspective-project)
 
@@ -760,6 +781,8 @@
   ;; 4. locate-dominating-file
   ;; (setq consult-project-function (lambda (_) (locate-dominating-file "." ".git")))
 
+  (add-hook 'consult-after-jump-hook (lambda () (set-mark-command nil) (set-mark-command nil)))
+
   (defun consult-ripgrep-at-point ()
     (interactive)
     (meow-mark-symbol 0)
@@ -780,7 +803,7 @@
    '("s r" . consult-ripgrep)
    '("s R" . consult-ripgrep-at-point)
    '("s SPC" . consult-mark)
-   '("s C-SPC" . consult-global-mark))
+   '("s s-SPC" . consult-global-mark))
   )
 #+end_src
 
@@ -1179,6 +1202,9 @@
    '("c l s" . consult-lsp-symbols)
    '("c l d" . lsp-find-definition)
    '("c l r" . lsp-find-references)
+   '("c l R" . lsp-rename)
+   '("c l a" . lsp-execute-code-action)
+   '("c l o" . lsp-organize-imports)
    '("c l i" . lsp-find-implementation))
 
   :hook
