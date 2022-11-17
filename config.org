@@ -56,7 +56,6 @@
   :config
   (setq quelpa-update-melpa-p nil))
 #+end_src
-
 *** quelpa-use-package
 #+begin_src emacs-lisp
 (use-package quelpa-use-package
@@ -85,6 +84,13 @@
 
 (add-hook 'before-save-hook #'whitespace-cleanup)
 
+(setq use-dialog-box nil)
+
+(recentf-mode t)
+
+(setq-default indent-tabs-mode nil)
+
+(server-start)
 
 (use-package helpful
   :config
@@ -102,8 +108,16 @@
 
 (defun copy-file-name ()
   (interactive)
-  (message (buffer-file-name))
-  (kill-new (buffer-file-name)))
+  (let ((path nil))
+    (if (eq major-mode 'dired-mode)
+        (setq path (dired-current-directory))
+      (setq path (buffer-file-name)))
+    (message path)
+    path))
+
+(defun open-as-root ()
+  (interactive)
+  (find-file (concat "/sudo::" (copy-file-name))))
 
 (use-package restart-emacs
   :after meow
@@ -134,7 +148,7 @@
 
 ** jump
 #+begin_src emacs-lisp
-(add-hook 'xref-after-jump-hook (lambda () (set-mark-command nil) (set-mark-command nil)))
+(add-hook 'xref-after-jump-hook (lambda () (progn (set-mark-command nil) (set-mark-command nil))))
 #+end_src
 
 ** drag
@@ -163,6 +177,24 @@
    '("m c r" . mc/mark-all-in-region-regexp)))
 #+end_src
 
+** clip
+#+begin_src emacs-lisp
+(use-package clipetty
+  :hook (after-init . global-clipetty-mode)
+  :bind ("M-w" . clipetty-kill-ring-save))
+#+end_src
+
+** ansi
+#+begin_src emacs-lisp
+(use-package ansi-color
+  :config
+  (defun colorize-compilation-buffer ()
+    (read-only-mode)
+    (ansi-color-apply-on-region compilation-filter-start (point))
+    (read-only-mode))
+  (add-hook 'compilation-filter-hook 'colorize-compilation-buffer))
+#+end_src
+
 * meow
 + terminal ESC problem
 
@@ -176,6 +208,7 @@
                        ("f p" open-config-file)
                        ("f f" find-file)
                        ("f y" copy-file-name)
+                       ("f u" open-as-root)
                        ("`" meow-last-buffer)))
       (let ((key (car keybind))
             (func (cadr keybind)))
@@ -322,11 +355,12 @@
 ** visual
 
 *** visual-fill-column
-#+begin_src elisp
+#+begin_src emacs-lisp
 (use-package visual-fill-column
+  :init
+  (setq-default visual-fill-column-width 120)
+  (setq-default visual-fill-column-center-text t)
   :config
-  (setq visual-fill-column-width 120)
-  (setq visual-fill-column-center-text 't)
   (meow-leader-define-key
    '("l L" . visual-fill-column-mode)))
 #+end_src
@@ -336,13 +370,13 @@
 (set-frame-font "SauceCodePro Nerd Font 16" nil t)
 
 ;; FIXME
-;; (set-face-attribute 'default nil :font "SauceCodePro Nerd Font" :height 160)
+(set-face-attribute 'default nil :font "SauceCodePro Nerd Font" :height 160)
 
 ;; Set the fixed pitch face
-;; (set-face-attribute 'fixed-pitch nil :font "SauceCodePro Nerd Font" :height 160)
+(set-face-attribute 'fixed-pitch nil :font "SauceCodePro Nerd Font" :height 160)
 
 ;; Set the variable pitch face
-;; (set-face-attribute 'variable-pitch nil :font "DejaVuSansMono Nerd Font Mono" :height 160)
+(set-face-attribute 'variable-pitch nil :font "DejaVuSansMono Nerd Font Mono" :height 160)
 #+end_src
 
 ** icon
@@ -393,7 +427,7 @@
 (use-package beacon
   :config
   (add-to-list 'beacon-dont-blink-commands #'consult-line)
-  (beacon-mode t))
+  (beacon-mode nil))
 #+end_src
 
 *** rainbow-delimiters
@@ -452,6 +486,8 @@
 * project
 ** projectile
 #+begin_src emacs-lisp
+(use-package ripgrep)
+
 (use-package projectile
   :config
   (setq projectile-indexing-method 'hybrid)
@@ -715,7 +751,6 @@
   ;; Enable indentation+completion using the TAB key.
   ;; `completion-at-point' is often bound to M-TAB.
   ;; (setq tab-always-indent 'complete)
-  (server-start)
   )
 #+end_src
 
@@ -781,7 +816,7 @@
   ;; 4. locate-dominating-file
   ;; (setq consult-project-function (lambda (_) (locate-dominating-file "." ".git")))
 
-  (add-hook 'consult-after-jump-hook (lambda () (set-mark-command nil) (set-mark-command nil)))
+  (add-hook 'consult-after-jump-hookd (lambda () (progn (set-mark-command nil) (set-mark-command nil))))
 
   (defun consult-ripgrep-at-point ()
     (interactive)
@@ -1361,6 +1396,9 @@
 #+begin_src emacs-lisp
 (use-package vterm
   :config
+  (setq shell-file-name "/bin/bash")
+  (setq vterm-shell "/usr/bin/zsh")
+
   (setq vterm-max-scrollback 65536)
   (meow-leader-define-key
    '("o t" . vterm)))
