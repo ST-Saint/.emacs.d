@@ -90,7 +90,8 @@
 
 (setq-default indent-tabs-mode nil)
 
-(server-start)
+(unless (display-graphic-p)
+    (server-start))
 
 (use-package helpful
   :config
@@ -113,9 +114,14 @@
         (setq path (dired-current-directory))
       (setq path (buffer-file-name)))
     (message path)
+    (kill-new path)
     path))
 
-(defun open-as-root ()
+(defun delete-current-file ()
+  (interactive)
+  (delete-file (copy-file-name)))
+
+(defun open-current-file-as-root ()
   (interactive)
   (find-file (concat "/sudo::" (copy-file-name))))
 
@@ -148,7 +154,7 @@
 
 ** jump
 #+begin_src emacs-lisp
-(add-hook 'xref-after-jump-hook (lambda () (progn (set-mark-command nil) (set-mark-command nil))))
+(add-hook 'xref-after-jump-hook (lambda () (progn (set-mark-command nil) (deactivate-mark))))
 #+end_src
 
 ** drag
@@ -174,6 +180,7 @@
   :config
   (meow-leader-define-key
    '("m c l" . mc/edit-lines)
+   '("m c a" . mc/mark-all-dwim)
    '("m c r" . mc/mark-all-in-region-regexp)))
 #+end_src
 
@@ -196,7 +203,7 @@
 #+end_src
 
 * meow
-+ terminal ESC problem
++ beacon doesn't work
 
 #+begin_src emacs-lisp
 (use-package meow
@@ -208,7 +215,8 @@
                        ("f p" open-config-file)
                        ("f f" find-file)
                        ("f y" copy-file-name)
-                       ("f u" open-as-root)
+                       ("f d " delete-current-file)
+                       ("f U" open-current-file-as-root)
                        ("`" meow-last-buffer)))
       (let ((key (car keybind))
             (func (cadr keybind)))
@@ -230,8 +238,7 @@
      '("/" . meow-keypad-describe-key)
      '("?" . meow-cheatsheet)
      '("<ESC>" . meow-normal-mode)
-     '("<escape>" . meow-normal-mode)
-     (cons "<SPC>" meow-space-keymap))
+     '("<escape>" . meow-normal-mode))
 
     (meow-normal-define-key
      '("0" . meow-expand-0)
@@ -421,11 +428,27 @@
 #+end_src
 
 ** highlight
++ highlight TODO in code
+
+*** hl-todo
+#+begin_src emacs-lisp
+(use-package hl-todo
+  :config
+   (setq hl-todo-keyword-faces
+         '(("TODO"   . "#43cd80") ;;  2e8b57 00ee00 32cd32
+           ("FIXME"  . "#FF4444")
+           ("DEBUG"  . "#A020F0")
+           ("GOTCHA" . "#FF4500")
+           ("STUB"   . "#1E90FF"))))
+#+end_src
+
 *** beacon
 + FIXME keep flashing after consult
 #+begin_src emacs-lisp
 (use-package beacon
   :config
+  (meow-leader-define-key
+   '("SPC" . beacon-blink))
   (add-to-list 'beacon-dont-blink-commands #'consult-line)
   (beacon-mode nil))
 #+end_src
@@ -481,6 +504,15 @@
   :config
   (meow-leader-define-key
    '("g g" . magit)))
+
+(use-package magit-todos
+  :config
+  (define-key magit-todos-section-map (kbd "j T") nil)
+  (define-key magit-todos-section-map (kbd "j l") nil)
+  (setq magit-todos-section-map nil)
+  (setq magit-todos-list-map nil)
+  (setq magit-todos-item-section-map nil)
+  (magit-todos-mode))
 #+end_src
 
 * project
@@ -583,7 +615,9 @@
    '("7" . (lambda() (interactive) (persp-switch-by-number 7)))
    '("8" . (lambda() (interactive) (persp-switch-by-number 8)))
    '("9" . (lambda() (interactive) (persp-switch-by-number 9)))
+   '("f p" . open-config-file)
    '("w s" . persp-switch)
+   '("w w" . persp-show-persps)
    '("w b" . persp-scratch-buffer)
    '("TAB s" . persp-switch)
    '("TAB n" . persp-switch)
@@ -788,9 +822,9 @@
   ;; :preview-key on a per-command basis using the `consult-customize' macro.
   (consult-customize
    consult-theme
-   consult-ripgrep consult-git-grep consult-grep
+   consult-ripgrep consult-git-grep consult-grep consult-xref
    :preview-key '(:debounce 0.1 any)
-   consult-bookmark consult-recent-file consult-xref
+   consult-bookmark consult-recent-file
    consult--source-bookmark consult--source-recent-file
    consult--source-project-recent-file
    :preview-key (kbd "M-."))
@@ -816,7 +850,7 @@
   ;; 4. locate-dominating-file
   ;; (setq consult-project-function (lambda (_) (locate-dominating-file "." ".git")))
 
-  (add-hook 'consult-after-jump-hookd (lambda () (progn (set-mark-command nil) (set-mark-command nil))))
+  (add-hook 'consult-after-jump-hookd (lambda () (progn (set-mark-command nil) (deactivate-mark))))
 
   (defun consult-ripgrep-at-point ()
     (interactive)
@@ -876,8 +910,9 @@
 
 (use-package embark
   :bind
-  (("C-." . embark-act)         ;; pick some comfortable binding
-   ("C-;" . embark-dwim)        ;; good alternative: M-.
+  (
+   ;; ("C-." . embark-act)         ;; pick some comfortable binding
+   ;; ("C-;" . embark-dwim)        ;; good alternative: M-.
    ("C-h B" . embark-bindings)) ;; alternative for `describe-bindings'
 
   :init
@@ -1030,6 +1065,7 @@
 
 
 ** template
++ [ ] maybe yasnippet
 #+begin_src emacs-lisp
 (use-package tempel
   ;; Require trigger prefix before template name when completing.
@@ -1095,6 +1131,7 @@
   (setq org-confirm-babel-evaluate nil)
   (setq org-insert-heading-respect-content t)
   (setq org-log-done t)
+  (setq org-imenu-depth 4)
 
   (setq org-list-demote-modify-bullet
         '(("+" . "-") ("-" . "+") ("*" . "+")))
@@ -1211,13 +1248,6 @@
   :custom
   (lsp-completion-provider :none) ;; we use Corfu!
 
-  :bind
-  (:map lsp-mode-map
-        ([remap format-all-buffer] . lsp-format-buffer))
-  (:map meow--keypad-base-keymap
-        ([remap format-all-buffer] . lsp-format-buffer))
-
-
   :init
   (defun orderless-dispatch-flex-first (_pattern index _total)
     (and (eq index 0) 'orderless-flex))
@@ -1231,13 +1261,17 @@
 
   ;; Optionally configure the cape-capf-buster.
   (setq-local completion-at-point-functions (list (cape-capf-buster #'lsp-completion-at-point)))
+  (setq lsp-enable-file-watchers nil)
 
   (meow-leader-define-key
    '("c l S" . lsp)
    '("c l s" . consult-lsp-symbols)
    '("c l d" . lsp-find-definition)
    '("c l r" . lsp-find-references)
+   '("c l F" . lsp-format-buffer)
    '("c l R" . lsp-rename)
+   '("c l q" . lsp-workspace-shutdown)
+   '("c l Q" . lsp-workspace-restart)
    '("c l a" . lsp-execute-code-action)
    '("c l o" . lsp-organize-imports)
    '("c l i" . lsp-find-implementation))
@@ -1288,7 +1322,7 @@
   :config
   (add-hook 'c-mode-common-hook
             (lambda ()
-              (when (derived-mode-p 'c-mode 'c++-mode 'java-mode)
+              (when (derived-mode-p 'c-mode 'c++-mode)
                 (ggtags-mode 1)))))
 #+end_src
 
@@ -1358,19 +1392,21 @@
 ** org-pdftools
 #+begin_src emacs-lisp
 
-;; (quelpa '(org-pdftools
-;;             :fetcher github
-;;             :repo "ST-Saint/org-pdftools"))
+(quelpa '(org-pdftools
+            :fetcher github
+            :repo "ST-Saint/org-pdftools"))
 
 (use-package org-pdftools
+  :ensure nil
   :after quelpa quelpa-use-package pdf-tools
   :hook (org-mode . org-pdftools-setup-link))
 
-;; (quelpa '(org-noter-pdftools
-;;             :fetcher github
-;;             :repo "ST-Saint/org-pdftools"))
+(quelpa '(org-noter-pdftools
+            :fetcher github
+            :repo "ST-Saint/org-pdftools"))
 
 (use-package org-noter-pdftools
+  :ensure nil
   :after quelpa quelpa-use-package org-pdftools org-noter
   :bind
   (:map org-noter-notes-mode-map
@@ -1379,6 +1415,7 @@
   (:map pdf-view-mode-map
         ("C-c m i i" . #'org-noter-pdftools-insert-precise-note-underline)
         ("C-c m i u" . #'org-noter-pdftools-insert-precise-note-underline)
+        ("C-c m i h" . #'org-noter-pdftools-insert-precise-note-highlight)
         ("C-c m i s" . #'org-noter-pdftools-insert-precise-note-squiggly)
         ("C-a" . #'pdf-view-align-left)
         ("C-e" . #'pdf-view-align-right)
