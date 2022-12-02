@@ -160,7 +160,13 @@
 ** drag
 #+begin_src emacs-lisp
 (use-package drag-stuff
+  :after meow
   :config
+  (meow-normal-define-key
+   '("M-<up>" . drag-stuff-up)
+   '("M-<down>" . drag-stuff-down)
+   '("M-p" . drag-stuff-up)
+   '("M-n" . drag-stuff-down))
   (drag-stuff-global-mode t))
 #+end_src
 
@@ -621,6 +627,7 @@
    '("w b" . persp-scratch-buffer)
    '("TAB s" . persp-switch)
    '("TAB n" . persp-switch)
+   '("TAB `" . persp-switch-last)
    '("TAB TAB" . persp-show-persps)
    '("TAB b" . persp-switch-to-scratch-buffer)
    '("TAB d" . persp-kill)
@@ -871,8 +878,8 @@
    '("f r" . consult-recent-file)
    '("s r" . consult-ripgrep)
    '("s R" . consult-ripgrep-at-point)
-   '("s SPC" . consult-mark)
-   '("s s-SPC" . consult-global-mark))
+   '("s <SPC>" . consult-mark)
+   '("s C-<SPC>" . consult-global-mark))
   )
 #+end_src
 
@@ -1562,8 +1569,10 @@
   (meow-leader-define-key
    '("o m" . (lambda () (interactive) (persp-switch "mu4e") (mu4e))))
 
-  (pinentry-start)
-  (mu4e 't))
+  (if display-graphic-p
+      (progn
+        (pinentry-start)
+        (mu4e 't))))
 #+end_src
 ** org-msg
 #+begin_src emacs-lisp
