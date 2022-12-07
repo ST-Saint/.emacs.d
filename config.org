@@ -89,6 +89,7 @@
 (recentf-mode t)
 
 (setq-default indent-tabs-mode nil)
+(setq electric-indent-mode nil)
 
 (unless (display-graphic-p)
     (server-start))
@@ -456,6 +457,7 @@
   (meow-leader-define-key
    '("SPC" . beacon-blink))
   (add-to-list 'beacon-dont-blink-commands #'consult-line)
+  (setq beacon-blink-when-window-scrolls nil)
   (beacon-mode nil))
 #+end_src
 
@@ -1269,6 +1271,7 @@
   ;; Optionally configure the cape-capf-buster.
   (setq-local completion-at-point-functions (list (cape-capf-buster #'lsp-completion-at-point)))
   (setq lsp-enable-file-watchers nil)
+  (setq lsp-enable-on-type-formatting nil)
 
   (meow-leader-define-key
    '("c l S" . lsp)
@@ -1569,7 +1572,7 @@
   (meow-leader-define-key
    '("o m" . (lambda () (interactive) (persp-switch "mu4e") (mu4e))))
 
-  (if display-graphic-p
+  (if (display-graphic-p)
       (progn
         (pinentry-start)
         (mu4e 't))))
