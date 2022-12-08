@@ -51,19 +51,10 @@
 #+end_src
 
 ** quelpa
-#+begin_src emacs-lisp
-(use-package quelpa
-  :config
-  (setq quelpa-update-melpa-p nil))
+#+begin_src elisp
+(use-package quelpa)
 #+end_src
-*** quelpa-use-package
-#+begin_src emacs-lisp
-(use-package quelpa-use-package
-  :init
-  (setq use-package-ensure-function 'quelpa)
-  :config
-  (quelpa-use-package-activate-advice))
-#+end_src
+
 
 * emacs
 #+begin_src elisp
@@ -728,14 +719,6 @@
   (global-set-key (kbd "C-x o") 'ace-window))
 #+end_src
 
-** dumd-jump
-#+begin_src emacs-lisp
-(use-package dumb-jump
-  :config
-  (add-hook 'xref-backend-functions #'dumb-jump-xref-activate)
-  (setq xref-show-definitions-function #'xref-show-definitions-completing-read))
-#+end_src
-
 ** better-jumper
 #+begin_src emacs-lisp
 ;; (use-package better-jumper
@@ -1057,19 +1040,16 @@
 
 ***  corful-terminal
 #+begin_src emacs-lisp
-(use-package popon
-  :quelpa ((popon
-            :fetcher git
-            :url "https://codeberg.org/akib/emacs-popon.git")))
+(quelpa '(popon
+          :fetcher git
+          :url "https://codeberg.org/akib/emacs-popon.git"))
+(quelpa '(corfu-terminal
+          :fetcher git
+          :url "https://codeberg.org/akib/emacs-corfu-terminal.git"))
 
+(use-package popon)
 (use-package corfu-terminal
-  :after popon
-  :quelpa ((corfu-terminal
-            :fetcher git
-            :url "https://codeberg.org/akib/emacs-corfu-terminal.git"))
-  :config
-  (unless (display-graphic-p)
-    (corfu-terminal-mode +1)))
+  :after popon)
 #+end_src
 
 
@@ -1364,14 +1344,15 @@
 ** pdf-tools
 #+begin_src emacs-lisp
 (quelpa '(pdf-tools
-           :fetcher github
-           :repo "dalanicolai/pdf-tools"
-           :branch "pdf-roll"
-           :files ("lisp/*.el"
-                         "README"
-                         ("build" "Makefile")
-                         ("build" "server")
-                         (:exclude "lisp/tablist.el" "lisp/tablist-filter.el"))))
+          :fetcher github
+          :repo "dalanicolai/pdf-tools"
+          :branch "pdf-roll"
+          :files ("lisp/*.el"
+                  "README"
+                  ("build" "Makefile")
+                  ("build" "server")
+                  (:exclude "lisp/tablist.el" "lisp/tablist-filter.el"))))
+
 
 (use-package pdf-tools
   :ensure nil
@@ -1379,12 +1360,13 @@
   (pdf-tools-install))
 #+end_src
 
+
 ** image-roll
 #+begin_src emacs-lisp
-(use-package image-roll
-  :quelpa  (image-roll
+(quelpa '(image-roll
             :fetcher github
             :repo "dalanicolai/image-roll.el"))
+;; (use-package image-roll)
 #+end_src
 
 ** org-noter
@@ -1408,7 +1390,7 @@
 
 (use-package org-pdftools
   :ensure nil
-  :after quelpa quelpa-use-package pdf-tools
+  :after pdf-tools
   :hook (org-mode . org-pdftools-setup-link))
 
 (quelpa '(org-noter-pdftools
@@ -1417,7 +1399,7 @@
 
 (use-package org-noter-pdftools
   :ensure nil
-  :after quelpa quelpa-use-package org-pdftools org-noter
+  :after org-pdftools
   :bind
   (:map org-noter-notes-mode-map
         ("C-." . #'org-noter-pdftools-activate-org-note)
