@@ -78,6 +78,7 @@
 (setq use-dialog-box nil)
 
 (recentf-mode t)
+(setq recentf-max-saved-items nil)
 
 (setq-default indent-tabs-mode nil)
 (setq electric-indent-mode nil)
