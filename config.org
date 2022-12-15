@@ -59,6 +59,14 @@
 * emacs
 #+begin_src elisp
 (use-package emacs)
+(setq-default c-basic-offset 'set-from-style)
+(setq c-default-style '(
+                        (c-mode . "linux")
+                        (cc-mode . "linux")
+                        (java-mode . "java")
+                        (awk-mode . "awk")
+                        (python-mode . "python")
+                        (others . "gnu")))
 #+end_src
 
 * handy
