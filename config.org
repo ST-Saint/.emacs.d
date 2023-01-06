@@ -51,13 +51,13 @@
 #+end_src
 
 ** quelpa
-#+begin_src elisp
+#+begin_src emacs-lisp
 (use-package quelpa)
 #+end_src
 
 
 * emacs
-#+begin_src elisp
+#+begin_src emacs-lisp
 (use-package emacs)
 (setq-default c-basic-offset 'set-from-style)
 (setq c-default-style '(
@@ -1064,7 +1064,7 @@
 
 ** template
 + [ ] maybe yasnippet
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle :no
 (use-package tempel
   ;; Require trigger prefix before template name when completing.
   :custom
@@ -1217,28 +1217,6 @@
 * language
 
 ** english
-#+begin_src elisp
-;; (use-package languagetool
-;;   :commands (languagetool-check
-;;              languagetool-clear-suggestions
-;;              languagetool-correct-at-point
-;;              languagetool-correct-buffer
-;;              languagetool-set-language
-;;              languagetool-server-mode
-;;              languagetool-server-start
-;;              languagetool-server-stop)
-;;   :config
-;;   (setq languagetool-java-arguments '("-Dfile.encoding=UTF-8")
-;;         languagetool-console-command "~/.languagetool/languagetool-commandline.jar"
-;;         languagetool-server-command "~/.languagetool/languagetool-server.jar"))
-#+end_src
-
-#+begin_src emacs-lisp
-;; (use-package langtool
-;;   :config
-;;   (setq langtool-language-tool-jar "~/.languagetool/languagetool-commandline.jar")
-;;   (setq langtool-language-tool-server-jar "~/.languagetool/languagetool-server.jar"))
-#+end_src
 
 ** lsp
 #+begin_src emacs-lisp
@@ -1605,9 +1583,4 @@
 (use-package command-log-mode
   :custom
   (command-log-mode-key-binding-open-log nil))
-#+end_src
-
-** DAP
-#+begin_src elisp
-(use-package dap-mode)
 #+end_src
