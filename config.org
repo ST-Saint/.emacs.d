@@ -745,7 +745,6 @@
 
 ** emacs-completion
 #+begin_src emacs-lisp
-
 ;; A few more useful configurations...
 (use-package emacs
   :init
@@ -950,100 +949,84 @@
 ** corfu
 
 #+begin_src emacs-lisp
-(use-package corfu
-  :custom
-  ;; (corfu-cycle t)                ;; Enable cycling for `corfu-next/previous'
-  (corfu-auto t)                 ;; Enable auto completion
-  ;; (corfu-separator ?`)          ;; Orderless field separator
-  ;; (corfu-quit-at-boundary nil)   ;; Never quit at completion boundary
-  ;; (corfu-quit-no-match nil)      ;; Never quit, even if there is no match
-  ;; (corfu-preview-current nil)    ;; Disable current candidate preview
-  (corfu-preselect-first t)    ;; Disable candidate preselection
-  ;; (corfu-on-exact-match nil)     ;; Configure handling of exact matches
-  ;; (corfu-echo-documentation nil) ;; Disable documentation in the echo area
-  (corfu-auto-delay 0.5)
-  (corfu-scroll-margin 5)        ;; Use scroll margin
+  (use-package corfu
+    :custom
+    ;; (corfu-cycle t)                ;; Enable cycling for `corfu-next/previous'
+    (corfu-auto t)                 ;; Enable auto completion
+    ;; (corfu-separator ?`)          ;; Orderless field separator
+    ;; (corfu-quit-at-boundary nil)   ;; Never quit at completion boundary
+    ;; (corfu-quit-no-match nil)      ;; Never quit, even if there is no match
+    ;; (corfu-preview-current nil)    ;; Disable current candidate preview
+    (corfu-preselect-first t)    ;; Disable candidate preselection
+    ;; (corfu-on-exact-match nil)     ;; Configure handling of exact matches
+    ;; (corfu-echo-documentation nil) ;; Disable documentation in the echo area
+    (corfu-auto-delay 0.5)
+    (corfu-scroll-margin 5)        ;; Use scroll margin
 
-  :bind
-  (:map corfu-map
-        ("M-SPC" . corfu-insert-separator)
-        ("TAB" . corfu-next)
-        ([tab] . corfu-next)
-        ("S-TAB" . corfu-previous)
-        ([backtab] . corfu-previous))
+    :bind
+    (:map corfu-map
+          ("M-SPC" . corfu-insert-separator)
+          ("TAB" . corfu-next)
+          ([tab] . corfu-next)
+          ("S-TAB" . corfu-previous)
+          ([backtab] . corfu-previous))
 
-  :init
-  (global-corfu-mode))
+    :init
+    (global-corfu-mode))
 
-;; FIXME don't know
-(use-package corfu-info
-  :ensure nil)
+  ;; FIXME don't know
+  (use-package corfu-info
+    :ensure nil)
 
-(use-package cape
-  ;; :bind (("C-c p p" . completion-at-point) ;; capf
-  ;;  ("C-c p t" . complete-tag)        ;; etags
-  ;;  ("C-c p d" . cape-dabbrev)        ;; or dabbrev-completion
-  ;;  ("C-c p h" . cape-history)
-  ;;  ("C-c p f" . cape-file)
-  ;;  ("C-c p k" . cape-keyword)
-  ;;  ("C-c p s" . cape-symbol)
-  ;;  ("C-c p a" . cape-abbrev)
-  ;;  ("C-c p i" . cape-ispell)
-  ;;  ("C-c p l" . cape-line)
-  ;;  ("C-c p w" . cape-dict)
-  ;;  ("C-c p \\" . cape-tex)
-  ;;  ("C-c p _" . cape-tex)
-  ;;  ("C-c p ^" . cape-tex)
-  ;;  ("C-c p &" . cape-sgml)
-  ;;  ("C-c p r" . cape-rfc1345)
-  ;;  )
-  :init
-  ;; Add `completion-at-point-functions', used by `completion-at-point'.
-  (add-to-list 'completion-at-point-functions #'cape-dabbrev)
-  (add-to-list 'completion-at-point-functions #'cape-file)
-  (add-to-list 'completion-at-point-functions #'cape-history)
-  (add-to-list 'completion-at-point-functions #'cape-keyword)
-  (add-to-list 'completion-at-point-functions #'cape-abbrev)
-  (add-to-list 'completion-at-point-functions #'cape-ispell)
-  (add-to-list 'completion-at-point-functions #'cape-dict)
-  (add-to-list 'completion-at-point-functions #'cape-symbol)
-  ;; (add-to-list 'completion-at-point-functions #'cape-line)
-  ;;(add-to-list 'completion-at-point-functions #'cape-tex)
-  ;;(add-to-list 'completion-at-point-functions #'cape-sgml)
-  ;;(add-to-list 'completion-at-point-functions #'cape-rfc1345)
+  (use-package cape
+    :init
+    ;; Add `completion-at-point-functions', used by `completion-at-point'.
+    (add-to-list 'completion-at-point-functions #'cape-dabbrev)
+    (add-to-list 'completion-at-point-functions #'cape-file)
+    (add-to-list 'completion-at-point-functions #'cape-history)
+    (add-to-list 'completion-at-point-functions #'cape-keyword)
+    (add-to-list 'completion-at-point-functions #'cape-abbrev)
+    (add-to-list 'completion-at-point-functions #'cape-ispell)
+    (add-to-list 'completion-at-point-functions #'cape-dict)
+    (add-to-list 'completion-at-point-functions #'cape-symbol)
+    ;; (add-to-list 'completion-at-point-functions #'cape-line)
+    ;;(add-to-list 'completion-at-point-functions #'cape-tex)
+    ;;(add-to-list 'completion-at-point-functions #'cape-sgml)
+    ;;(add-to-list 'completion-at-point-functions #'cape-rfc1345)
 
-  ;; Cape provides the adapter `cape-company-to-capf' for Company backends.
-  ;; (setq-local completion-at-point-functions
-  ;;             (mapcar #'cape-company-to-capf
-  ;;                     (list #'company-files #'company-ispell #'company-dabbrev)))
-  )
+    ;; Cape provides the adapter `cape-company-to-capf' for Company backends.
+    ;; (setq-local completion-at-point-functions
+    ;;             (mapcar #'cape-company-to-capf
+    ;;                     (list #'company-files #'company-ispell #'company-dabbrev)))
+    :config
+    (setq-default cape-symbol-wrapper nil))
 
-(use-package corfu-doc
-  :hook
-  (corfu-mode. corfu-doc-mode)
-  :bind
-  (:map corfu-map
-        ;; corfu-next
-        ("M-p" . 'corfu-doc-scroll-down)
-        ;; corfu-previous
-        ("M-n" . 'corfu-doc-scroll-up)))
+  (use-package corfu-doc
+    :hook
+    (corfu-mode. corfu-doc-mode)
+    :bind
+    (:map corfu-map
+          ;; corfu-next
+          ("M-p" . 'corfu-doc-scroll-down)
+          ;; corfu-previous
+          ("M-n" . 'corfu-doc-scroll-up)))
 
-(use-package kind-icon
-  :after corfu
-  :custom
-  ;; to compute blended backgrounds correctly
-  (kind-icon-default-face 'corfu-default)
-  :config
-  (setq kind-icon-default-style
-        '(:padding -1 :stroke 0 :margin 0 :radius 0 :height 0.5 :scale 1))
-  (setq kind-icon-use-icons t)
-  (add-to-list 'corfu-margin-formatters #'kind-icon-margin-formatter))
-;; :config
-;; (add-hook 'my-completion-ui-mode-hook
-;;           (lambda ()
-;;             (setq completion-in-region-function
-;;                   (kind-icon-enhance-completion
-;;                    completion-in-region-function)))))
+  (use-package kind-icon
+    :after corfu
+    :custom
+    ;; to compute blended backgrounds correctly
+    (kind-icon-default-face 'corfu-default)
+    :config
+    (setq kind-icon-default-style
+          '(:padding -1 :stroke 0 :margin 0 :radius 0 :height 0.5 :scale 1))
+    (setq kind-icon-use-icons t)
+    (add-to-list 'corfu-margin-formatters #'kind-icon-margin-formatter))
+  ;; :config
+  ;; (add-hook 'my-completion-ui-mode-hook
+  ;;           (lambda ()
+  ;;             (setq completion-in-region-function
+  ;;                   (kind-icon-enhance-completion
+  ;;                    completion-in-region-function)))))
 #+end_src
 
 ***  corful-terminal
@@ -1108,44 +1091,43 @@
 
 * org
 #+begin_src emacs-lisp
-(use-package org
-  :bind
-  (:map org-mode-map
-        ("C-M-<return>" . org-insert-subheading))
+  (use-package org
+    :bind
+    (:map org-mode-map
+          ("C-M-<return>" . org-insert-subheading))
 
-  :init
-  (org-babel-do-load-languages
-   'org-babel-load-languages
-   '(
-     (emacs-lisp . t)
-     (org . t)
-     (shell . t)
-     (C . t)
-     ;; (latex . t)
-     (python . t)
-     (dot . t)
-     (awk . t)
-     ))
-  (if (display-graphic-p)
-    (setq org-startup-indented t))
-  (setq org-special-ctrl-a/e 'reversed)
-  (setq org-edit-src-content-indentation 0)
-  (setq org-cycle-separator-lines 1)
-  (setq org-return-follows-link t)
-  (setq org-src-window-setup 'current-window)
-  (setq org-confirm-babel-evaluate nil)
-  (setq org-insert-heading-respect-content t)
-  (setq org-log-done t)
-  (setq org-imenu-depth 4)
+    :init
+    (org-babel-do-load-languages
+     'org-babel-load-languages
+     '(
+       (emacs-lisp . t)
+       (org . t)
+       (shell . t)
+       (C . t)
+       ;; (latex . t)
+       (python . t)
+       (dot . t)
+       (awk . t)
+       ))
+    (if (display-graphic-p)
+        (setq org-startup-indented t))
+    (setq org-special-ctrl-a/e 'reversed)
+    (setq org-edit-src-content-indentation 0)
+    (setq org-cycle-separator-lines 1)
+    (setq org-return-follows-link t)
+    (setq org-src-window-setup 'current-window)
+    (setq org-confirm-babel-evaluate nil)
+    (setq org-insert-heading-respect-content t)
+    (setq org-log-done t)
+    (setq org-imenu-depth 4)
 
-  (setq org-list-demote-modify-bullet
-        '(("+" . "-") ("-" . "+") ("*" . "+")))
-  (setq org-ellipsis " ר")
+    (setq org-list-demote-modify-bullet
+          '(("+" . "-") ("-" . "+") ("*" . "+")))
+    (setq org-ellipsis " ר")
 
-  (setq org-directory "/home/yayu/org/")
-  (meow-leader-define-key
-   '("n L" . org-store-link))
-  )
+    (setq org-directory "/home/yayu/org/")
+    (meow-leader-define-key
+     '("n L" . org-store-link)))
 #+end_src
 
 ** org-reveal
@@ -1226,7 +1208,29 @@
 ** english
 
 ** lsp
+
 #+begin_src emacs-lisp
+(use-package lsp-bridge
+  :hook
+  (lsp-bridge-mode . (lambda () (corfu-mode -1)))
+  :quelpa (lsp-bridge
+           :fetcher github
+           :repo "manateelazycat/lsp-bridge"
+           :files ("*.el" "*.py" "*.json"
+                   ("acm" "acm/*")
+                   ("core" "core/*") ("langserver" "langserver/*")))
+
+  :config
+  (setq lsp-bridge-enable-log t)
+  (meow-leader-define-key
+   '("c l d" . lsp-bridge-find-def)
+   '("c l r" . lsp-bridge-find-references)
+   '("c l s" . lsp-bridge-mode)
+   '("c l q" . lsp-bridge-kill-process)
+   '("c l R" . lsp-bridge-restart-process)))
+#+end_src
+
+#+begin_src emacs-lisp :tangle no
 (use-package lsp-mode
   :custom
   (lsp-completion-provider :none) ;; we use Corfu!
@@ -1264,10 +1268,6 @@
   (lsp-completion-mode . lsp-mode-setup-completion))
 #+end_src
 
-*** consult-lsp
-#+begin_src emacs-lisp
-(use-package consult-lsp)
-#+end_src
 
 ** elisp(emacs-lisp)
 #+begin_src emacs-lisp
@@ -1279,8 +1279,6 @@
 ** cc
 #+begin_src emacs-lisp
 (use-package cc-mode
-  :hook
-  (c-mode . lsp)
   :config
   (setq lsp-clients-clangd-args
         '("-j=3"
@@ -1312,7 +1310,7 @@
 
 ** java
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
 (use-package lsp-java
   :config
   (add-hook 'java-mode-hook #'lsp)
@@ -1347,7 +1345,6 @@
                   ("build" "server")
                   (:exclude "lisp/tablist.el" "lisp/tablist-filter.el"))))
 
-
 (use-package pdf-tools
   :ensure nil
   :config
@@ -1377,7 +1374,6 @@
 
 ** org-pdftools
 #+begin_src emacs-lisp
-
 (quelpa '(org-pdftools
             :fetcher github
             :repo "ST-Saint/org-pdftools"))
