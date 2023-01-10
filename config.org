@@ -11,7 +11,6 @@
 ;; (setq user-emacs-directory "/home/meow/.emacs.d")
 (setq custom-file (concat (file-name-as-directory user-emacs-directory) "custom.el"))
 
-
 ;; Automatically tangle our Emacs.org config file when we save it
 (defun org-babel-tangle-config ()
   (when (string-equal (buffer-file-name) (concat (file-truename user-emacs-directory) "config.org"))
@@ -53,6 +52,8 @@
 ** quelpa
 #+begin_src emacs-lisp
 (use-package quelpa)
+
+(use-package quelpa-use-package)
 #+end_src
 
 
@@ -793,9 +794,7 @@
 
 #+begin_src emacs-lisp
 (use-package consult
-  :hook (completion-list-mode . consult-preview-at-point-mode)
   :init
-
   ;; Optionally configure the register formatting. This improves the register
   ;; preview for `consult-register', `consult-register-load',
   ;; `consult-register-store' and the Emacs built-ins.
@@ -812,8 +811,10 @@
 
   ;; Configure other variables and modes in the :config section,
   ;; after lazily loading the package.
+
   :config
 
+  (add-hook 'completion-list-mode-hook 'consult-preview-at-point-mode)
   ;; Optionally configure preview. The default value
   ;; is 'any, such that any key triggers the preview.
   (setq consult-preview-key 'any)
@@ -850,8 +851,6 @@
   ;; (setq consult-project-function (lambda (_) (vc-root-dir)))
   ;; 4. locate-dominating-file
   ;; (setq consult-project-function (lambda (_) (locate-dominating-file "." ".git")))
-
-  (add-hook 'consult-after-jump-hookd (lambda () (progn (set-mark-command nil) (deactivate-mark))))
 
   (defun consult-ripgrep-at-point ()
     (interactive)
@@ -1451,6 +1450,7 @@
 
 (use-package mu4e
   :ensure nil
+  :load-path "/usr/share/emacs/site-lisp/mu4e/"
   :after pinentry
   :config
   (setq mu4e-get-mail-command "mbsync -a")
