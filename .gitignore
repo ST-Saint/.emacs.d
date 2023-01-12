@@ -11,6 +11,10 @@
 *.~undo-tree
 undo-fu-session/
 
+# Cache
+.cache/
+
 elpa/
 quelpa/
 workspace/
+eln-cache

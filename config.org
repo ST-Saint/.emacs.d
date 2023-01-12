@@ -92,7 +92,7 @@
 (setq-default indent-tabs-mode nil)
 (setq electric-indent-mode nil)
 
-(unless (display-graphic-p)
+(if (display-graphic-p)
     (server-start))
 
 (use-package helpful
@@ -442,12 +442,13 @@
 #+begin_src emacs-lisp
 (use-package hl-todo
   :config
-   (setq hl-todo-keyword-faces
-         '(("TODO"   . "#43cd80") ;;  2e8b57 00ee00 32cd32
-           ("FIXME"  . "#FF4444")
-           ("DEBUG"  . "#A020F0")
-           ("GOTCHA" . "#FF4500")
-           ("STUB"   . "#1E90FF"))))
+  (setq hl-todo-keyword-faces
+        '(("TODO"   . "#43cd80") ;;  2e8b57 00ee00 32cd32
+          ("FIXME"  . "#FF4444")
+          ("DEBUG"  . "#A020F0")
+          ("HOLD"   . "#FFD700")
+          ("STUB"   . "#1E90FF")))
+  (global-hl-todo-mode))
 #+end_src
 
 *** beacon
@@ -506,6 +507,7 @@
 #+end_src
 
 * magit
+
 #+begin_src emacs-lisp
 (use-package magit
   :init
@@ -514,14 +516,18 @@
   (meow-leader-define-key
    '("g g" . magit)))
 
+; TODO(magit-todo): shortcut
 (use-package magit-todos
   :config
   (define-key magit-todos-section-map (kbd "j T") nil)
   (define-key magit-todos-section-map (kbd "j l") nil)
+  (setq magit-todos-keywords-list '("TODO" "FIXME" "DEBUG" "HOLD" "STUB"))
   (setq magit-todos-section-map nil)
   (setq magit-todos-list-map nil)
-  (setq magit-todos-item-section-map nil)
-  (magit-todos-mode))
+  ;; FIXME: rg not working
+  (setq magit-todos-scanner 'magit-todos--scan-with-git-grep)
+  ;; (setq magit-todos-keyword-suffix "\\(?:([^)]+)\\)?:")
+  (setq magit-todos-item-section-map nil))
 #+end_src
 
 * project
@@ -1120,6 +1126,7 @@
     (setq org-insert-heading-respect-content t)
     (setq org-log-done t)
     (setq org-imenu-depth 4)
+    (setq org-src-tab-acts-natively nil)
 
     (setq org-list-demote-modify-bullet
           '(("+" . "-") ("-" . "+") ("*" . "+")))
@@ -1146,6 +1153,11 @@
   (setq org-reveal-center 't)
   (setq org-reveal-progress 't)
   (setq org-reveal-history nil))
+#+end_src
+
+** ox-spectable
+#+begin_src emacs-lisp
+(use-package ox-spectacle)
 #+end_src
 
 ** org-roam
@@ -1300,12 +1312,13 @@
 *** gtags
 
 #+begin_src emacs-lisp
-(use-package ggtags
-  :config
-  (add-hook 'c-mode-common-hook
-            (lambda ()
-              (when (derived-mode-p 'c-mode 'c++-mode)
-                (ggtags-mode 1)))))
+  (use-package ggtags
+    :config
+    (bind-key  "C-g" #'ggtags-navigation-mode-abort 'ggtags-navigation-map)
+    (add-hook 'c-mode-common-hook
+              (lambda ()
+                (when (derived-mode-p 'c-mode 'c++-mode)
+                  (ggtags-mode 1)))))
 #+end_src
 
 ** java
@@ -1411,12 +1424,16 @@
 #+end_src
 
 * shell
+
+#+begin_src emacs-lisp
+(setq sh-shell "/bin/bash")
+#+end_src
+
 ** vterm
 #+begin_src emacs-lisp
 (use-package vterm
   :config
-  (setq shell-file-name "/bin/bash")
-  (setq vterm-shell "/usr/bin/zsh")
+  (setq vterm-shell "/bin/bash")
 
   (setq vterm-max-scrollback 65536)
   (meow-leader-define-key
