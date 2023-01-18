@@ -165,8 +165,6 @@
   :after meow
   :config
   (meow-normal-define-key
-   '("M-<up>" . drag-stuff-up)
-   '("M-<down>" . drag-stuff-down)
    '("M-p" . drag-stuff-up)
    '("M-n" . drag-stuff-down))
   (drag-stuff-global-mode t))
@@ -223,7 +221,8 @@
                        ("f p" open-config-file)
                        ("f f" find-file)
                        ("f y" copy-file-name)
-                       ("f d " delete-current-file)
+                       ("f R" rename-visited-file)
+                       ("f D" delete-current-file)
                        ("f U" open-current-file-as-root)
                        ("`" meow-last-buffer)))
       (let ((key (car keybind))
@@ -1126,6 +1125,7 @@
     (setq org-insert-heading-respect-content t)
     (setq org-log-done t)
     (setq org-imenu-depth 4)
+    ;; FIXME: snippet error in org-mode
     (setq org-src-tab-acts-natively nil)
 
     (setq org-list-demote-modify-bullet
@@ -1561,11 +1561,7 @@
 
   (meow-leader-define-key
    '("o m" . (lambda () (interactive) (persp-switch "mu4e") (mu4e))))
-
-  (if (display-graphic-p)
-      (progn
-        (pinentry-start)
-        (mu4e 't))))
+  )
 #+end_src
 ** org-msg
 #+begin_src emacs-lisp
