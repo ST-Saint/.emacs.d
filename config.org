@@ -51,7 +51,11 @@
 
 ** quelpa
 #+begin_src emacs-lisp
-(use-package quelpa)
+(use-package quelpa
+  :config
+  (setq quelpa-upgrade-p nil
+        quelpa-self-upgrade-p nil
+        quelpa-update-melpa-p nil))
 
 (use-package quelpa-use-package)
 #+end_src
@@ -59,7 +63,11 @@
 
 * emacs
 #+begin_src emacs-lisp
-(use-package emacs)
+(use-package benchmark-init
+  :config
+  (add-hook 'after-init-hook 'benchmark-init/deactivate))
+
+(setq auth-sources '("~/.authinfo.gpg"))
 (setq-default c-basic-offset 'set-from-style)
 (setq c-default-style '(
                         (c-mode . "linux")
@@ -131,7 +139,13 @@
   :after meow
   :config
   (meow-leader-define-key
+   '("q q" . save-buffers-kill-emacs)
+   '("q r" . restart-emacs)
    '("r r" . restart-emacs)))
+
+(defun date-time()
+  (interactive)
+  (insert (format-time-string "%a %b %d %H:%M:%S %Z %Y")))
 
 (use-package which-function-mode
   :ensure nil
@@ -509,24 +523,29 @@
 
 #+begin_src emacs-lisp
 (use-package magit
+  :defer t
   :init
   (setq ediff-window-setup-function 'ediff-setup-windows-plain)
   :config
   (meow-leader-define-key
    '("g g" . magit)))
 
+#+end_src
+
+** magit-todos
+#+begin_src emacs-lisp
 ; TODO(magit-todo): shortcut
 (use-package magit-todos
   :config
-  (define-key magit-todos-section-map (kbd "j T") nil)
-  (define-key magit-todos-section-map (kbd "j l") nil)
   (setq magit-todos-keywords-list '("TODO" "FIXME" "DEBUG" "HOLD" "STUB"))
   (setq magit-todos-section-map nil)
-  (setq magit-todos-list-map nil)
-  ;; FIXME: rg not working
-  (setq magit-todos-scanner 'magit-todos--scan-with-git-grep)
-  ;; (setq magit-todos-keyword-suffix "\\(?:([^)]+)\\)?:")
-  (setq magit-todos-item-section-map nil))
+  ;; (setq magit-todos-item-section-map nil)
+  ;; (setq magit-todos-list-map nil)
+  (keymap-unset magit-todos-item-section-map "j T" t)
+  (keymap-unset magit-todos-item-section-map "j l" t)
+  (meow-leader-define-key
+   '("p T" . magit-todos-list))
+   (magit-todos-mode t))
 #+end_src
 
 * project
@@ -1088,53 +1107,55 @@
 ** yasnippet
 #+begin_src emacs-lisp
 (use-package yasnippet
+  :defer t
   :config
-  (yas-global-mode 1))
+  (add-hook 'text-mode-hook #'yas-minor-mode))
 
-(use-package yasnippet-snippets)
+(use-package yasnippet-snippets
+  :after yasnippet)
 #+end_src
 
 * org
 #+begin_src emacs-lisp
-  (use-package org
-    :bind
-    (:map org-mode-map
-          ("C-M-<return>" . org-insert-subheading))
+(use-package org
+  :bind
+  (:map org-mode-map
+        ("C-M-<return>" . org-insert-subheading))
 
-    :init
-    (org-babel-do-load-languages
-     'org-babel-load-languages
-     '(
-       (emacs-lisp . t)
-       (org . t)
-       (shell . t)
-       (C . t)
-       ;; (latex . t)
-       (python . t)
-       (dot . t)
-       (awk . t)
-       ))
-    (if (display-graphic-p)
-        (setq org-startup-indented t))
-    (setq org-special-ctrl-a/e 'reversed)
-    (setq org-edit-src-content-indentation 0)
-    (setq org-cycle-separator-lines 1)
-    (setq org-return-follows-link t)
-    (setq org-src-window-setup 'current-window)
-    (setq org-confirm-babel-evaluate nil)
-    (setq org-insert-heading-respect-content t)
-    (setq org-log-done t)
-    (setq org-imenu-depth 4)
-    ;; FIXME: snippet error in org-mode
-    (setq org-src-tab-acts-natively nil)
+  :init
+  (org-babel-do-load-languages
+   'org-babel-load-languages
+   '(
+     (emacs-lisp . t)
+     (org . t)
+     (shell . t)
+     (C . t)
+     (latex . t)
+     (python . t)
+     (dot . t)
+     (awk . t)
+     ))
+  (if (display-graphic-p)
+      (setq org-startup-indented t))
+  (setq org-special-ctrl-a/e 'reversed)
+  (setq org-edit-src-content-indentation 0)
+  (setq org-cycle-separator-lines 1)
+  (setq org-return-follows-link t)
+  (setq org-src-window-setup 'current-window)
+  (setq org-confirm-babel-evaluate nil)
+  (setq org-insert-heading-respect-content t)
+  (setq org-log-done t)
+  (setq org-imenu-depth 4)
+  ;; FIXME: snippet error in org-mode
+  (setq org-src-tab-acts-natively nil)
 
-    (setq org-list-demote-modify-bullet
-          '(("+" . "-") ("-" . "+") ("*" . "+")))
-    (setq org-ellipsis " ר")
+  (setq org-list-demote-modify-bullet
+        '(("+" . "-") ("-" . "+") ("*" . "+")))
+  (setq org-ellipsis " ר")
 
-    (setq org-directory "/home/yayu/org/")
-    (meow-leader-define-key
-     '("n L" . org-store-link)))
+  (setq org-directory "/home/yayu/org/")
+  (meow-leader-define-key
+   '("n L" . org-store-link)))
 #+end_src
 
 ** org-reveal
@@ -1225,6 +1246,9 @@
 (use-package lsp-bridge
   :hook
   (lsp-bridge-mode . (lambda () (corfu-mode -1)))
+  (c-mode . lsp-bridge-mode)
+  (java-mode . lsp-bridge-mode)
+  (python-mode . lsp-bridge-mode)
   :quelpa (lsp-bridge
            :fetcher github
            :repo "manateelazycat/lsp-bridge"
@@ -1360,6 +1384,7 @@
 
 (use-package pdf-tools
   :ensure nil
+  :defer t
   :config
   (pdf-tools-install))
 #+end_src
@@ -1433,7 +1458,7 @@
 #+begin_src emacs-lisp
 (use-package vterm
   :config
-  (setq vterm-shell "/bin/bash")
+  (setq vterm-shell "/bin/zsh")
 
   (setq vterm-max-scrollback 65536)
   (meow-leader-define-key
@@ -1463,6 +1488,7 @@
 
 (use-package mu4e
   :ensure nil
+  :defer t
   :load-path "/usr/share/emacs/site-lisp/mu4e/"
   :after pinentry
   :config
