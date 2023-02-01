@@ -371,6 +371,9 @@
 (global-display-line-numbers-mode t)
 (setq display-line-numbers-type 'relative)
 
+(add-hook 'org-mode-hook #'visual-line-mode)
+(add-hook 'prog-mode-hook #'visual-line-mode)
+
 ;; disable line numbers for some modes
 (dolist (mode '(term-mode-hook
                 vterm-mode-hook
@@ -543,6 +546,8 @@
   ;; (setq magit-todos-list-map nil)
   (keymap-unset magit-todos-item-section-map "j T" t)
   (keymap-unset magit-todos-item-section-map "j l" t)
+  (keymap-unset magit-todos-item-section-map "j" t)
+  (keymap-unset magit-todos-item-section-map "j" t)
   (meow-leader-define-key
    '("p T" . magit-todos-list))
    (magit-todos-mode t))
@@ -1109,7 +1114,8 @@
 (use-package yasnippet
   :defer t
   :config
-  (add-hook 'text-mode-hook #'yas-minor-mode))
+  (add-hook 'prog-mode-hook #'yas-minor-mode)
+  (add-hook 'org-mode-hook #'yas-minor-mode))
 
 (use-package yasnippet-snippets
   :after yasnippet)
@@ -1365,6 +1371,14 @@
   (advice-add 'lsp :before (lambda (&rest _args) (eval '(setf (lsp-session-server-id->folders (lsp-session)) (ht)))))
   (setq lsp-java-vmargs '("-XX:+UseParallelGC" "-XX:GCTimeRatio=4" "-XX:AdaptiveSizePolicyWeight=90" "-Xmx8G" "-Xms1024m"))
   )
+#+end_src
+
+** latex
+#+begin_src emacs-lisp
+(use-package magic-latex-buffer
+  :config
+  (setq org-format-latex-options (plist-put org-format-latex-options :scale 2.0))
+  (add-hook 'latex-mode-hook 'magic-latex-buffer))
 #+end_src
 
 
