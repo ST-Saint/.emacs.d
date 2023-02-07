@@ -67,7 +67,8 @@
   :config
   (add-hook 'after-init-hook 'benchmark-init/deactivate))
 
-(setq byte-compile-warnings nil)
+(setq byte-compile-warnings nil
+      native-comp-async-report-warnings-errors nil)
 (setq auth-sources '("~/.authinfo.gpg"))
 (setq-default c-basic-offset 'set-from-style)
 (setq c-default-style '(
@@ -460,11 +461,15 @@
   :config
   (setq hl-todo-keyword-faces
         '(("TODO"   . "#43cd80") ;;  2e8b57 00ee00 32cd32
+          ("PROG"   . "#44CCCC")
           ("FIXME"  . "#FF4444")
-          ("DEBUG"  . "#A020F0")
+          ("REVIEW" . "#A020F0")
           ("HOLD"   . "#FFD700")
-          ("STUB"   . "#1E90FF")))
-  (global-hl-todo-mode))
+          ("NOTE"   . "#1E90FF")
+          ("FAIL"   . "#EE6666")
+          ("DONE"   . "#808080"))) ;;
+  (add-hook 'org-mode-hook #'hl-todo-mode)
+  (global-hl-todo-mode t))
 #+end_src
 
 *** beacon
@@ -537,10 +542,8 @@
 
 ** magit-todos
 #+begin_src emacs-lisp
-; TODO(magit-todo): shortcut
 (use-package magit-todos
   :config
-  (setq magit-todos-keywords-list '("TODO" "FIXME" "DEBUG" "HOLD" "STUB"))
   (setq magit-todos-section-map nil)
   ;; (setq magit-todos-item-section-map nil)
   ;; (setq magit-todos-list-map nil)
@@ -1143,21 +1146,23 @@
      ))
   (if (display-graphic-p)
       (setq org-startup-indented t))
-  (setq org-special-ctrl-a/e 'reversed)
-  (setq org-edit-src-content-indentation 0)
-  (setq org-cycle-separator-lines 1)
-  (setq org-return-follows-link t)
-  (setq org-src-window-setup 'current-window)
-  (setq org-confirm-babel-evaluate nil)
-  (setq org-insert-heading-respect-content t)
-  (setq org-log-done t)
-  (setq org-imenu-depth 4)
+  (setq org-special-ctrl-a/e 'reversed
+        org-edit-src-content-indentation 0
+        org-cycle-separator-lines 1
+        org-return-follows-link t
+        org-src-window-setup 'current-window
+        org-confirm-babel-evaluate nil
+        org-insert-heading-respect-content t
+        org-log-done t
+        org-imenu-depth 4
+        org-list-allow-alphabetical t)
   ;; FIXME: snippet error in org-mode
   (setq org-src-tab-acts-natively nil)
 
 
+  (setq org-todo-keywords '((sequence "TODO" "PROG" "FIXME" "REVIEW" "HOLD" "NOTE" "|" "FAIL" "DONE" )))
   (setq org-list-demote-modify-bullet
-        '(("+" . "-") ("-" . "+") ("*" . "+")))
+        '(("+" . "-") ("-" . "-") ("*" . "-")))
   (setq org-ellipsis " ר")
   (setq org-directory "/home/yayu/org/")
 
@@ -1534,7 +1539,6 @@
 
 (use-package mu4e
   :ensure nil
-  :defer t
   :load-path "/usr/share/emacs/site-lisp/mu4e/"
   :after pinentry
   :config

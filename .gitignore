@@ -21,3 +21,4 @@ eln-cache
 
 init.el
 flycheck*.el
+\#*\#
