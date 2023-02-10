@@ -1150,6 +1150,7 @@
      ))
   (if (display-graphic-p)
       (setq org-startup-indented t))
+
   (setq org-special-ctrl-a/e 'reversed
         org-edit-src-content-indentation 0
         org-cycle-separator-lines 1
@@ -1159,7 +1160,11 @@
         org-insert-heading-respect-content t
         org-log-done t
         org-imenu-depth 4
-        org-list-allow-alphabetical t)
+        org-list-allow-alphabetical t
+        org-goto-interface 'outline-path-completionp
+        org-outline-path-complete-in-steps nil)
+
+
   ;; FIXME: snippet error in org-mode
   (setq org-src-tab-acts-natively nil)
 
@@ -1169,7 +1174,8 @@
         '(("+" . "-") ("-" . "-") ("*" . "-")))
   (setq org-ellipsis " ר")
   (setq org-directory "/home/yayu/org/")
-
+  ;; TODO replace imenu with org-goto
+  (define-key org-mode-map (kbd "C-c s i") #'org-goto)
   (setq org-format-latex-options (plist-put org-format-latex-options :scale 3.0))
 
   (meow-leader-define-key
@@ -1207,6 +1213,36 @@
   (setq org-roam-completion-everywhere t)
   (org-roam-db-autosync-mode))
 #+end_src
+
+** org-pomodoro
+#+begin_src emacs-lisp
+(use-package org-pomodoro
+  :config
+  (setq org-pomodoro-manual-break 't
+        org-pomodoro-audio-player "paplay"
+        org-pomodoro-start-sound-p 't
+        org-pomodoro-ticking-sound-p 't
+        org-pomodoro-overtime-sound-p 't
+        org-pomodoro-bell-sound "~/org/ping-bing.wav"
+        org-pomodoro-ticking-sound "~/org/rain.wav"
+        org-pomodoro-ticking-frequency 15
+        org-pomodoro-ticking-sound-states '(:pomodoro :overtime)
+        org-pomodoro-start-sound org-pomodoro-bell-sound
+        org-pomodoro-finished-sound org-pomodoro-bell-sound
+        org-pomodoro-overtime-sound org-pomodoro-bell-sound
+        org-pomodoro-long-break-sound org-pomodoro-bell-sound
+        org-pomodoro-short-break-sound org-pomodoro-bell-sound
+        org-pomodoro-overtime-sound org-pomodoro-bell-sound
+        org-pomodoro-overtime-sound-args nil
+        org-pomodoro-start-sound-args nil
+        org-pomodoro-ticking-sound-args nil
+        org-pomodoro-finished-sound-args nil
+        org-pomodoro-long-break-sound-args nil
+        org-pomodoro-short-break-sound-args nil)
+  (meow-leader-define-key
+   '("n t p" . org-pomodoro)))
+#+end_src
+
 
 * code
 ** format
@@ -1392,6 +1428,12 @@
   (advice-add 'lsp :before (lambda (&rest _args) (eval '(setf (lsp-session-server-id->folders (lsp-session)) (ht)))))
   (setq lsp-java-vmargs '("-XX:+UseParallelGC" "-XX:GCTimeRatio=4" "-XX:AdaptiveSizePolicyWeight=90" "-Xmx8G" "-Xms1024m"))
   )
+#+end_src
+
+** Javascript/Typescript
+*** restclient
+#+begin_src emacs-lisp
+(use-package restclient)
 #+end_src
 
 ** latex
@@ -1685,5 +1727,7 @@
 #+begin_src emacs-lisp
 (use-package command-log-mode
   :custom
-  (command-log-mode-key-binding-open-log nil))
+  (command-log-mode-key-binding-open-log nil)
+  :config
+  (global-command-log-mode))
 #+end_src
