@@ -864,7 +864,8 @@
    consult-bookmark consult-recent-file
    consult--source-bookmark consult--source-recent-file
    consult--source-project-recent-file
-   :preview-key (kbd "M-."))
+   :preview-key '("M-."
+                  :debounce 1.0 "<up>" "<down>"))
 
   ;; Optionally configure the narrowing key.
   ;; Both < and C-+ work reasonably well. >
@@ -988,7 +989,7 @@
 (use-package corfu
   :custom
   ;; (corfu-cycle t)                ;; Enable cycling for `corfu-next/previous'
-  (corfu-auto t)                 ;; Enable auto completion
+  ;; (corfu-auto t)                 ;; Enable auto completion
   ;; (corfu-separator ?`)          ;; Orderless field separator
   ;; (corfu-quit-at-boundary nil)   ;; Never quit at completion boundary
   ;; (corfu-quit-no-match nil)      ;; Never quit, even if there is no match
