@@ -1172,9 +1172,14 @@
 
   (setq org-todo-keywords '((sequence "TODO" "PROG" "FIXME" "REVIEW" "HOLD" "NOTE" "|" "FAIL" "DONE" )))
   (setq org-list-demote-modify-bullet
-        '(("+" . "-") ("-" . "-") ("*" . "-")))
+        '(("+"  . "-")
+          ("-"  . "-")
+          ("*"  . "-")
+          ("1." . "1)")
+          ("1)" . "-")))
   (setq org-ellipsis " ר")
   (setq org-directory "/home/yayu/org/")
+  (setq org-agenda-files '("/home/yayu/org"))
   ;; TODO replace imenu with org-goto
   (define-key org-mode-map (kbd "C-c s i") #'org-goto)
   (setq org-format-latex-options (plist-put org-format-latex-options :scale 3.0))
