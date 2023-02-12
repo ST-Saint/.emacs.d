@@ -989,12 +989,12 @@
 (use-package corfu
   :custom
   ;; (corfu-cycle t)                ;; Enable cycling for `corfu-next/previous'
-  ;; (corfu-auto t)                 ;; Enable auto completion
-  ;; (corfu-separator ?`)          ;; Orderless field separator
+  (corfu-auto t)                    ;; Enable auto completion
+  ;; (corfu-separator ?`)           ;; Orderless field separator
   ;; (corfu-quit-at-boundary nil)   ;; Never quit at completion boundary
   ;; (corfu-quit-no-match nil)      ;; Never quit, even if there is no match
   ;; (corfu-preview-current nil)    ;; Disable current candidate preview
-  (corfu-preselect-first t)    ;; Disable candidate preselection
+  (corfu-preselect-first t)         ;; Disable candidate preselection
   ;; (corfu-on-exact-match nil)     ;; Configure handling of exact matches
   ;; (corfu-echo-documentation nil) ;; Disable documentation in the echo area
   (corfu-auto-delay 0.5)
@@ -1009,7 +1009,9 @@
         ([backtab] . corfu-previous))
 
   :init
-  (global-corfu-mode))
+  (global-corfu-mode)
+  :config
+  (add-hook 'eval-expression-minibuffer-setup-hook #'corfu-mode))
 
 ;; FIXME don't know
 (use-package corfu-info
@@ -1359,6 +1361,7 @@
   (setq acm-markdown-render-font-height 160)
   (setq acm-backend-lsp-candidate-max-length 200)
   (setq acm-backend-lsp-candidate-min-length 2)
+  (setq lsp-bridge-complete-manually nil)
 
   (meow-leader-define-key
    '("c l d" . lsp-bridge-find-def)
