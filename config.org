@@ -1130,62 +1130,95 @@
 
 * org
 #+begin_src emacs-lisp
-(use-package org
-  :defer t
-  :bind
-  (:map org-mode-map
-        ("C-M-<return>" . org-insert-subheading))
+  (use-package org
+    :defer t
+    :bind
+    (:map org-mode-map
+          ("C-M-<return>" . org-insert-subheading))
 
-  :init
-  (org-babel-do-load-languages
-   'org-babel-load-languages
-   '(
-     (emacs-lisp . t)
-     (org . t)
-     (shell . t)
-     (C . t)
-     (latex . t)
-     (python . t)
-     (dot . t)
-     (awk . t)
-     ))
-  (if (display-graphic-p)
-      (setq org-startup-indented t))
+    :init
+    (org-babel-do-load-languages
+     'org-babel-load-languages
+     '(
+       (emacs-lisp . t)
+       (org . t)
+       (shell . t)
+       (C . t)
+       (latex . t)
+       (python . t)
+       (dot . t)
+       (awk . t)
+       ))
+    (if (display-graphic-p)
+        (setq org-startup-indented t))
 
-  (setq org-special-ctrl-a/e 'reversed
-        org-edit-src-content-indentation 0
-        org-cycle-separator-lines 1
-        org-return-follows-link t
-        org-src-window-setup 'current-window
-        org-confirm-babel-evaluate nil
-        org-insert-heading-respect-content t
-        org-log-done t
-        org-imenu-depth 4
-        org-list-allow-alphabetical t
-        org-goto-interface 'outline-path-completionp
-        org-outline-path-complete-in-steps nil)
-
-
-  ;; FIXME: snippet error in org-mode
-  (setq org-src-tab-acts-natively nil)
+    (setq org-special-ctrl-a/e 'reversed
+          org-edit-src-content-indentation 0
+          org-cycle-separator-lines 1
+          org-return-follows-link t
+          org-src-window-setup 'current-window
+          org-confirm-babel-evaluate nil
+          org-insert-heading-respect-content t
+          org-log-done t
+          org-imenu-depth 4
+          org-list-allow-alphabetical t
+          org-goto-interface 'outline-path-completionp
+          org-outline-path-complete-in-steps nil)
 
 
-  (setq org-todo-keywords '((sequence "TODO" "PROG" "FIXME" "REVIEW" "HOLD" "NOTE" "|" "FAIL" "DONE" )))
-  (setq org-list-demote-modify-bullet
-        '(("+"  . "-")
-          ("-"  . "-")
-          ("*"  . "-")
-          ("1." . "1)")
-          ("1)" . "-")))
-  (setq org-ellipsis " ר")
-  (setq org-directory "/home/yayu/org/")
-  (setq org-agenda-files '("/home/yayu/org"))
-  ;; TODO replace imenu with org-goto
-  (define-key org-mode-map (kbd "C-c s i") #'org-goto)
-  (setq org-format-latex-options (plist-put org-format-latex-options :scale 3.0))
+    ;; FIXME: snippet error in org-mode
+    (setq org-src-tab-acts-natively nil)
 
-  (meow-leader-define-key
-   '("n L" . org-store-link)))
+
+    (setq org-todo-keywords '((sequence "TODO" "PROG" "FIXME" "REVIEW" "HOLD" "NOTE" "|" "FAIL" "DONE" )))
+    (setq org-list-demote-modify-bullet
+          '(("+"  . "-")
+            ("-"  . "-")
+            ("*"  . "-")
+            ("1." . "1)")
+            ("1)" . "-")))
+    (setq org-ellipsis " ר")
+    (setq org-directory "/home/yayu/org/")
+    (setq org-agenda-files '("/home/yayu/org"))
+    ;; TODO replace imenu with org-goto
+    (define-key org-mode-map (kbd "C-c s i") #'org-goto)
+    (setq org-format-latex-options (plist-put org-format-latex-options :scale 3.0))
+
+    (meow-leader-define-key
+     '("n L" . org-store-link)))
+
+  (use-package org-superstar
+    :config
+    (setq org-superstar-special-todo-items t)
+    (setq org-superstar-headline-bullets-list '(?◉))
+    (add-hook 'org-mode-hook (lambda () (org-superstar-mode 1))))
+
+  ;; (use-package org-modern
+  ;;   :config
+  ;;   (setq
+  ;;    ;; Edit settings
+  ;;    org-auto-align-tags nil
+  ;;    org-tags-column 0
+  ;;    org-catch-invisible-edits 'show-and-error
+  ;;    org-special-ctrl-a/e t
+  ;;    org-insert-heading-respect-content t
+
+  ;;    ;; Org styling, hide markup etc.
+  ;;    org-hide-emphasis-markers t
+  ;;    org-pretty-entities t
+
+  ;;    org-modern-star '("◉")
+
+  ;;    ;; Agenda styling
+  ;;    org-agenda-tags-column 0
+  ;;    org-agenda-block-separator ?─
+  ;;    org-agenda-time-grid
+  ;;    '((daily today require-timed)
+  ;;      (800 1000 1200 1400 1600 1800 2000)
+  ;;      " ┄┄┄┄┄ " "┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄")
+  ;;    org-agenda-current-time-string
+  ;;    "⭠ now ─────────────────────────────────────────────────")
+  ;;   (global-org-modern-mode))
 #+end_src
 
 ** org-reveal
