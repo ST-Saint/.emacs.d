@@ -426,8 +426,7 @@
   :init (load-theme 'doom-one t)
   :config
   (setq doom-modeline-project-detection 'project)
-  (setq doom-modeline-buffer-file-name-style 'truncate-with-project)
-  )
+  (setq doom-modeline-buffer-file-name-style 'truncate-with-project))
 #+end_src
 
 ** dashboard
@@ -444,10 +443,13 @@
   (setq dashboard-items '((recents  . 5)
                           (bookmarks . 5)
                           (projects . 5)
-                          (agenda . 5)
+                          (agenda . 10)
                           (registers . 5)))
-  (dashboard-setup-startup-hook)
-  )
+  (defun dashboard ()
+    (interactive)
+    (switch-to-buffer dashboard-buffer-name)
+    (delete-other-windows))
+  (dashboard-setup-startup-hook))
 #+end_src
 
 ** doom-modeline
@@ -1132,95 +1134,106 @@
 
 * org
 #+begin_src emacs-lisp
-  (use-package org
-    :defer t
-    :bind
-    (:map org-mode-map
-          ("C-M-<return>" . org-insert-subheading))
-
-    :init
-    (org-babel-do-load-languages
-     'org-babel-load-languages
-     '(
-       (emacs-lisp . t)
-       (org . t)
-       (shell . t)
-       (C . t)
-       (latex . t)
-       (python . t)
-       (dot . t)
-       (awk . t)
-       ))
-    (if (display-graphic-p)
-        (setq org-startup-indented t))
-
-    (setq org-special-ctrl-a/e 'reversed
-          org-edit-src-content-indentation 0
-          org-cycle-separator-lines 1
-          org-return-follows-link t
-          org-src-window-setup 'current-window
-          org-confirm-babel-evaluate nil
-          org-insert-heading-respect-content t
-          org-log-done t
-          org-imenu-depth 4
-          org-list-allow-alphabetical t
-          org-goto-interface 'outline-path-completionp
-          org-outline-path-complete-in-steps nil)
+(use-package org
+  :defer t
+  :bind
+  (:map org-mode-map
+        ("C-M-<return>" . org-insert-subheading))
 
 
-    ;; FIXME: snippet error in org-mode
-    (setq org-src-tab-acts-natively nil)
+  :init
+  (org-babel-do-load-languages
+   'org-babel-load-languages
+   '(
+     (emacs-lisp . t)
+     (org . t)
+     (shell . t)
+     (C . t)
+     (latex . t)
+     (python . t)
+     (dot . t)
+     (awk . t)
+     ))
+  (if (display-graphic-p)
+      (setq org-startup-indented t))
+
+  (setq org-special-ctrl-a/e t
+        org-edit-src-content-indentation 4
+        org-cycle-separator-lines 1
+        org-return-follows-link t
+        org-src-window-setup 'current-window
+        org-confirm-babel-evaluate nil
+        org-insert-heading-respect-content t
+        org-pretty-entities t
+        org-log-done t
+        org-imenu-depth 4
+        org-list-allow-alphabetical t
+        org-goto-interface 'outline-path-completionp
+        org-outline-path-complete-in-steps nil)
+
+  (dolist (face '(org-level-1
+                  org-level-2 org-level-3
+                  org-level-4 org-level-5
+                  org-level-6 org-level-7
+                  org-level-8))
+    (set-face-attribute face nil :height (+ (face-attribute 'default :height) 10)))
+
+  (setq org-agenda-tags-column 0
+        org-agenda-block-separator ?─
+        org-agenda-time-grid
+        '((daily today require-timed)
+          (800 1000 1200 1400 1600 1800 2000)
+          " ┄┄┄┄┄ " "┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄")
+        org-agenda-current-time-string
+        "⭠ now ─────────────────────────────────────────────────")
+
+  (set-face-attribute 'org-ellipsis nil :bold nil)
+
+  ;; FIXME: snippet error in org-mode
+  (setq org-src-tab-acts-natively nil)
 
 
-    (setq org-todo-keywords '((sequence "TODO" "PROG" "FIXME" "REVIEW" "HOLD" "NOTE" "|" "FAIL" "DONE" )))
-    (setq org-list-demote-modify-bullet
-          '(("+"  . "-")
-            ("-"  . "-")
-            ("*"  . "-")
-            ("1." . "1)")
-            ("1)" . "-")))
-    (setq org-ellipsis " ר")
-    (setq org-directory "/home/yayu/org/")
-    (setq org-agenda-files '("/home/yayu/org"))
-    ;; TODO replace imenu with org-goto
-    (define-key org-mode-map (kbd "C-c s i") #'org-goto)
-    (setq org-format-latex-options (plist-put org-format-latex-options :scale 3.0))
+  (setq org-todo-keywords '((sequence "TODO" "PROG" "FIXME" "REVIEW" "HOLD" "NOTE" "|" "FAIL" "DONE" )))
+  (setq org-list-demote-modify-bullet
+        '(("+"  . "-")
+          ("-"  . "-")
+          ("*"  . "-")
+          ("1." . "1)")
+          ("1)" . "-")))
+  (setq org-ellipsis " ר")
+  (setq org-directory "/home/yayu/org/")
+  (setq org-agenda-files '("/home/yayu/org"))
+  ;; TODO replace imenu with org-goto
+  (define-key org-mode-map (kbd "C-c s i") #'org-goto)
+  (setq org-format-latex-options (plist-put org-format-latex-options :scale 3.0))
 
-    (meow-leader-define-key
-     '("n L" . org-store-link)))
+  (meow-leader-define-key
+   '("n L" . org-store-link)))
+#+end_src
 
-  (use-package org-superstar
-    :config
-    (setq org-superstar-special-todo-items t)
-    (setq org-superstar-headline-bullets-list '(?◉))
-    (add-hook 'org-mode-hook (lambda () (org-superstar-mode 1))))
+** org-modern
+#+begin_src emacs-lisp
+    ;; (use-package org-superstar
+    ;;   :config
+    ;;   (setq org-superstar-special-todo-items t)
+    ;;   (setq org-superstar-headline-bullets-list '(?◉))
+    ;;   (add-hook 'org-mode-hook (lambda () (org-superstar-mode 1))))
 
-  ;; (use-package org-modern
-  ;;   :config
-  ;;   (setq
-  ;;    ;; Edit settings
-  ;;    org-auto-align-tags nil
-  ;;    org-tags-column 0
-  ;;    org-catch-invisible-edits 'show-and-error
-  ;;    org-special-ctrl-a/e t
-  ;;    org-insert-heading-respect-content t
+    (use-package org-modern
+      :config
+      (setq
+       ;; Edit settings
+       org-auto-align-tags nil
+       org-tags-column 0
+       org-catch-invisible-edits 'show-and-error
+       ;; Org styling, hide markup etc.
+       org-modern-block-name t
+       org-modern-star '("◉")
+       org-modern-list '((?+ . "▸")
+                         (?- . "–")
+                         (?* . "▸")))
 
-  ;;    ;; Org styling, hide markup etc.
-  ;;    org-hide-emphasis-markers t
-  ;;    org-pretty-entities t
-
-  ;;    org-modern-star '("◉")
-
-  ;;    ;; Agenda styling
-  ;;    org-agenda-tags-column 0
-  ;;    org-agenda-block-separator ?─
-  ;;    org-agenda-time-grid
-  ;;    '((daily today require-timed)
-  ;;      (800 1000 1200 1400 1600 1800 2000)
-  ;;      " ┄┄┄┄┄ " "┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄")
-  ;;    org-agenda-current-time-string
-  ;;    "⭠ now ─────────────────────────────────────────────────")
-  ;;   (global-org-modern-mode))
+      (global-org-modern-mode))
 #+end_src
 
 ** org-reveal
