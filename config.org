@@ -479,7 +479,7 @@
 #+end_src
 
 *** beacon
-+ FIXME keep flashing after consult
+
 #+begin_src emacs-lisp
 (use-package beacon
   :config
@@ -489,6 +489,7 @@
   (setq beacon-blink-when-window-scrolls nil)
   (beacon-mode nil))
 #+end_src
+**** FIXME keep flashing after consult
 
 *** rainbow-delimiters
 #+begin_src emacs-lisp
@@ -558,8 +559,7 @@
   (keymap-unset magit-todos-item-section-map "j" t)
   (keymap-unset magit-todos-item-section-map "j" t)
   (meow-leader-define-key
-   '("p T" . magit-todos-list))
-   (magit-todos-mode t))
+   '("p t" . magit-todos-list)))
 #+end_src
 
 * project
@@ -1171,13 +1171,6 @@
         org-goto-interface 'outline-path-completionp
         org-outline-path-complete-in-steps nil)
 
-  (dolist (face '(org-level-1
-                  org-level-2 org-level-3
-                  org-level-4 org-level-5
-                  org-level-6 org-level-7
-                  org-level-8))
-    (set-face-attribute face nil :height (+ (face-attribute 'default :height) 10)))
-
   (setq org-agenda-tags-column 0
         org-agenda-block-separator ?─
         org-agenda-time-grid
@@ -1190,7 +1183,7 @@
   (set-face-attribute 'org-agenda-current-time nil :bold t :foreground "#EEEEEE")
   (set-face-attribute 'org-ellipsis nil :bold nil)
 
-  ;; FIXME: snippet error in org-mode
+  ;; NOTE: snippet error in org-mode
   (setq org-src-tab-acts-natively nil)
 
 
