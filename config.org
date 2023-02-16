@@ -425,6 +425,8 @@
 (use-package doom-themes
   :init (load-theme 'doom-one t)
   :config
+
+  (set-face-attribute 'hl-line nil :inherit nil :background "gray8")
   (setq doom-modeline-project-detection 'project)
   (setq doom-modeline-buffer-file-name-style 'truncate-with-project))
 #+end_src
@@ -1192,14 +1194,20 @@
         '(("+"  . "-")
           ("-"  . "-")
           ("*"  . "-")
-          ("1." . "1)")
-          ("1)" . "-")))
+          ("1." . "A.")
+          ("A." . "a.")
+          ("1)" . "A)")
+          ("A)" . "a)")
+          ("1)" . "-")
+          ("a)" . "-")))
   (setq org-ellipsis " ר")
   (setq org-directory "/home/yayu/org/")
   (setq org-agenda-files '("/home/yayu/org"))
   ;; TODO replace imenu with org-goto
   (define-key org-mode-map (kbd "C-c s i") #'org-goto)
   (setq org-format-latex-options (plist-put org-format-latex-options :scale 3.0))
+
+  (add-hook 'org-mode-hook #'visual-fill-column-mode)
 
   (meow-leader-define-key
    '("n L" . org-store-link)))
