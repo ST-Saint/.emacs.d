@@ -1,4 +1,4 @@
-#+TITLE emacs config
+#+TITLE: emacs config
 #+STARTUP: content
 #+PROPERTY: header-args:emacs-lisp :tangle ~/.emacs.d/init.el :results none
 
@@ -259,7 +259,6 @@
      '("k" . "H-k")
      '("/" . meow-keypad-describe-key)
      '("?" . meow-cheatsheet)
-     '("<ESC>" . meow-normal-mode)
      '("<escape>" . meow-normal-mode))
 
     (meow-normal-define-key
@@ -369,7 +368,7 @@
 (tool-bar-mode -1)          ; disable the toolbar
 (tooltip-mode -1)           ; disable tooltips
 (menu-bar-mode -1)            ; disable the menu bar
-(global-display-line-numbers-mode t)
+
 (setq display-line-numbers-type 'relative)
 
 (add-hook 'org-mode-hook #'visual-line-mode)
@@ -560,6 +559,8 @@
   (keymap-unset magit-todos-item-section-map "j l" t)
   (keymap-unset magit-todos-item-section-map "j" t)
   (keymap-unset magit-todos-item-section-map "j" t)
+
+  ;; (magit-todos-mode t)
   (meow-leader-define-key
    '("p t" . magit-todos-list)))
 #+end_src
@@ -904,6 +905,7 @@
     (let ((symbol (buffer-substring-no-properties (region-beginning) (region-end))))
       (consult-line symbol)))
 
+  (global-set-key (kbd "M-g M-g") #'consult-goto-line)
   (meow-leader-define-key
    '("s s" . consult-line)
    '("s S" . consult-line-at-point)
