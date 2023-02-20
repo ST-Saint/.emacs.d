@@ -1155,6 +1155,7 @@
      (C . t)
      (latex . t)
      (python . t)
+     (js . t)
      (dot . t)
      (awk . t)
      ))
@@ -1182,7 +1183,7 @@
           (800 1000 1200 1400 1600 1800 2000)
           " ┄┄┄┄┄ " "┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄")
         org-agenda-current-time-string
-        " now  ─────────────────────────────────────────────────")
+        "  now ─────────────────────────────────────────────────")
 
   (set-face-attribute 'org-agenda-current-time nil :bold t :foreground "#EEEEEE")
   (set-face-attribute 'org-ellipsis nil :bold nil)
@@ -1239,6 +1240,33 @@
 
   (global-org-modern-mode))
 #+end_src
+
+** org-agenda
+#+begin_src emacs-lisp
+(defun org-todo-files()
+  (interactive)
+  (persp-switch "org")
+  (find-file org-directory)
+  (projectile-find-file))
+
+(defun org-todo-file()
+  (interactive)
+
+  (find-file (concat org-directory "todo.org")))
+
+(progn
+  (meow-leader-define-key
+   '("n a" . org-agenda)
+   '("n t" . org-todo-file)
+   '("n f" . org-todo-files)
+   ))
+
+
+(use-package org-super-agenda
+  ;; TODO: set up org-super-agenda-groups
+  )
+#+end_src
+
 
 ** org-reveal
 #+begin_src emacs-lisp
@@ -1298,7 +1326,33 @@
         org-pomodoro-long-break-sound-args nil
         org-pomodoro-short-break-sound-args nil)
   (meow-leader-define-key
-   '("n t p" . org-pomodoro)))
+   '("n p" . org-pomodoro)))
+#+end_src
+
+
+* calendar
+#+begin_src emacs-lisp
+(use-package calfw
+  :config
+  (use-package calfw-cal)
+  (use-package calfw-ical)
+  (use-package calfw-org)
+  (set-face-attribute 'cfw:face-toolbar nil :foreground "Steelblue4")
+
+  ;; (setq diary-file (concat org-directory "diary.org"))
+  (defun open-calendar ()
+    (interactive)
+    (cfw:open-calendar-buffer
+     :contents-sources
+     (list
+      (cfw:org-create-source "White")  ; orgmode source
+      ;; (cfw:howm-create-source "Blue")  ; howm source
+      ;; (cfw:cal-create-source "Orange") ; diary source
+      (cfw:ical-create-source "gcal" "https://calendar.google.com/calendar/ical/st.saint.wyy%40gmail.com/private-7a20bbc862b99c5b6405dc07c460ada3/basic.ics" "deep sky blue") ; google calendar ICS
+      )))
+
+  (meow-leader-define-key
+   '("n c" . open-calendar)))
 #+end_src
 
 
@@ -1332,6 +1386,8 @@
   :init
   (meow-leader-define-key
    '("TAB C-t" . hs-toggle-hiding)))
+
+(use-package origami)
 #+end_src
 
 * flycheck
