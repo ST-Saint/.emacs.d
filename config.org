@@ -1339,6 +1339,7 @@
   (use-package calfw-org)
   (set-face-attribute 'cfw:face-toolbar nil :foreground "Steelblue4")
 
+  ;; REVIEW use public ics
   ;; (setq diary-file (concat org-directory "diary.org"))
   (defun open-calendar ()
     (interactive)
@@ -1511,8 +1512,9 @@
 
 #+begin_src emacs-lisp
 (use-package citre
-  :config
-  (require 'citre-config))
+  ;; :config
+  ;; (require 'citre-config)
+  )
 #+end_src
 
 *** gtags
