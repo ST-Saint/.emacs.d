@@ -1176,23 +1176,12 @@
         org-goto-interface 'outline-path-completionp
         org-outline-path-complete-in-steps nil)
 
-  (setq org-agenda-tags-column 0
-        org-agenda-block-separator ?─
-        org-agenda-time-grid
-        '((daily today require-timed)
-          (800 1000 1200 1400 1600 1800 2000)
-          " ┄┄┄┄┄ " "┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄")
-        org-agenda-current-time-string
-        "  now ─────────────────────────────────────────────────")
-
-  (set-face-attribute 'org-agenda-current-time nil :bold t :foreground "#EEEEEE")
   (set-face-attribute 'org-ellipsis nil :bold nil)
 
   ;; NOTE: snippet error in org-mode
   (setq org-src-tab-acts-natively nil)
 
-
-  (setq org-todo-keywords '((sequence "TODO" "PROG" "FIXME" "REVIEW" "HOLD" "NOTE" "|" "FAIL" "DONE" )))
+  (setq org-todo-keywords '((sequence "TODO(t)" "PROG(p)" "FIXME(f)" "REVIEW(r)" "HOLD(h)" "NOTE(n)" "|" "FAIL(F)" "DONE(d)" )))
   (setq org-list-demote-modify-bullet
         '(("+"  . "-")
           ("-"  . "-")
@@ -1254,12 +1243,23 @@
 
   (find-file (concat org-directory "todo.org")))
 
-(progn
-  (meow-leader-define-key
-   '("n a" . org-agenda)
-   '("n t" . org-todo-file)
-   '("n f" . org-todo-files)
-   ))
+
+(set-face-attribute 'org-agenda-current-time nil :bold t :foreground "#EEEEEE")
+(setq org-agenda-tags-column 0
+      org-agenda-block-separator ?─
+      org-agenda-time-grid
+      '((daily today require-timed)
+        (800 1000 1200 1400 1600 1800 2000)
+        " ┄┄┄┄┄ " "┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄")
+      org-agenda-current-time-string
+      "  now ─────────────────────────────────────────────────")
+
+
+(meow-leader-define-key
+ '("n a" . org-agenda)
+ '("n t" . org-todo-file)
+ '("n f" . org-todo-files)
+ )
 
 
 (use-package org-super-agenda
@@ -1337,7 +1337,7 @@
   (use-package calfw-cal)
   (use-package calfw-ical)
   (use-package calfw-org)
-  (set-face-attribute 'cfw:face-toolbar nil :foreground "Steelblue4")
+  (set-face-attribute 'cfw:face-toolbar nil :background nil)
 
   ;; REVIEW use public ics
   ;; (setq diary-file (concat org-directory "diary.org"))
