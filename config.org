@@ -116,7 +116,8 @@
 
 (defun open-config-file ()
   (interactive)
-  (find-file "~/.emacs.d/config.org"))
+  (find-file "~/.emacs.d/config.org")
+  (delete-other-windows))
 
 (defun copy-file-name ()
   (interactive)
@@ -1232,16 +1233,16 @@
 
 ** org-agenda
 #+begin_src emacs-lisp
-(defun org-todo-files()
+(defun open-org-todo-files()
   (interactive)
   (persp-switch "org")
   (find-file org-directory)
   (projectile-find-file))
 
-(defun org-todo-file()
+(defun open-org-todo-file()
   (interactive)
-
-  (find-file (concat org-directory "todo.org")))
+  (find-file (concat org-directory "todo.org"))
+  (delete-other-windows))
 
 
 (set-face-attribute 'org-agenda-current-time nil :bold t :foreground "#EEEEEE")
@@ -1257,8 +1258,8 @@
 
 (meow-leader-define-key
  '("n a" . org-agenda)
- '("n t" . org-todo-file)
- '("n f" . org-todo-files)
+ '("n t" . open-org-todo-file)
+ '("n f" . open-org-todo-files)
  )
 
 
