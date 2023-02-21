@@ -105,6 +105,8 @@
 (or (server-mode)
     (server-start))
 
+(define-key minibuffer-mode-map (kbd "C-M-<backspace>") #'backward-kill-sexp)
+
 (use-package helpful
   :config
   (global-set-key (kbd "C-h f") #'helpful-callable)
@@ -1173,6 +1175,7 @@
         org-pretty-entities t
         org-log-done t
         org-imenu-depth 4
+        org-indent-indentation-per-level 4
         org-list-allow-alphabetical t
         org-goto-interface 'outline-path-completionp
         org-outline-path-complete-in-steps nil)
@@ -1194,6 +1197,14 @@
           ("1)" . "-")
           ("a)" . "-")))
   (setq org-ellipsis " ר")
+
+  (setq org-capture-templates
+        '(
+          ("t" "Todo" entry (file+headline "~/org/todo.org" "Capture")
+           "* TODO %a\n  %?\n  %i")
+          ("n" "Note" entry (file+datetree "~/org/note.org")
+           "* %a\nEntered on %U\n  %i\n  %?")))
+
   (setq org-directory "/home/yayu/org/")
   (setq org-agenda-files '("/home/yayu/org"))
   ;; TODO replace imenu with org-goto
@@ -1339,6 +1350,16 @@
   (use-package calfw-ical)
   (use-package calfw-org)
   (set-face-attribute 'cfw:face-toolbar nil :background nil)
+
+  ;; Unicode characters
+  (setq cfw:fchar-junction ?╋
+        cfw:fchar-vertical-line ?┃
+        cfw:fchar-horizontal-line ?━
+        cfw:fchar-left-junction ?┣
+        cfw:fchar-right-junction ?┫
+        cfw:fchar-top-junction ?┯
+        cfw:fchar-top-left-corner ?┏
+        cfw:fchar-top-right-corner ?┓)
 
   ;; REVIEW use public ics
   ;; (setq diary-file (concat org-directory "diary.org"))
