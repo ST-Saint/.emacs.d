@@ -1201,12 +1201,13 @@
   (setq org-capture-templates
         '(
           ("t" "Todo" entry (file+headline "~/org/todo.org" "Capture")
-           "* TODO %a\n  %?\n  %i")
-          ("n" "Note" entry (file+datetree "~/org/note.org")
-           "* %a\nEntered on %U\n  %i\n  %?")))
+           "* TODO %?\n  %i\n  %a")
+          ("j" "Journal" entry (file+datetree "~/org/journal.org")
+           "* %?\nEntered on %U\n  %i\n  %a")))
 
   (setq org-directory "/home/yayu/org/")
   (setq org-agenda-files '("/home/yayu/org"))
+  (setq org-default-notes-file (concat org-directory "notes.org"))
   ;; TODO replace imenu with org-goto
   (define-key org-mode-map (kbd "C-c s i") #'org-goto)
   (setq org-format-latex-options (plist-put org-format-latex-options :scale 3.0))
@@ -1252,6 +1253,7 @@
 
 (defun open-org-todo-file()
   (interactive)
+  (persp-switch "org")
   (find-file (concat org-directory "todo.org"))
   (delete-other-windows))
 
