@@ -338,12 +338,6 @@
                                        (insert . "/ᐠ.ꞈ.ᐟ\\")
                                        (beacon . "/ᐠ..ᐟ\\")))
 
-  (set-face-attribute 'meow-normal-indicator nil :weight 'bold)
-  (set-face-attribute 'meow-motion-indicator nil :weight 'bold)
-  (set-face-attribute 'meow-keypad-indicator nil :weight 'bold)
-  (set-face-attribute 'meow-insert-indicator nil :weight 'bold)
-  (set-face-attribute 'meow-beacon-indicator nil :weight 'bold)
-
   (setq meow-keypad-start-keys nil
         meow-keypad-literal-prefix nil
         meow-keypad-meta-prefix nil
@@ -351,8 +345,18 @@
   (setq meow-use-clipboard t)
 
   (meow-setup-qwerty)
-  (meow-global-mode t)
-  )
+
+  (set-face-attribute 'meow-normal-indicator nil :weight 'bold)
+  (set-face-attribute 'meow-motion-indicator nil :weight 'bold)
+  (set-face-attribute 'meow-keypad-indicator nil :weight 'bold)
+  (set-face-attribute 'meow-insert-indicator nil :weight 'bold)
+  (set-face-attribute 'meow-beacon-indicator nil :weight 'bold)
+
+  ;; FIXME beacon mode
+  (set-face-attribute 'meow-beacon-fake-cursor nil :background "#51afef")
+  (set-face-attribute 'meow-beacon-fake-selection nil :background "SlateGray4")
+
+  (meow-global-mode t))
 #+end_src
 
 * ui
@@ -1132,6 +1136,7 @@
 #+begin_src emacs-lisp
 (use-package yasnippet
   :config
+  (add-to-list 'warning-suppress-types '(yasnippet backquote-change))
   (add-hook 'prog-mode-hook #'yas-minor-mode)
   (add-hook 'org-mode-hook #'yas-minor-mode))
 
@@ -1199,8 +1204,7 @@
   (setq org-ellipsis " ר")
 
   (setq org-capture-templates
-        '(
-          ("t" "Todo" entry (file+headline "~/org/todo.org" "Capture")
+        '(("t" "Todo" entry (file+headline "~/org/todo.org" "Capture")
            "* TODO %?\n  %i\n  %a")
           ("j" "Journal" entry (file+datetree "~/org/journal.org")
            "* %?\nEntered on %U\n  %i\n  %a")))
@@ -1367,6 +1371,7 @@
   ;; (setq diary-file (concat org-directory "diary.org"))
   (defun open-calendar ()
     (interactive)
+    (persp-switch "org")
     (cfw:open-calendar-buffer
      :contents-sources
      (list
@@ -1374,7 +1379,8 @@
       ;; (cfw:howm-create-source "Blue")  ; howm source
       ;; (cfw:cal-create-source "Orange") ; diary source
       (cfw:ical-create-source "gcal" "https://calendar.google.com/calendar/ical/st.saint.wyy%40gmail.com/private-7a20bbc862b99c5b6405dc07c460ada3/basic.ics" "deep sky blue") ; google calendar ICS
-      )))
+      ))
+      (delete-other-windows))
 
   (meow-leader-define-key
    '("n c" . open-calendar)))
@@ -1430,7 +1436,7 @@
   :after flyspell
   :bind (:map flyspell-mode-map ("C-;" . flyspell-correct-wrapper))
   :config
-  (add-hook 'org-mode #'flyspell-mode))
+  (add-hook 'org-mode-hook #'flyspell-mode))
 #+end_src
 
 * language
