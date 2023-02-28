@@ -242,6 +242,7 @@
                        ("f R" rename-visited-file)
                        ("f D" delete-current-file)
                        ("f U" open-current-file-as-root)
+                       ("l l" visual-line-mode)
                        ("`" meow-last-buffer)))
       (let ((key (car keybind))
             (func (cadr keybind)))
@@ -352,9 +353,9 @@
   (set-face-attribute 'meow-insert-indicator nil :weight 'bold)
   (set-face-attribute 'meow-beacon-indicator nil :weight 'bold)
 
-  ;; FIXME beacon mode
-  (set-face-attribute 'meow-beacon-fake-cursor nil :background "#51afef")
-  (set-face-attribute 'meow-beacon-fake-selection nil :background "SlateGray4")
+  (with-eval-after-load 'doom-themes
+    (set-face-attribute 'meow-beacon-fake-selection nil :background "SlateGray4")
+    (set-face-attribute 'meow-beacon-fake-cursor nil :background "#51afef"))
 
   (meow-global-mode t))
 #+end_src
@@ -365,10 +366,6 @@
 #+begin_src emacs-lisp
 (setq inhibit-startup-message t)
 (setq initial-scratch-message nil)
-
-
-(meow-leader-define-key
- '("l l" . visual-line-mode))
 
 (blink-cursor-mode -1)
 (scroll-bar-mode -1)        ; disable visible scrollbar
@@ -390,17 +387,16 @@
   (add-hook mode (lambda () (display-line-numbers-mode 0))))
 #+end_src
 
-** visual
-
-*** visual-fill-column
+** theme
 #+begin_src emacs-lisp
-(use-package visual-fill-column
-  :init
-  (setq-default visual-fill-column-width 120)
-  (setq-default visual-fill-column-center-text t)
+(use-package doom-themes
   :config
-  (meow-leader-define-key
-   '("l L" . visual-fill-column-mode)))
+  (load-theme 'doom-one t)
+  (doom-themes-org-config)
+  (set-face-attribute 'hl-line nil :inherit nil :background "gray8")
+  (set-face-attribute 'region nil :background "#4F5766")
+  (setq doom-modeline-project-detection 'project)
+  (setq doom-modeline-buffer-file-name-style 'truncate-with-project))
 #+end_src
 
 ** font
@@ -421,20 +417,22 @@
 ;; (set-face-attribute 'variable-pitch nil :font "DejaVuSansMono Nerd Font Mono" :height 160)
 #+end_src
 
+** visual
+
+*** visual-fill-column
+#+begin_src emacs-lisp
+  (use-package visual-fill-column
+    :init
+    (setq-default visual-fill-column-width 120)
+    (setq-default visual-fill-column-center-text t)
+    :config
+    (meow-leader-define-key
+     '("l L" . visual-fill-column-mode)))
+#+end_src
+
 ** icon
 #+begin_src emacs-lisp
 (use-package all-the-icons)
-#+end_src
-
-** theme
-#+begin_src emacs-lisp
-(use-package doom-themes
-  :init (load-theme 'doom-one t)
-  :config
-
-  (set-face-attribute 'hl-line nil :inherit nil :background "gray8")
-  (setq doom-modeline-project-detection 'project)
-  (setq doom-modeline-buffer-file-name-style 'truncate-with-project))
 #+end_src
 
 ** dashboard
@@ -1631,10 +1629,10 @@
                   (:exclude "lisp/tablist.el" "lisp/tablist-filter.el"))))
 
 (use-package pdf-tools
-  :ensure nil
   :defer t
   :config
-  (pdf-tools-install))
+  (with-eval-after-load 'pdf-tools
+    (pdf-tools-install)))
 #+end_src
 
 
