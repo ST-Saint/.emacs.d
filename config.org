@@ -580,17 +580,17 @@
   (setq projectile-indexing-method 'hybrid)
   (setq projectile-sort-order 'recently-active)
   (setq projectile-enable-caching t)
-  (setq projectile-completion-system 'default)
+  (setq projectile-completion-system 'default))
 
-  (meow-leader-define-key
-   '("p p" . projectile-switch-project)
-   '("p f" . projectile-find-file)
-   '("p c" . projectile-compile-project)
-   '("p d" . projectile-find-dir)
-   '("p i" . projectile-invalidate-cache)
-   '("," . projectile-switch-to-buffer))
-
-  (projectile-global-mode t))
+(meow-leader-define-key
+ '("p p" . project-switch-project)
+ '("p f" . project-find-file)
+ '("p b" . project-switch-to-buffer)
+ '("p B" . project-list-buffers)
+ '("p c" . project-compile)
+ '("p d" . project-find-dir)
+ '("p D" . project-dired)
+ '("," . project-switch-to-buffer))
 #+end_src
 
 * navigate
@@ -1150,7 +1150,6 @@
   (:map org-mode-map
         ("C-M-<return>" . org-insert-subheading))
 
-
   :init
   (org-babel-do-load-languages
    'org-babel-load-languages
@@ -1208,7 +1207,7 @@
            "* %?\nEntered on %U\n  %i\n  %a")))
 
   (setq org-directory "/home/yayu/org/")
-  (setq org-agenda-files '("/home/yayu/org"))
+  (setq org-agenda-files '("/home/yayu/org/todo.org"))
   (setq org-default-notes-file (concat org-directory "notes.org"))
   ;; TODO replace imenu with org-goto
   (define-key org-mode-map (kbd "C-c s i") #'org-goto)
