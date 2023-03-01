@@ -605,8 +605,8 @@ variable `project-local-identifier' to be considered a project."
         (cons 'local root)))
 
   (customize-set-variable 'project-find-functions
-                          (list #'project-try-vc
-                                #'project-local-try-local))
+                          (list #'project-local-try-local
+                                #'project-try-vc))
 
   (meow-leader-define-key
    '("p p" . project-switch-project)
