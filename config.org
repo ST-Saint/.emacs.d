@@ -575,12 +575,12 @@
 #+begin_src emacs-lisp
 (use-package ripgrep)
 
-(use-package projectile
-  :config
-  (setq projectile-indexing-method 'hybrid)
-  (setq projectile-sort-order 'recently-active)
-  (setq projectile-enable-caching t)
-  (setq projectile-completion-system 'default))
+;; (use-package projectile
+;;   :config
+;;   (setq projectile-indexing-method 'hybrid)
+;;   (setq projectile-sort-order 'recently-active)
+;;   (setq projectile-enable-caching t)
+;;   (setq projectile-completion-system 'default))
 
 (meow-leader-define-key
  '("p p" . project-switch-project)
@@ -626,30 +626,30 @@
                      (s-join " | " (persp-names))
                      " ]")))
 
-  (defun projectile-switch-perspective-project (project-to-switch)
-    (interactive (list (projectile-completing-read "Switch to project: "
-                                                   (projectile-relevant-known-projects))))
-    (let* ((name (or projectile-project-name
-                   (funcall projectile-project-name-function project-to-switch)))
-         (persp (gethash name (perspectives-hash))))
-      (cond
-       ;; project-specific perspective already exists
-       ((and persp (not (equal persp (persp-curr))))
-        (persp-switch name))
-       ;; persp exists but not match with projectile-name
-       ((and persp (not (equal persp name)))
-        (persp-switch name)
-        (projectile-switch-project-by-name project-to-switch))
-       ;; project-specific perspective doesn't exist
-       ((not persp)
-        (let ((frame (selected-frame)))
-        (persp-switch name)
-        (projectile-switch-project-by-name project-to-switch)
-        ;; Clean up if we switched to a new frame. `helm' for one allows finding
-        ;; files in new frames so this is a real possibility.
-        (when (not (equal frame (selected-frame)))
-          (with-selected-frame frame
-            (persp-kill name))))))))
+  ;; (defun projectile-switch-perspective-project (project-to-switch)
+  ;;   (interactive (list (projectile-completing-read "Switch to project: "
+  ;;                                                  (projectile-relevant-known-projects))))
+  ;;   (let* ((name (or projectile-project-name
+  ;;                  (funcall projectile-project-name-function project-to-switch)))
+  ;;        (persp (gethash name (perspectives-hash))))
+  ;;     (cond
+  ;;      ;; project-specific perspective already exists
+  ;;      ((and persp (not (equal persp (persp-curr))))
+  ;;       (persp-switch name))
+  ;;      ;; persp exists but not match with projectile-name
+  ;;      ((and persp (not (equal persp name)))
+  ;;       (persp-switch name)
+  ;;       (projectile-switch-project-by-name project-to-switch))
+  ;;      ;; project-specific perspective doesn't exist
+  ;;      ((not persp)
+  ;;       (let ((frame (selected-frame)))
+  ;;       (persp-switch name)
+  ;;       (projectile-switch-project-by-name project-to-switch)
+  ;;       ;; Clean up if we switched to a new frame. `helm' for one allows finding
+  ;;       ;; files in new frames so this is a real possibility.
+  ;;       (when (not (equal frame (selected-frame)))
+  ;;         (with-selected-frame frame
+  ;;           (persp-kill name))))))))
 
 
   (defun open-config-file ()
@@ -658,7 +658,7 @@
     (find-file "~/.emacs.d/config.org"))
 
 
-  (define-key global-map [remap projectile-switch-project] 'projectile-switch-perspective-project)
+  ;; (define-key global-map [remap projectile-switch-project] 'projectile-switch-perspective-project)
 
   (meow-leader-define-key
    '("1" . (lambda() (interactive) (persp-switch-by-number 1)))
@@ -738,7 +738,7 @@
 
           ;; Update the group name of the last accessed tab.
           (setq centaur-tabs-last-focused-buffer-group current-group)))))
-  (centaur-tabs-group-by-projectile-project)
+  ;; (centaur-tabs-group-by-projectile-project)
   (centaur-tabs-enable-buffer-reordering)
 
   (setq centaur-tabs-cycle-scope 'tabs)
@@ -889,10 +889,10 @@
   ;; Optionally configure a different project root function.
   ;; There are multiple reasonable alternatives to chose from.
   ;; 1. project.el (the default)
-  ;; (setq consult-project-function #'consult--default-project--function)
+  (setq consult-project-function #'consult--default-project--function)
   ;; 2. projectile.el (projectile-project-root)
-  (autoload 'projectile-project-root "projectile")
-  (setq consult-project-function (lambda (_) (projectile-project-root)))
+  ;; (autoload 'projectile-project-root "projectile")
+  ;; (setq consult-project-function (lambda (_) (projectile-project-root)))
   ;; 3. vc.el (vc-root-dir)
   ;; (setq consult-project-function (lambda (_) (vc-root-dir)))
   ;; 4. locate-dominating-file
@@ -975,12 +975,12 @@
 
 (use-package marginalia
   :config
-  (setq marginalia-command-categories
-        (append '((projectile-find-file . project-file)
-                  (projectile-find-dir . project-file)
-                  (projectile-switch-to-buffer . buffer)
-                  (projectile-switch-project . file))
-                marginalia-command-categories))
+  ;; (setq marginalia-command-categories
+  ;;       (append '((projectile-find-file . project-file)
+  ;;                 (projectile-find-dir . project-file)
+  ;;                 (projectile-switch-to-buffer . buffer)
+  ;;                 (projectile-switch-project . file))
+  ;;               marginalia-command-categories))
   (marginalia-mode t))
 
 (use-package wgrep)
@@ -1168,6 +1168,7 @@
       (setq org-startup-indented t))
 
   (setq org-special-ctrl-a/e t
+        org-adapt-indentation t
         org-edit-src-content-indentation 0
         org-cycle-separator-lines 1
         org-return-follows-link t
@@ -1250,7 +1251,7 @@
   (interactive)
   (persp-switch "org")
   (find-file org-directory)
-  (projectile-find-file))
+  (project-find-file))
 
 (defun open-org-todo-file()
   (interactive)
