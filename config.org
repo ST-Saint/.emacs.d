@@ -446,6 +446,7 @@
   (setq dashboard-set-file-icons t)
   (setq dashboard-set-navigator t)
   (setq dashboard-week-agenda t)
+  (setq dashboard-projects-backend 'project-el)
   (setq dashboard-items '((recents  . 5)
                           (bookmarks . 5)
                           (projects . 5)
@@ -571,26 +572,51 @@
 #+end_src
 
 * project
-** projectile
 #+begin_src emacs-lisp
 (use-package ripgrep)
 
-;; (use-package projectile
-;;   :config
-;;   (setq projectile-indexing-method 'hybrid)
-;;   (setq projectile-sort-order 'recently-active)
-;;   (setq projectile-enable-caching t)
-;;   (setq projectile-completion-system 'default))
+(use-package project
+  :config
+  (setq project-switch-commands 'project-find-file)
 
-(meow-leader-define-key
- '("p p" . project-switch-project)
- '("p f" . project-find-file)
- '("p b" . project-switch-to-buffer)
- '("p B" . project-list-buffers)
- '("p c" . project-compile)
- '("p d" . project-find-dir)
- '("p D" . project-dired)
- '("," . project-switch-to-buffer))
+  (defgroup project-local nil
+    "Local, non-VC-backed project.el root directories."
+    :group 'project)
+
+  (defcustom project-local-identifier ".project"
+    "Specify a single filename or a list of names."
+    :type '(choice (string :tag "Single file")
+                   (repeat (string :tag "Filename")))
+    :group 'project-local)
+
+  (cl-defmethod project-root ((project (head local)))
+    "Return root directory of current PROJECT."
+    (cdr project))
+
+  (defun project-local-try-local (dir)
+    "Determine if DIR is a non-VC project.
+DIR must include a file with the name determined by the
+variable `project-local-identifier' to be considered a project."
+    (if-let ((root (if (listp project-local-identifier)
+                       (seq-some (lambda (n)
+                                   (locate-dominating-file dir n))
+                                 project-local-identifier)
+                     (locate-dominating-file dir project-local-identifier))))
+        (cons 'local root)))
+
+  (customize-set-variable 'project-find-functions
+                          (list #'project-try-vc
+                                #'project-local-try-local))
+
+  (meow-leader-define-key
+   '("p p" . project-switch-project)
+   '("p f" . project-find-file)
+   '("p b" . project-switch-to-buffer)
+   '("p B" . project-list-buffers)
+   '("p c" . project-compile)
+   '("p d" . project-find-dir)
+   '("p D" . project-dired)
+   '("," . project-switch-to-buffer)))
 #+end_src
 
 * navigate
@@ -1022,11 +1048,8 @@
   :init
   (global-corfu-mode)
   :config
+  (corfu-popupinfo-mode)
   (add-hook 'eval-expression-minibuffer-setup-hook #'corfu-mode))
-
-;; FIXME don't know
-(use-package corfu-info
-  :ensure nil)
 
 (use-package cape
   :init
@@ -1050,16 +1073,6 @@
   ;;                     (list #'company-files #'company-ispell #'company-dabbrev)))
   :config
   (setq-default cape-symbol-wrapper nil))
-
-(use-package corfu-doc
-  :hook
-  (corfu-mode. corfu-doc-mode)
-  :bind
-  (:map corfu-map
-        ;; corfu-next
-        ("M-p" . 'corfu-doc-scroll-down)
-        ;; corfu-previous
-        ("M-n" . 'corfu-doc-scroll-up)))
 
 (use-package kind-icon
   :after corfu
@@ -1587,7 +1600,7 @@
 
 ** latex
 
-#+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp
 (use-package tex
   :defer t
   :ensure auctex
@@ -1605,7 +1618,7 @@
 #+end_src
 
 *** org-auctex
-#+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp
 (quelpa '(org-auctex
           :fetcher github
           :repo "karthink/org-auctex"))
