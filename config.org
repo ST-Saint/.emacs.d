@@ -551,7 +551,6 @@
   :config
   (meow-leader-define-key
    '("g g" . magit)))
-
 #+end_src
 
 ** magit-todos
@@ -578,6 +577,9 @@
 (use-package project
   :config
   (setq project-switch-commands 'project-find-file)
+  (setq project-vc-merge-submodules nil)
+  (setq vc-dir-backend 'git
+        vc-handled-backends '(Git))
 
   (defgroup project-local nil
     "Local, non-VC-backed project.el root directories."
@@ -605,8 +607,8 @@ variable `project-local-identifier' to be considered a project."
         (cons 'local root)))
 
   (customize-set-variable 'project-find-functions
-                          (list #'project-local-try-local
-                                #'project-try-vc))
+                          (list #'project-try-vc
+                                #'project-local-try-local))
 
   (meow-leader-define-key
    '("p p" . project-switch-project)
@@ -915,7 +917,7 @@ variable `project-local-identifier' to be considered a project."
   ;; Optionally configure a different project root function.
   ;; There are multiple reasonable alternatives to chose from.
   ;; 1. project.el (the default)
-  (setq consult-project-function #'consult--default-project--function)
+  ;; (setq consult-project-function #'consult--default-project--function)
   ;; 2. projectile.el (projectile-project-root)
   ;; (autoload 'projectile-project-root "projectile")
   ;; (setq consult-project-function (lambda (_) (projectile-project-root)))
@@ -959,8 +961,18 @@ variable `project-local-identifier' to be considered a project."
   (setq vertico-cycle t)
   ;; Show more candidates
   (setq vertico-count 20)
-  (vertico-mode)
-  )
+
+  (defun crm-indicator (args)
+    (cons (format "[CRM%s] %s"
+                  (replace-regexp-in-string
+                   "\\`\\[.*?]\\*\\|\\[.*?]\\*\\'" ""
+                   crm-separator)
+                  (car args))
+          (cdr args)))
+  (advice-add #'completing-read-multiple :filter-args #'crm-indicator)
+
+  (vertico-multiform-mode)
+  (vertico-mode))
 
 (use-package savehist
   :init
@@ -1147,6 +1159,8 @@ variable `project-local-identifier' to be considered a project."
 #+begin_src emacs-lisp
 (use-package yasnippet
   :config
+  (setq yas-snippet-dirs (append yas-snippet-dirs (concat org-directory "yasnippets")))
+
   (add-to-list 'warning-suppress-types '(yasnippet backquote-change))
   (add-hook 'prog-mode-hook #'yas-minor-mode)
   (add-hook 'org-mode-hook #'yas-minor-mode))
@@ -1230,6 +1244,7 @@ variable `project-local-identifier' to be considered a project."
   (add-hook 'org-mode-hook #'visual-fill-column-mode)
 
   (meow-leader-define-key
+   '("n c" . org-capture)
    '("n L" . org-store-link)))
 #+end_src
 
@@ -1394,7 +1409,7 @@ variable `project-local-identifier' to be considered a project."
       (delete-other-windows))
 
   (meow-leader-define-key
-   '("n c" . open-calendar)))
+   '("n C" . open-calendar)))
 #+end_src
 
 
