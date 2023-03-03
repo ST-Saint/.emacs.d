@@ -610,6 +610,19 @@ variable `project-local-identifier' to be considered a project."
                           (list #'project-try-vc
                                 #'project-local-try-local))
 
+  (defun project-sort-files (files)
+    (let* ((f (buffer-file-name
+               (window-buffer (minibuffer-selected-window))))
+           (hist (symbol-value minibuffer-history-variable))
+           (root (expand-file-name (project-root (project-current)))))
+      (minibuffer--sort-by-position
+       hist
+       (cl-remove f files :test #'cl-equalp))))
+
+  (setq vertico-multiform-commands
+        '((project-find-file (vertico-sort-override-function . project-sort-files))
+          (project-switch-project (vertico-sort-override-function . project-sort-files))))
+
   (meow-leader-define-key
    '("p p" . project-switch-project)
    '("p f" . project-find-file)
@@ -1159,7 +1172,8 @@ variable `project-local-identifier' to be considered a project."
 #+begin_src emacs-lisp
 (use-package yasnippet
   :config
-  (setq yas-snippet-dirs (append yas-snippet-dirs (concat org-directory "yasnippets")))
+  (with-eval-after-load
+      (add-to-list 'yas-snippet-dirs (concat org-directory "yasnippets")))
 
   (add-to-list 'warning-suppress-types '(yasnippet backquote-change))
   (add-hook 'prog-mode-hook #'yas-minor-mode)
