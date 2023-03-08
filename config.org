@@ -549,6 +549,8 @@
   :init
   (setq ediff-window-setup-function 'ediff-setup-windows-plain)
   :config
+  (setq vc-dir-backend 'git)
+  (setq magit-display-buffer-function 'magit-display-buffer-fullframe-status-v1)
   (meow-leader-define-key
    '("g g" . magit)))
 #+end_src
@@ -575,6 +577,8 @@
 (use-package ripgrep)
 
 (use-package project
+  :init
+  (setq project-vc-merge-submodules nil)
   :config
   (setq project-switch-commands 'project-find-file)
   (setq project-vc-merge-submodules nil)
@@ -697,7 +701,8 @@ variable `project-local-identifier' to be considered a project."
   (defun open-config-file ()
     (interactive)
     (persp-switch "config")
-    (find-file "~/.emacs.d/config.org"))
+    (find-file "~/.emacs.d/config.org")
+    (delete-other-windows))
 
 
   ;; (define-key global-map [remap projectile-switch-project] 'projectile-switch-perspective-project)
@@ -1672,7 +1677,7 @@ variable `project-local-identifier' to be considered a project."
                   (:exclude "lisp/tablist.el" "lisp/tablist-filter.el"))))
 
 (use-package pdf-tools
-  :defer t
+  :ensure nil
   :config
   (with-eval-after-load 'pdf-tools
     (pdf-tools-install)))
@@ -1684,7 +1689,9 @@ variable `project-local-identifier' to be considered a project."
 (quelpa '(image-roll
             :fetcher github
             :repo "dalanicolai/image-roll.el"))
-;; (use-package image-roll)
+(use-package image-roll
+  :config
+  (add-hook 'pdf-view-mode-hook #'pdf-view-roll-minor-mode))
 #+end_src
 
 ** org-noter
