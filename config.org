@@ -619,6 +619,7 @@ variable `project-local-identifier' to be considered a project."
        hist
        (cl-remove f files :test #'cl-equalp))))
 
+  ;; FIXME use in non-project directory
   (setq vertico-multiform-commands
         '((project-find-file (vertico-sort-override-function . project-sort-files))
           (project-switch-project (vertico-sort-override-function . project-sort-files))))
@@ -1172,7 +1173,7 @@ variable `project-local-identifier' to be considered a project."
 #+begin_src emacs-lisp
 (use-package yasnippet
   :config
-  (with-eval-after-load
+  (with-eval-after-load 'org
       (add-to-list 'yas-snippet-dirs (concat org-directory "yasnippets")))
 
   (add-to-list 'warning-suppress-types '(yasnippet backquote-change))
