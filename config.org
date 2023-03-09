@@ -1761,6 +1761,12 @@ variable `project-local-identifier' to be considered a project."
    '("o t" . vterm)))
 #+end_src
 
+* docker
+#+begin_src emacs-lisp
+(use-package docker)
+(use-package docker-tramp)
+#+end_src
+
 * undo
 ** undo-fu-session
 #+begin_src emacs-lisp
