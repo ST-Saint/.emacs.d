@@ -580,7 +580,9 @@
   :init
   (setq project-vc-merge-submodules nil)
   :config
-  (setq project-switch-commands 'project-find-file)
+  (setq project-switch-commands '((project-find-file "File file" ? )
+                                  (magit "Magit" ?g)
+                                  (magit-todos-list "Todos" ?t)))
   (setq project-vc-merge-submodules nil)
   (setq vc-dir-backend 'git
         vc-handled-backends '(Git))
