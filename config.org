@@ -1664,6 +1664,11 @@ variable `project-local-identifier' to be considered a project."
   :ensure nil)
 #+end_src
 
+** csv
+#+begin_src emacs-lisp
+(use-package csv-mode)
+#+end_src
+
 * pdf
 
 ** pdf-tools
