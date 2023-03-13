@@ -1675,7 +1675,7 @@ variable `project-local-identifier' to be considered a project."
 #+begin_src emacs-lisp
 (quelpa '(pdf-tools
           :fetcher github
-          :repo "dalanicolai/pdf-tools"
+          :repo "ST-Saint/pdf-tools"
           :branch "pdf-roll"
           :files ("lisp/*.el"
                   "README"
@@ -1696,6 +1696,7 @@ variable `project-local-identifier' to be considered a project."
 (quelpa '(image-roll
             :fetcher github
             :repo "dalanicolai/image-roll.el"))
+
 (use-package image-roll
   :config
   (add-hook 'pdf-view-mode-hook #'pdf-view-roll-minor-mode))
@@ -1720,7 +1721,6 @@ variable `project-local-identifier' to be considered a project."
             :repo "ST-Saint/org-pdftools"))
 
 (use-package org-pdftools
-  :ensure nil
   :after pdf-tools
   :hook (org-mode . org-pdftools-setup-link))
 
@@ -1729,7 +1729,6 @@ variable `project-local-identifier' to be considered a project."
             :repo "ST-Saint/org-pdftools"))
 
 (use-package org-noter-pdftools
-  :ensure nil
   :after org-pdftools
   :bind
   (:map org-noter-notes-mode-map
@@ -1771,7 +1770,6 @@ variable `project-local-identifier' to be considered a project."
 * docker
 #+begin_src emacs-lisp
 (use-package docker)
-(use-package docker-tramp)
 #+end_src
 
 * undo
