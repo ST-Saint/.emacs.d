@@ -496,7 +496,7 @@
   (setq beacon-blink-when-window-scrolls nil)
   (beacon-mode nil))
 #+end_src
-**** FIXME keep flashing after consult
+**** TODO better flush
 
 *** rainbow-delimiters
 #+begin_src emacs-lisp
@@ -617,10 +617,27 @@ variable `project-local-identifier' to be considered a project."
                                 #'project-local-try-local))
 
   (defun project-sort-files (files)
-    (if (file-directory-p (car files))
-        ;; t: directory && not project
+    (unless (null files)
+      (if (file-directory-p (car files))
+          ;; t: directory && not project
+          (thread-last
+            files
+            (mapcar (lambda (f)
+                      (cons f (file-attribute-modification-time (file-attributes f)))))
+            (seq-sort (pcase-lambda (`(,f1 . ,t1) `(,f2 . ,t2))
+                        ;; Want existing, most recent, local files first.
+                        (cond ((or (not (file-exists-p f1))
+                                   (file-remote-p f1))
+                               nil)
+                              ((or (not (file-exists-p f2))
+                                   (file-remote-p f2))
+                               t)
+                              (t (time-less-p t2 t1)))))
+            (mapcar #'car))
+        ;; nil: project, need to expand the full path
         (thread-last
           files
+          (mapcar (lambda (f) (concat (project-root (project-current)) f)))
           (mapcar (lambda (f)
                     (cons f (file-attribute-modification-time (file-attributes f)))))
           (seq-sort (pcase-lambda (`(,f1 . ,t1) `(,f2 . ,t2))
@@ -632,23 +649,7 @@ variable `project-local-identifier' to be considered a project."
                                  (file-remote-p f2))
                              t)
                             (t (time-less-p t2 t1)))))
-          (mapcar #'car))
-      ;; nil: project, need to expand the full path
-      (thread-last
-        files
-        (mapcar (lambda (f) (concat (project-root (project-current)) f)))
-        (mapcar (lambda (f)
-                  (cons f (file-attribute-modification-time (file-attributes f)))))
-        (seq-sort (pcase-lambda (`(,f1 . ,t1) `(,f2 . ,t2))
-                    ;; Want existing, most recent, local files first.
-                    (cond ((or (not (file-exists-p f1))
-                               (file-remote-p f1))
-                           nil)
-                          ((or (not (file-exists-p f2))
-                               (file-remote-p f2))
-                           t)
-                          (t (time-less-p t2 t1)))))
-        (mapcar #'car))))
+          (mapcar #'car)))))
 
   ;; TODO use recentf instead of modification time
   (setq vertico-multiform-commands
@@ -1712,7 +1713,9 @@ variable `project-local-identifier' to be considered a project."
   :ensure nil
   :config
   (with-eval-after-load 'pdf-tools
-    (pdf-tools-install)))
+    (pdf-tools-install))
+  (define-key pdf-view-roll-minor-mode-map (kbd "<wheel-up>") (lambda () (interactive) (pdf-view-previous-line-or-previous-page 2)))
+  (define-key pdf-view-roll-minor-mode-map (kbd "<wheel-down>") (lambda () (interactive) (pdf-view-next-line-or-next-page 2))))
 #+end_src
 
 
