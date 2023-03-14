@@ -617,15 +617,40 @@ variable `project-local-identifier' to be considered a project."
                                 #'project-local-try-local))
 
   (defun project-sort-files (files)
-    (let* ((f (buffer-file-name
-               (window-buffer (minibuffer-selected-window))))
-           (hist (symbol-value minibuffer-history-variable))
-           (root (expand-file-name (project-root (project-current)))))
-      (minibuffer--sort-by-position
-       hist
-       (cl-remove f files :test #'cl-equalp))))
+    (if (file-directory-p (car files))
+        ;; t: directory && not project
+        (thread-last
+          files
+          (mapcar (lambda (f)
+                    (cons f (file-attribute-modification-time (file-attributes f)))))
+          (seq-sort (pcase-lambda (`(,f1 . ,t1) `(,f2 . ,t2))
+                      ;; Want existing, most recent, local files first.
+                      (cond ((or (not (file-exists-p f1))
+                                 (file-remote-p f1))
+                             nil)
+                            ((or (not (file-exists-p f2))
+                                 (file-remote-p f2))
+                             t)
+                            (t (time-less-p t2 t1)))))
+          (mapcar #'car))
+      ;; nil: project, need to expand the full path
+      (thread-last
+        files
+        (mapcar (lambda (f) (concat (project-root (project-current)) f)))
+        (mapcar (lambda (f)
+                  (cons f (file-attribute-modification-time (file-attributes f)))))
+        (seq-sort (pcase-lambda (`(,f1 . ,t1) `(,f2 . ,t2))
+                    ;; Want existing, most recent, local files first.
+                    (cond ((or (not (file-exists-p f1))
+                               (file-remote-p f1))
+                           nil)
+                          ((or (not (file-exists-p f2))
+                               (file-remote-p f2))
+                           t)
+                          (t (time-less-p t2 t1)))))
+        (mapcar #'car))))
 
-  ;; FIXME use in non-project directory
+  ;; TODO use recentf instead of modification time
   (setq vertico-multiform-commands
         '((project-find-file (vertico-sort-override-function . project-sort-files))
           (project-switch-project (vertico-sort-override-function . project-sort-files))))
