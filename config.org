@@ -1282,6 +1282,11 @@ variable `project-local-identifier' to be considered a project."
           ("j" "Journal" entry (file+datetree "~/org/journal.org")
            "* %?\nEntered on %U\n  %i\n  %a")))
 
+  (setq org-refile-use-outline-path t)
+  (setq org-reverse-note-order t)
+  (setq org-refile-targets '((nil :maxlevel . 5)
+        (org-agenda-files :maxlevel . 5)))
+
   (setq org-directory "/home/yayu/org/")
   (setq org-agenda-files '("/home/yayu/org/todo.org"))
   (setq org-default-notes-file (concat org-directory "notes.org"))
