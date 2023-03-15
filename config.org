@@ -580,10 +580,18 @@
   :init
   (setq project-vc-merge-submodules nil)
   :config
-  (setq project-switch-commands 'project-find-file)
-  ;; (setq project-switch-commands '((project-find-file "File file" ? )
-  ;; (magit "Magit" ?g)
-  ;; (magit-todos-list "Todos" ?t)))
+  (defun project-open-magit ()
+    (interactive)
+    (magit (project-root (project-current t))))
+
+  (defun project-open-magit-todos ()
+    (interactive)
+    (magit-todos-list (project-root (project-current t))))
+
+  (setq project-switch-commands '((project-find-file "File file" ? )
+                                  (project-open-magit "Magit" ?g)
+                                  (project-open-magit-todos "Todos" ?t)))
+
   (setq project-vc-merge-submodules nil)
   (setq vc-dir-backend 'git
         vc-handled-backends '(Git))
