@@ -1639,7 +1639,7 @@ variable `project-local-identifier' to be considered a project."
 
 *** citre
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
 (use-package citre
   :config
   (require 'citre-config))
