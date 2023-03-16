@@ -642,20 +642,24 @@ variable `project-local-identifier' to be considered a project."
         65536))
 
   (defun project-sort-files (files)
-    (unless (null files)
-      (thread-last
-        files
-        (mapcar (lambda (f)
-                  (list f (project-realpath f) (project-nth-recentf f) (file-attribute-modification-time (file-attributes (project-realpath f))))))
-        (seq-sort (lambda (tp1 tp2)
-                    ;; Want existing, most recent, local files first.
-                    (cl-destructuring-bind (f1 rp1 rk1 t1) tp1
-                      (cl-destructuring-bind (f2 rp2 rk2 t2) tp2
-                        (cond ((not (file-exists-p rp1)) nil)
-                              ((not (file-exists-p rp2)) t)
-                              ((not (equal rk1 rk2)) (< rk1 rk2))
-                              (t (time-less-p t2 t1)))))))
-        (mapcar #'car))))
+    (if (< (length files) 1024)
+        (mapcar #'car
+                (seq-sort (lambda (tp1 tp2)
+                            ;; Want existing, most recent, local files first.
+                            (cl-destructuring-bind (f1 rp1 rk1 t1) tp1
+                              (cl-destructuring-bind (f2 rp2 rk2 t2) tp2
+                                (cond ((not (file-exists-p rp1)) nil)
+                                      ((not (file-exists-p rp2)) t)
+                                      ((not (equal rk1 rk2)) (< rk1 rk2))
+                                      (t (time-less-p t2 t1))))))
+
+                          (if (< (length files) 256)
+                              (mapcar (lambda (f)
+                                        (list f (project-realpath f) (project-nth-recentf f) (file-attribute-modification-time (file-attributes (project-realpath f))))) files)
+                            (mapcar (lambda (f)
+                                      (list f (project-realpath f) 0 (file-attribute-modification-time (file-attributes (project-realpath f))))) files)
+                            )))
+      files))
 
   ;; TODO improve complexity
   (setq vertico-multiform-commands
@@ -669,8 +673,7 @@ variable `project-local-identifier' to be considered a project."
    '("p B" . project-list-buffers)
    '("p c" . project-compile)
    '("p d" . project-find-dir)
-   '("p D" . project-dired)
-   '("," . project-switch-to-buffer)))
+   '("p D" . project-dired)))
 #+end_src
 
 * navigate
@@ -690,47 +693,42 @@ variable `project-local-identifier' to be considered a project."
 + [ ] create customized sort function
 
 #+begin_src emacs-lisp
-(use-package perspective
-  :init
-  (setq persp-suppress-no-prefix-key-warning t)
-
-  :custom
-  (persp-mode-prefix-key nil)
-  (persp-sort 'access)
-  (persp-modestring-short t)
-
+(use-package persp-mode
+  ;; :custom
+  ;; (persp-mode-prefix-key nil)
+  ;; (persp-sort 'created)
+  ;; (persp-modestring-short t)
   :config
+  (setq persp-nil-name "main")
   (defun persp-show-persps ()
     (interactive)
     (message (concat "[ "
-                     (s-join " | " (persp-names))
+                     (s-join " | " persp-names-cache)
                      " ]")))
 
-  ;; (defun projectile-switch-perspective-project (project-to-switch)
-  ;;   (interactive (list (projectile-completing-read "Switch to project: "
-  ;;                                                  (projectile-relevant-known-projects))))
-  ;;   (let* ((name (or projectile-project-name
-  ;;                  (funcall projectile-project-name-function project-to-switch)))
-  ;;        (persp (gethash name (perspectives-hash))))
-  ;;     (cond
-  ;;      ;; project-specific perspective already exists
-  ;;      ((and persp (not (equal persp (persp-curr))))
-  ;;       (persp-switch name))
-  ;;      ;; persp exists but not match with projectile-name
-  ;;      ((and persp (not (equal persp name)))
-  ;;       (persp-switch name)
-  ;;       (projectile-switch-project-by-name project-to-switch))
-  ;;      ;; project-specific perspective doesn't exist
-  ;;      ((not persp)
-  ;;       (let ((frame (selected-frame)))
-  ;;       (persp-switch name)
-  ;;       (projectile-switch-project-by-name project-to-switch)
-  ;;       ;; Clean up if we switched to a new frame. `helm' for one allows finding
-  ;;       ;; files in new frames so this is a real possibility.
-  ;;       (when (not (equal frame (selected-frame)))
-  ;;         (with-selected-frame frame
-  ;;           (persp-kill name))))))))
+  ;;   (defun persp-names ()
+  ;;     (let ((persps (hash-table-values (perspectives-hash))))
+  ;;       (mapcar 'persp-name (sort persps (lambda (p1 p2)
+  ;;                                          (time-less-p (persp)))))
+  ;;       ))
 
+  ;;   (defun project-switch-project (dir)
+  ;;     "\"Switch\" to another project by running an Emacs command.
+  ;; The available commands are presented as a dispatch menu
+  ;; made from `project-switch-commands'.
+
+  ;; When called in a program, it will use the project corresponding
+  ;; to directory DIR."
+  ;;     (interactive (list (project-prompt-project-dir)))
+  ;;     (let ((command (if (symbolp project-switch-commands)
+  ;;                        project-switch-commands
+  ;;                      (project--switch-project-command))))
+  ;;       (let ((project-current-directory-override dir))
+  ;;         (let ((project-root (project-root (project-current))))
+  ;;           (when project-root
+  ;;             (persp-switch (file-name-nondirectory (directory-file-name project-root)))))
+  ;;         (call-interactively command))))
+  (setq persp-autokill-buffer-on-remove 'kill-weak)
 
   (defun open-config-file ()
     (interactive)
@@ -738,31 +736,51 @@ variable `project-local-identifier' to be considered a project."
     (find-file "~/.emacs.d/config.org")
     (delete-other-windows))
 
+  (defun persp-switch-last ()           ; FIXME record real last
+    (interactive)
+    (persp-switch persp-last-persp-name))
 
-  ;; (define-key global-map [remap projectile-switch-project] 'projectile-switch-perspective-project)
+  (defun persp-move-left ()
+    (interactive)
+    (let ((pos (cl-position persp-last-persp-name persp-names-cache)))
+      (unless (< pos 1)
+        (cl-rotatef (nth (1- pos) persp-names-cache) (nth pos persp-names-cache))))
+    (persp-show-persps))
+
+  (defun persp-move-right ()
+    (interactive)
+    (let ((pos (cl-position persp-last-persp-name persp-names-cache)))
+      (unless (= pos (length persp-names-cache))
+        (cl-rotatef (nth (1+ pos) persp-names-cache) (nth pos persp-names-cache))))
+    (persp-show-persps))
 
   (meow-leader-define-key
-   '("1" . (lambda() (interactive) (persp-switch-by-number 1)))
-   '("2" . (lambda() (interactive) (persp-switch-by-number 2)))
-   '("3" . (lambda() (interactive) (persp-switch-by-number 3)))
-   '("4" . (lambda() (interactive) (persp-switch-by-number 4)))
-   '("5" . (lambda() (interactive) (persp-switch-by-number 5)))
-   '("6" . (lambda() (interactive) (persp-switch-by-number 6)))
-   '("7" . (lambda() (interactive) (persp-switch-by-number 7)))
-   '("8" . (lambda() (interactive) (persp-switch-by-number 8)))
-   '("9" . (lambda() (interactive) (persp-switch-by-number 9)))
+   '("1" . (lambda() (interactive) (persp-switch (nth 0 persp-names-cache)) (persp-show-persps)))
+   '("2" . (lambda() (interactive) (persp-switch (nth 1 persp-names-cache)) (persp-show-persps)))
+   '("3" . (lambda() (interactive) (persp-switch (nth 2 persp-names-cache)) (persp-show-persps)))
+   '("4" . (lambda() (interactive) (persp-switch (nth 3 persp-names-cache)) (persp-show-persps)))
+   '("5" . (lambda() (interactive) (persp-switch (nth 4 persp-names-cache)) (persp-show-persps)))
+   '("6" . (lambda() (interactive) (persp-switch (nth 5 persp-names-cache)) (persp-show-persps)))
+   '("7" . (lambda() (interactive) (persp-switch (nth 6 persp-names-cache)) (persp-show-persps)))
+   '("8" . (lambda() (interactive) (persp-switch (nth 7 persp-names-cache)) (persp-show-persps)))
+   '("9" . (lambda() (interactive) (persp-switch (nth 8 persp-names-cache)) (persp-show-persps)))
    '("f p" . open-config-file)
    '("w s" . persp-switch)
    '("w w" . persp-show-persps)
-   '("w b" . persp-scratch-buffer)
+   ;; '("w b" . persp-scratch-buffer)
    '("TAB s" . persp-switch)
    '("TAB n" . persp-switch)
    '("TAB `" . persp-switch-last)
+   '("TAB j" . persp-move-left)
+   '("TAB k" . persp-move-right)
+   '("TAB h" . persp-prev)
+   '("TAB l" . persp-next)
    '("TAB TAB" . persp-show-persps)
-   '("TAB b" . persp-switch-to-scratch-buffer)
+   '("TAB b" . persp-switch-to-buffer)
+   '("," . persp-switch-to-buffer)
    '("TAB d" . persp-kill)
-   '("TAB D" . (lambda () (interactive) (persp-kill (persp-current-name)))))
-  (persp-mode))
+   '("TAB D" . (lambda () (interactive) (persp-kill (persp-last-persp-name)))))
+  (persp-mode t))
 #+end_src
 
 ** centaur-tabs
