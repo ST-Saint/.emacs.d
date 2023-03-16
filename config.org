@@ -706,28 +706,22 @@ variable `project-local-identifier' to be considered a project."
                      (s-join " | " persp-names-cache)
                      " ]")))
 
-  ;;   (defun persp-names ()
-  ;;     (let ((persps (hash-table-values (perspectives-hash))))
-  ;;       (mapcar 'persp-name (sort persps (lambda (p1 p2)
-  ;;                                          (time-less-p (persp)))))
-  ;;       ))
+  (defun project-switch-project (dir)
+    "\"Switch\" to another project by running an Emacs command.
+  The available commands are presented as a dispatch menu
+  made from `project-switch-commands'.
 
-  ;;   (defun project-switch-project (dir)
-  ;;     "\"Switch\" to another project by running an Emacs command.
-  ;; The available commands are presented as a dispatch menu
-  ;; made from `project-switch-commands'.
-
-  ;; When called in a program, it will use the project corresponding
-  ;; to directory DIR."
-  ;;     (interactive (list (project-prompt-project-dir)))
-  ;;     (let ((command (if (symbolp project-switch-commands)
-  ;;                        project-switch-commands
-  ;;                      (project--switch-project-command))))
-  ;;       (let ((project-current-directory-override dir))
-  ;;         (let ((project-root (project-root (project-current))))
-  ;;           (when project-root
-  ;;             (persp-switch (file-name-nondirectory (directory-file-name project-root)))))
-  ;;         (call-interactively command))))
+  When called in a program, it will use the project corresponding
+  to directory DIR."
+    (interactive (list (project-prompt-project-dir)))
+    (let ((command (if (symbolp project-switch-commands)
+                       project-switch-commands
+                     (project--switch-project-command))))
+      (let ((project-current-directory-override dir))
+        (let ((project-root (project-root (project-current))))
+          (when project-root
+            (persp-switch (file-name-nondirectory (directory-file-name project-root)))))
+        (call-interactively command))))
   (setq persp-autokill-buffer-on-remove 'kill-weak)
 
   (defun open-config-file ()
@@ -844,7 +838,9 @@ variable `project-local-identifier' to be considered a project."
   (meow-normal-define-key
    '("C-<tab>" . centaur-tabs-forward)
    '("C-S-<iso-lefttab>" . centaur-tabs-backward))
-  )
+  (meow-define-keys 'insert
+    '("C-<tab>" . centaur-tabs-forward)
+    '("C-S-<iso-lefttab>" . centaur-tabs-backward)))
 #+end_src
 
 ** winnum
@@ -1645,9 +1641,8 @@ variable `project-local-identifier' to be considered a project."
 
 #+begin_src emacs-lisp
 (use-package citre
-  ;; :config
-  ;; (require 'citre-config)
-  )
+  :config
+  (require 'citre-config))
 #+end_src
 
 *** gtags
