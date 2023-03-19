@@ -407,6 +407,7 @@
   (interactive "nFont-size: ")
   (set-face-attribute 'default nil :height (* font-size 10)))
 
+(set-font-size 18)
 ;; ;; FIXME
 ;; (set-face-attribute 'default nil :font "SauceCodePro Nerd Font" :height 160)
 
