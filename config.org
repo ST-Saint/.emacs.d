@@ -493,6 +493,7 @@
   (meow-leader-define-key
    '("SPC" . beacon-blink))
   (add-to-list 'beacon-dont-blink-commands #'consult-line)
+  (add-to-list 'beacon-dont-blink-major-modes #'pdf-view-mdoe)
   (setq beacon-blink-when-window-scrolls nil)
   (beacon-mode nil))
 #+end_src
