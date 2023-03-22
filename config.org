@@ -1261,6 +1261,8 @@ variable `project-local-identifier' to be considered a project."
 #+begin_src emacs-lisp
 (use-package yasnippet
   :config
+  (add-to-list 'yas-snippet-dirs "/home/yayu/org/yasnippets")
+  (yas-load-directory "/home/yayu/org/yasnippets")
   (add-to-list 'warning-suppress-types '(yasnippet backquote-change))
   (add-hook 'prog-mode-hook #'yas-minor-mode)
   (add-hook 'org-mode-hook #'yas-minor-mode))
@@ -1347,9 +1349,6 @@ variable `project-local-identifier' to be considered a project."
   (setq org-format-latex-options (plist-put org-format-latex-options :scale 3.0))
 
   (add-hook 'org-mode-hook #'visual-fill-column-mode)
-
-  (with-eval-after-load 'yasnippet
-    (add-to-list 'yas-snippet-dirs (concat org-directory "yasnippets")))
 
   (meow-leader-define-key
    '("n c" . org-capture)
