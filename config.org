@@ -70,14 +70,8 @@
 (setq byte-compile-warnings nil
       native-comp-async-report-warnings-errors nil)
 (setq auth-sources '("~/.authinfo.gpg"))
-(setq-default c-basic-offset 'set-from-style)
-(setq c-default-style '(
-                        (c-mode . "linux")
-                        (cc-mode . "linux")
-                        (java-mode . "java")
-                        (awk-mode . "awk")
-                        (python-mode . "python")
-                        (others . "gnu")))
+(setq-default c-basic-offset 4)
+(setq c-default-style nil)
 #+end_src
 
 * handy
@@ -1756,6 +1750,13 @@ variable `project-local-identifier' to be considered a project."
 ** csv
 #+begin_src emacs-lisp
 (use-package csv-mode)
+#+end_src
+
+** dtrt-indent
+#+begin_src emacs-lisp
+(use-package dtrt-indent
+  :config
+  (dtrt-indent-global-mode))
 #+end_src
 
 * pdf
