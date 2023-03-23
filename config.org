@@ -424,7 +424,7 @@
 #+begin_src emacs-lisp
   (use-package visual-fill-column
     :init
-    (setq-default visual-fill-column-width 120)
+    (setq-default visual-fill-column-width 100)
     (setq-default visual-fill-column-center-text t)
     :config
     (meow-leader-define-key
@@ -624,7 +624,8 @@
     (interactive)
     (magit-todos-list (project-root (project-current t))))
 
-  (setq project-switch-commands '((project-find-file "File file" ? )
+  (setq project-switch-commands '((persp-show-persps "" ? )
+                                  (project-find-file "File file" ?f)
                                   (project-open-magit "Magit" ?g)
                                   (project-open-magit-todos "Todos" ?t)))
 
@@ -800,6 +801,7 @@ variable `project-local-identifier' to be considered a project."
    ;; '("w b" . persp-scratch-buffer)
    '("TAB s" . persp-switch)
    '("TAB n" . persp-switch)
+   '("TAB p" . persp-switch)
    '("TAB `" . persp-switch-last)
    '("TAB j" . persp-move-left)
    '("TAB k" . persp-move-right)
@@ -1609,6 +1611,8 @@ variable `project-local-identifier' to be considered a project."
    '("c l d" . lsp-bridge-find-def)
    '("c l r" . lsp-bridge-find-references)
    '("c l s" . lsp-bridge-mode)
+   '("c l S" . lsp-bridge-workspace-list-symbols)
+   '("c l a" . lsp-bridge-code-action)
    '("c l q" . lsp-bridge-kill-process)
    '("c l R" . lsp-bridge-restart-process)))
 #+end_src
@@ -1884,6 +1888,22 @@ variable `project-local-identifier' to be considered a project."
 (use-package vundo)
 #+end_src
 
+* EAF
+#+begin_src emacs-lisp
+(use-package eaf
+  :ensure nil
+  :quelpa (eaf
+           :fetcher github
+           :repo  "manateelazycat/emacs-application-framework"
+           :files ("*"))
+  :config
+  (add-to-list 'load-path (concat user-emacs-directory "/quelpa/build/eaf/"))
+  (require 'eaf-demo)
+  (require 'eaf-browser)
+  (require 'eaf-pdf-viewer))
+#+end_src
+
+
 * email
 ** mu4e
 #+begin_src emacs-lisp
@@ -2016,7 +2036,6 @@ variable `project-local-identifier' to be considered a project."
   (setq org-msg-signature "#+begin_signature\nBest,\n\n-- *Yayu*\n#+end_signature")
   (org-msg-mode))
 #+end_src
-
 
 * misc
 ** subword
