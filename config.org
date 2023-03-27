@@ -730,10 +730,13 @@ variable `project-local-identifier' to be considered a project."
   ;; (persp-sort 'created)
   ;; (persp-modestring-short t)
   :config
+  (setq persp-previous-persp-name nil)
   (setq persp-nil-name "main")
   (defun persp-show-persps ()
     (interactive)
-    (message (concat "[ "
+    (message (concat persp-last-persp-name
+                     " ----- "
+                     "[ "
                      (s-join " | " persp-names-cache)
                      " ]")))
 
@@ -761,9 +764,14 @@ variable `project-local-identifier' to be considered a project."
     (find-file "~/.emacs.d/config.org")
     (delete-other-windows))
 
-  (defun persp-switch-last ()           ; FIXME record real last
+  (defun persp-save-previous-persp-name (name frame)
+    (setq persp-previous-persp-name persp-last-persp-name))
+
+  (add-hook 'persp-before-switch-functions #'persp-save-previous-persp-name)
+
+  (defun persp-switch-last ()
     (interactive)
-    (persp-switch persp-last-persp-name))
+    (persp-switch persp-previous-persp-name))
 
   (defun persp-move-left ()
     (interactive)
@@ -1598,7 +1606,7 @@ variable `project-local-identifier' to be considered a project."
   (setq lsp-bridge-enable-hover-diagnostic t)
   (setq acm-markdown-render-font-height 160)
   (setq acm-backend-lsp-candidate-max-length 200)
-  (setq acm-backend-lsp-candidate-min-length 2)
+  (setq acm-backend-lsp-candidate-min-length 0)
   (setq lsp-bridge-complete-manually nil)
 
   (meow-leader-define-key
