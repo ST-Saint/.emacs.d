@@ -765,7 +765,8 @@ variable `project-local-identifier' to be considered a project."
     (delete-other-windows))
 
   (defun persp-save-previous-persp-name (name frame)
-    (setq persp-previous-persp-name persp-last-persp-name))
+    (unless (eq name persp-last-persp-name)
+      (setq persp-previous-persp-name persp-last-persp-name)))
 
   (add-hook 'persp-before-switch-functions #'persp-save-previous-persp-name)
 
@@ -1612,11 +1613,13 @@ variable `project-local-identifier' to be considered a project."
   (meow-leader-define-key
    '("c l d" . lsp-bridge-find-def)
    '("c l r" . lsp-bridge-find-references)
+   '("c l R" . lsp-bridge-rename)
+   '("c l I" . lsp-bridge-find-impl)
    '("c l s" . lsp-bridge-mode)
    '("c l S" . lsp-bridge-workspace-list-symbols)
    '("c l a" . lsp-bridge-code-action)
    '("c l q" . lsp-bridge-kill-process)
-   '("c l R" . lsp-bridge-restart-process)))
+   '("c l Q" . lsp-bridge-restart-process)))
 #+end_src
 
 #+begin_src emacs-lisp :tangle no
@@ -1909,6 +1912,7 @@ variable `project-local-identifier' to be considered a project."
   (add-to-list 'load-path (concat user-emacs-directory "/quelpa/build/eaf/"))
   (require 'eaf-demo)
   (require 'eaf-browser)
+  (require 'eaf-file-sender)
   (require 'eaf-pdf-viewer))
 #+end_src
 
