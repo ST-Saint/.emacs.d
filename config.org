@@ -1531,7 +1531,15 @@ variable `project-local-identifier' to be considered a project."
 #+begin_src emacs-lisp
 (use-package format-all
   :config
-  (add-hook 'c-mode-hook (lambda () (setq-local format-all-formatters `(("C" (clang-format ,(concat "-style=file:" (expand-file-name "~/.clang-format"))))))))
+
+  (defun format-all-set-formatter ()
+    (let ((format-all-directory (file-name-directory (buffer-file-name))))
+      (while (not (file-exists-p (concat format-all-directory ".clang-format")))
+        (setq format-all-directory (concat format-all-directory "../")))
+      (setq-local format-all-formatters `(("C" (clang-format ,(concat "-style=file:" (concat format-all-directory ".clang-format"))))))))
+
+  (add-hook 'c-mode-hook #'format-all-set-formatter)
+  (add-hook 'java-mode-hook #'format-all-set-formatter)
   (meow-leader-define-key
    '("c f" . format-all-buffer)))
 #+end_src
