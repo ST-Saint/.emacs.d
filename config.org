@@ -84,6 +84,8 @@
 
 (global-hl-line-mode 't)
 
+(column-number-mode t)
+
 (setq compilation-scroll-output t)
 
 (add-hook 'before-save-hook #'whitespace-cleanup)
