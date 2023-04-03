@@ -1580,7 +1580,7 @@ variable `project-local-identifier' to be considered a project."
 ** flyspell-correct
 #+begin_src emacs-lisp
 (use-package flyspell-correct
-  :after flyspell
+  :after flyspell org
   :bind (:map flyspell-mode-map ("C-;" . flyspell-correct-wrapper))
   :config
   (add-hook 'org-mode-hook #'flyspell-mode))
@@ -1870,6 +1870,12 @@ variable `project-local-identifier' to be considered a project."
 #+begin_src emacs-lisp
 (use-package restclient)
 #+end_src
+
+** lua
+#+begin_src emacs-lisp
+(use-package lua-mode)
+#+end_src
+
 
 ** latex
 
