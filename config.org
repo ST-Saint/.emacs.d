@@ -807,6 +807,7 @@ variable `project-local-identifier' to be considered a project."
    '("TAB s" . persp-switch)
    '("TAB n" . persp-switch)
    '("TAB p" . persp-switch)
+   '("p s" . persp-switch)
    '("TAB `" . persp-switch-last)
    '("TAB j" . persp-move-left)
    '("TAB k" . persp-move-right)
@@ -1878,6 +1879,12 @@ variable `project-local-identifier' to be considered a project."
 (use-package lua-mode)
 #+end_src
 
+** ocaml
+
+#+begin_src emacs-lisp
+(use-package tuareg)
+#+end_src
+
 
 ** latex
 
@@ -2017,7 +2024,7 @@ variable `project-local-identifier' to be considered a project."
 * shell
 
 #+begin_src emacs-lisp
-(setq sh-shell "/bin/bash")
+(setq sh-shell "/bin/zsh")
 #+end_src
 
 ** vterm
@@ -2030,6 +2037,16 @@ variable `project-local-identifier' to be considered a project."
   (meow-leader-define-key
    '("o t" . vterm)))
 #+end_src
+
+** exec-path-from-shell
+#+begin_src emacs-lisp
+(use-package exec-path-from-shell
+  :config
+  (when (memq window-system '(mac ns x))
+    (exec-path-from-shell-initialize)))
+
+#+end_src
+
 
 * docker
 #+begin_src emacs-lisp
