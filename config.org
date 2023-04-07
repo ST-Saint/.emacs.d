@@ -395,6 +395,12 @@
   (setq doom-modeline-buffer-file-name-style 'truncate-with-project))
 #+end_src
 
+** color
+#+begin_src emacs-lisp
+(use-package rainbow-mode)
+#+end_src
+
+
 ** font
 #+begin_src emacs-lisp
 (set-frame-font "SauceCodePro Nerd Font 16" nil t)
@@ -1542,7 +1548,9 @@ variable `project-local-identifier' to be considered a project."
       (setq-local format-all-formatters `(("C" (clang-format ,(concat "-style=file:" (concat format-all-directory ".clang-format"))))))))
 
   (add-hook 'c-mode-hook #'format-all-set-formatter)
+  (add-hook 'c-ts-mode-hook #'format-all-set-formatter)
   (add-hook 'java-mode-hook #'format-all-set-formatter)
+  (add-hook 'java-ts-mode-hook #'format-all-set-formatter)
   (meow-leader-define-key
    '("c f" . format-all-buffer)))
 #+end_src
@@ -1929,6 +1937,12 @@ variable `project-local-identifier' to be considered a project."
   :config
   (dtrt-indent-global-mode))
 #+end_src
+
+** cmake
+#+begin_src emacs-lisp
+(use-package cmake-mode)
+#+end_src
+
 
 * pdf
 
