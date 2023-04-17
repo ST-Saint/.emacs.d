@@ -1748,6 +1748,7 @@ variable `project-local-identifier' to be considered a project."
   (java-mode . lsp-bridge-mode)
   (java-ts-mode . lsp-bridge-mode)
   (python-mode . lsp-bridge-mode)
+  (python-ts-mode . lsp-bridge-mode)
 
   :config
   (setq lsp-bridge-enable-log nil)
@@ -1757,6 +1758,9 @@ variable `project-local-identifier' to be considered a project."
   (setq acm-backend-lsp-candidate-min-length 0)
   (setq lsp-bridge-complete-manually nil)
   (setq lsp-bridge-user-langserver-dir "/home/yayu/.emacs.d/")
+
+  (setq lsp-bridge-complete-manually t)
+  (setq lsp-bridge-python-lsp-server 'pyright)
 
   (meow-leader-define-key
    '("c l d" . lsp-bridge-find-def)
