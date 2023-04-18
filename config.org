@@ -1294,7 +1294,6 @@ variable `project-local-identifier' to be considered a project."
   :bind
   (:map org-mode-map
         ("C-M-<return>" . org-insert-subheading))
-
   :init
   (org-babel-do-load-languages
    'org-babel-load-languages
@@ -1360,12 +1359,14 @@ variable `project-local-identifier' to be considered a project."
   (setq org-directory "/home/yayu/org/")
   (setq org-agenda-files '("/home/yayu/org/todo.org"))
   (setq org-default-notes-file (concat org-directory "notes.org"))
+
+  :config
   ;; TODO replace imenu with org-goto
   (define-key org-mode-map (kbd "C-c s i") #'org-goto)
   (setq org-format-latex-options (plist-put org-format-latex-options :scale 3.0))
 
   (add-hook 'org-mode-hook #'visual-fill-column-mode)
-
+  (add-hook 'org-mode-hook #'flyspell-mode)
   (meow-leader-define-key
    '("n c" . org-capture)
    '("n L" . org-store-link)))
@@ -1583,9 +1584,7 @@ variable `project-local-identifier' to be considered a project."
 #+begin_src emacs-lisp
 (use-package flyspell-correct
   :after flyspell org
-  :bind (:map flyspell-mode-map ("C-;" . flyspell-correct-wrapper))
-  :config
-  (add-hook 'org-mode-hook #'flyspell-mode))
+  :bind (:map flyspell-mode-map ("C-;" . flyspell-correct-wrapper)))
 #+end_src
 
 * language
@@ -2090,7 +2089,6 @@ variable `project-local-identifier' to be considered a project."
            :repo  "manateelazycat/emacs-application-framework"
            :files ("*"))
   :config
-  (add-to-list 'load-path (concat user-emacs-directory "/quelpa/build/eaf/"))
   (require 'eaf-demo)
   (require 'eaf-browser)
   (require 'eaf-file-sender)
