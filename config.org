@@ -2091,8 +2091,7 @@ variable `project-local-identifier' to be considered a project."
   :config
   (require 'eaf-demo)
   (require 'eaf-browser)
-  (require 'eaf-file-sender)
-  (require 'eaf-pdf-viewer))
+  (require 'eaf-file-sender))
 #+end_src
 
 
