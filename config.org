@@ -96,7 +96,7 @@
 (setq recentf-max-saved-items nil)
 
 (setq-default indent-tabs-mode nil)
-(setq electric-indent-mode nil)
+(setq electric-indent-mode t)
 
 (or (server-mode)
     (server-start))
@@ -1758,8 +1758,11 @@ variable `project-local-identifier' to be considered a project."
   (setq lsp-bridge-complete-manually nil)
   (setq lsp-bridge-user-langserver-dir "/home/yayu/.emacs.d/")
 
-  (setq lsp-bridge-complete-manually t)
+  (setq lsp-bridge-complete-manually nil)
   (setq lsp-bridge-python-lsp-server 'pyright)
+  ;; (setq lsp-bridge-tex-lsp-server 'digestif)
+
+  (define-key lsp-bridge-mode-map (kbd "C-M-i") #'lsp-bridge-popup-complete-menu)
 
   (meow-leader-define-key
    '("c l d" . lsp-bridge-find-def)
@@ -1824,6 +1827,10 @@ variable `project-local-identifier' to be considered a project."
 #+begin_src emacs-lisp
 (use-package cc-mode
   :config
+  (add-to-list 'major-mode-remap-alist '(c-mode . c-ts-mode))
+  (add-to-list 'major-mode-remap-alist '(c++-mode . c++-ts-mode))
+  (add-to-list 'major-mode-remap-alist '(c-or-c++-mode . c-or-c++-ts-mode))
+  (setq c-ts-mode-indent-offset 4)
   (setq lsp-clients-clangd-args
         '("-j=3"
           "--background-index"
@@ -1900,10 +1907,11 @@ variable `project-local-identifier' to be considered a project."
   :defer t
   :ensure auctex
   :config
-  (setq TeX-auto-save t))
-
-(use-package auctex
-  :defer t)
+  (setq TeX-auto-save t)
+  (setq TeX-view-program-list '(("PDF Tools" TeX-pdf-tools-sync-view))
+        TeX-view-program-selection '((output-pdf "PDF Tools"))
+        TeX-source-correlate-start-server t)
+  )
 #+end_src
 
 #+begin_src emacs-lisp
@@ -1919,7 +1927,8 @@ variable `project-local-identifier' to be considered a project."
           :repo "karthink/org-auctex"))
 
 (use-package org-auctex
-  :ensure nil)
+  :ensure nil
+  :after auctex)
 #+end_src
 
 ** csv
@@ -1944,35 +1953,36 @@ variable `project-local-identifier' to be considered a project."
 
 ** pdf-tools
 #+begin_src emacs-lisp
-(quelpa '(pdf-tools
-          :fetcher github
-          :repo "ST-Saint/pdf-tools"
-          :branch "pdf-roll"
-          :files ("lisp/*.el"
-                  "README"
-                  ("build" "Makefile")
-                  ("build" "server")
-                  (:exclude "lisp/tablist.el" "lisp/tablist-filter.el"))))
+;; (quelpa '(pdf-tools
+;;           :fetcher github
+;;           :repo "ST-Saint/pdf-tools"
+;;           :branch "pdf-roll"
+;;           :files ("lisp/*.el"
+;;                   "README"
+;;                   ("build" "Makefile")
+;;                   ("build" "server")
+;;                   (:exclude "lisp/tablist.el" "lisp/tablist-filter.el"))))
 
 (use-package pdf-tools
-  :ensure nil
+  ;; :ensure nil
   :config
   (with-eval-after-load 'pdf-tools
     (pdf-tools-install))
-  (define-key pdf-view-roll-minor-mode-map (kbd "<wheel-up>") (lambda () (interactive) (pdf-view-previous-line-or-previous-page 2)))
-  (define-key pdf-view-roll-minor-mode-map (kbd "<wheel-down>") (lambda () (interactive) (pdf-view-next-line-or-next-page 2))))
+  ;; (define-key pdf-view-roll-minor-mode-map (kbd "<wheel-up>") (lambda () (interactive) (pdf-view-previous-line-or-previous-page 2)))
+  ;; (define-key pdf-view-roll-minor-mode-map (kbd "<wheel-down>") (lambda () (interactive) (pdf-view-next-line-or-next-page 2)))
+  )
 #+end_src
 
 
 ** image-roll
 #+begin_src emacs-lisp
-(quelpa '(image-roll
-            :fetcher github
-            :repo "dalanicolai/image-roll.el"))
+;; (quelpa '(image-roll
+;;             :fetcher github
+;;             :repo "dalanicolai/image-roll.el"))
 
-(use-package image-roll
-  :config
-  (add-hook 'pdf-view-mode-hook #'pdf-view-roll-minor-mode))
+;; (use-package image-roll
+;;   :config
+;;   (add-hook 'pdf-view-mode-hook #'pdf-view-roll-minor-mode))
 #+end_src
 
 ** org-noter
@@ -2220,10 +2230,10 @@ variable `project-local-identifier' to be considered a project."
                                        (reply-to-text	. (text)))
         org-msg-convert-citation t)
 
-  (setq org-msg-enforce-css '((p nil
-  ((font-size . "12pt")))
-  (li nil
-  ((font-size . "12pt")))))
+  ;; (setq org-msg-enforce-css '((p nil
+  ;; ((font-size . "12pt")))
+  ;; (li nil
+  ;; ((font-size . "12pt")))))
   (setq org-msg-signature "#+begin_signature\nBest,\n\n-- *Yayu*\n#+end_signature")
   (org-msg-mode))
 #+end_src
