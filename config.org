@@ -774,7 +774,7 @@ variable `project-local-identifier' to be considered a project."
     (delete-other-windows))
 
   (defun persp-save-previous-persp-name (name frame)
-    (unless (eq name persp-last-persp-name)
+    (unless (equal name persp-last-persp-name)
       (setq persp-previous-persp-name persp-last-persp-name)))
 
   (add-hook 'persp-before-switch-functions #'persp-save-previous-persp-name)
@@ -1883,15 +1883,36 @@ variable `project-local-identifier' to be considered a project."
 #+end_src
 
 ** Javascript/Typescript
+
+#+begin_src emacs-lisp
+(use-package typescript-mode
+  :config
+  (add-to-list 'major-mode-remap-alist '(typescript-mode . typescript-ts-mode))
+  (setq typescript-ts-mode-indent-offset 4))
+#+end_src
+
+
 *** restclient
 #+begin_src emacs-lisp
-(use-package restclient)
+(use-package restclient
+  :config
+  (setq auto-mode-alist
+        (append
+         '(("\\.http\\'" . restclient-mode))
+         auto-mode-alist))
+  )
 #+end_src
 
 ** lua
 #+begin_src emacs-lisp
 (use-package lua-mode)
 #+end_src
+
+** yaml
+#+begin_src emacs-lisp
+(use-package yaml-mode)
+#+end_src
+
 
 ** ocaml
 
