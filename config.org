@@ -502,6 +502,15 @@
 #+end_src
 **** TODO better flush
 
+*** googles
+#+begin_src emacs-lisp
+(use-package goggles
+  :hook ((prog-mode text-mode) . goggles-mode)
+  :config
+  (setq-default goggles-pulse t))
+#+end_src
+
+
 *** rainbow-delimiters
 #+begin_src emacs-lisp
 (use-package rainbow-delimiters
@@ -635,76 +644,6 @@
   (setq project-vc-merge-submodules nil)
   (setq vc-dir-backend 'git
         vc-handled-backends '(Git))
-
-  (defgroup project-local nil
-    "Local, non-VC-backed project.el root directories."
-    :group 'project)
-
-  (defcustom project-local-identifier ".project"
-    "Specify a single filename or a list of names."
-    :type '(choice (string :tag "Single file")
-                   (repeat (string :tag "Filename")))
-    :group 'project-local)
-
-  (cl-defmethod project-root ((project (head local)))
-    "Return root directory of current PROJECT."
-    (cdr project))
-
-  (defun project-local-try-local (dir)
-    "Determine if DIR is a non-VC project.
-DIR must include a file with the name determined by the
-variable `project-local-identifier' to be considered a project."
-    (if-let ((root (if (listp project-local-identifier)
-                       (seq-some (lambda (n)
-                                   (locate-dominating-file dir n))
-                                 project-local-identifier)
-                     (locate-dominating-file dir project-local-identifier))))
-        (cons 'local root)))
-
-  (customize-set-variable 'project-find-functions
-                          (list #'project-try-vc
-                                #'project-local-try-local))
-
-
-  (defun filepath-equal (p1 p2)
-    (equal (expand-file-name p1) (expand-file-name p2)))
-
-  (defun project-realpath (filepath)
-    (if (or (string-prefix-p "/" filepath)
-            (or (string-prefix-p "~/" filepath)
-                (file-directory-p filepath)))
-        filepath
-      (concat (if (project-current) (project-root (project-current)) nil) filepath)))
-
-  (defun project-nth-recentf (file)
-    (or (cl-position (project-realpath file)
-                     recentf-list :test #'filepath-equal)
-        65536))
-
-  (defun project-sort-files (files)
-    (if (< (length files) 1024)
-        (mapcar #'car
-                (seq-sort (lambda (tp1 tp2)
-                            ;; Want existing, most recent, local files first.
-                            (cl-destructuring-bind (f1 rp1 rk1 t1) tp1
-                              (cl-destructuring-bind (f2 rp2 rk2 t2) tp2
-                                (cond ((not (file-exists-p rp1)) nil)
-                                      ((not (file-exists-p rp2)) t)
-                                      ((not (equal rk1 rk2)) (< rk1 rk2))
-                                      (t (time-less-p t2 t1))))))
-
-                          (if (< (length files) 256)
-                              (mapcar (lambda (f)
-                                        (list f (project-realpath f) (project-nth-recentf f) (file-attribute-modification-time (file-attributes (project-realpath f))))) files)
-                            (mapcar (lambda (f)
-                                      (list f (project-realpath f) 0 (file-attribute-modification-time (file-attributes (project-realpath f))))) files)
-                            )))
-      files))
-
-  ;; TODO improve complexity
-  (setq vertico-multiform-commands
-        '((project-find-file (vertico-sort-override-function . project-sort-files))
-          (project-switch-project (vertico-sort-override-function . project-sort-files))))
 
   (meow-leader-define-key
    '("p p" . project-switch-project)
@@ -1281,6 +1220,7 @@ variable `project-local-identifier' to be considered a project."
   (yas-load-directory "/home/yayu/org/yasnippets")
   (add-to-list 'warning-suppress-types '(yasnippet backquote-change))
   (add-hook 'prog-mode-hook #'yas-minor-mode)
+  (add-hook 'latex-mode-hook #'yas-minor-mode)
   (add-hook 'org-mode-hook #'yas-minor-mode))
 
 (use-package yasnippet-snippets
@@ -1748,6 +1688,8 @@ variable `project-local-identifier' to be considered a project."
   (java-ts-mode . lsp-bridge-mode)
   (python-mode . lsp-bridge-mode)
   (python-ts-mode . lsp-bridge-mode)
+  (typescript-mode . lsp-bridge-mode)
+  (typescript-ts-mode . lsp-bridge-mode)
 
   :config
   (setq lsp-bridge-enable-log nil)
@@ -1759,8 +1701,8 @@ variable `project-local-identifier' to be considered a project."
   (setq lsp-bridge-user-langserver-dir "/home/yayu/.emacs.d/")
 
   (setq lsp-bridge-complete-manually nil)
-  (setq lsp-bridge-python-lsp-server 'pyright)
-  ;; (setq lsp-bridge-tex-lsp-server 'digestif)
+  ;; (setq lsp-bridge-python-lsp-server 'pyright)
+  (setq lsp-bridge-tex-lsp-server 'digestif)
 
   (define-key lsp-bridge-mode-map (kbd "C-M-i") #'lsp-bridge-popup-complete-menu)
 
@@ -1969,6 +1911,11 @@ variable `project-local-identifier' to be considered a project."
 (use-package cmake-mode)
 #+end_src
 
+** dot
+#+begin_src emacs-lisp
+(use-package graphviz-dot-mode)
+#+end_src
+
 
 * pdf
 
@@ -2077,6 +2024,7 @@ variable `project-local-identifier' to be considered a project."
   :config
   (setq vterm-shell "/bin/zsh")
 
+  (setq vterm-buffer-name-string "vterm %s")
   (setq vterm-max-scrollback 65536)
   (meow-leader-define-key
    '("o t" . vterm)))
@@ -2251,10 +2199,10 @@ variable `project-local-identifier' to be considered a project."
                                        (reply-to-text	. (text)))
         org-msg-convert-citation t)
 
-  ;; (setq org-msg-enforce-css '((p nil
-  ;; ((font-size . "12pt")))
-  ;; (li nil
-  ;; ((font-size . "12pt")))))
+  (setq org-msg-enforce-css '((p nil
+  ((font-size . "16pt")))
+  (li nil
+  ((font-size . "16pt")))))
   (setq org-msg-signature "#+begin_signature\nBest,\n\n-- *Yayu*\n#+end_signature")
   (org-msg-mode))
 #+end_src
