@@ -1265,6 +1265,8 @@
         org-indent-indentation-per-level 4
         org-list-allow-alphabetical t
         org-goto-interface 'outline-path-completionp
+        org-image-actual-width nil
+        org-display-remote-inline-images 'download
         org-outline-path-complete-in-steps nil)
 
   (set-face-attribute 'org-ellipsis nil :bold nil)
@@ -1684,6 +1686,8 @@
   (lsp-bridge-mode . (lambda () (corfu-mode -1)))
   (c-mode . lsp-bridge-mode)
   (c-ts-mode . lsp-bridge-mode)
+  (c++-mode . lsp-bridge-mode)
+  (c++-ts-mode . lsp-bridge-mode)
   (java-mode . lsp-bridge-mode)
   (java-ts-mode . lsp-bridge-mode)
   (python-mode . lsp-bridge-mode)
@@ -1845,6 +1849,12 @@
   )
 #+end_src
 
+** rust
+#+begin_src emacs-lisp
+(use-package rust-mode)
+#+end_src
+
+
 ** lua
 #+begin_src emacs-lisp
 (use-package lua-mode)
@@ -1870,6 +1880,7 @@
   :defer t
   :ensure auctex
   :config
+  (add-hook 'latex-mode-hook #'flyspell-mode)
   (setq TeX-auto-save t)
   (setq TeX-view-program-list '(("PDF Tools" TeX-pdf-tools-sync-view))
         TeX-view-program-selection '((output-pdf "PDF Tools"))
@@ -1915,7 +1926,6 @@
 #+begin_src emacs-lisp
 (use-package graphviz-dot-mode)
 #+end_src
-
 
 * pdf
 
