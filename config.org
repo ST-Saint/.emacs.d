@@ -1996,19 +1996,17 @@ as it is needed to get the database path."
 
 ** org-pdftools
 #+begin_src emacs-lisp
-(quelpa '(org-pdftools
-            :fetcher github
-            :repo "ST-Saint/org-pdftools"))
-
 (use-package org-pdftools
+  :quelpa (org-pdftools
+           :fetcher github
+           :repo "ST-Saint/org-pdftools")
   :after pdf-tools
   :hook (org-mode . org-pdftools-setup-link))
 
-(quelpa '(org-noter-pdftools
-            :fetcher github
-            :repo "ST-Saint/org-pdftools"))
-
 (use-package org-noter-pdftools
+  :quelpa (org-pdftools
+           :fetcher github
+           :repo "ST-Saint/org-pdftools")
   :after org-pdftools
   :bind
   (:map org-noter-notes-mode-map
