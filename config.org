@@ -751,8 +751,8 @@
    '("w w" . persp-show-persps)
    ;; '("w b" . persp-scratch-buffer)
    '("TAB s" . persp-switch)
-   '("TAB n" . persp-switch)
    '("TAB p" . persp-switch)
+   '("TAB SPC" . persp-switch)
    '("p s" . persp-switch)
    '("TAB `" . persp-switch-last)
    '("TAB j" . persp-move-left)
@@ -1793,24 +1793,25 @@
   :config
   (require 'citre-config)
   (defun citre-global-dbpath (&optional dir)
-  "Get global database path.
+    "Get global database path.
 This is the directory containing the GTAGS file.  When DIR is
 non-nil, find database of that directory, otherwise find the
 database of current directory.
 
 When the global program is not found on the machine, return nil
 as it is needed to get the database path."
-  (when (citre-executable-find (or citre-global-program "global") t)
-    (pcase citre--global-dbpath
-      ('none nil)
-      ((and val (pred stringp) (pred citre-dir-exists-p)) val)
-      (_ (let ((default-directory (or default-directory dir)))
-           (condition-case nil
-               (setq citre--global-dbpath
-                     (string-trim (shell-command-to-string (concat citre--global-dbpath " --print-dbpath")))
-                     )
-             (error (setq citre--global-dbpath 'none)
-                    nil))))))))
+    (when (citre-executable-find (or citre-global-program "global") t)
+      (pcase citre--global-dbpath
+        ('none nil)
+        ((and val (pred stringp) (pred citre-dir-exists-p)) val)
+        (_ (let ((default-directory (or default-directory dir)))
+             (condition-case nil
+                 (setq citre--global-dbpath
+                       ;; (citre-global--get-output-lines '("--print-dbpath"))
+                       (string-trim (shell-command-to-string (concat (or citre-global-program "global") " --print-dbpath")))
+                       )
+               (error (setq citre--global-dbpath 'none)
+                      nil))))))))
 #+end_src
 
 *** gtags
