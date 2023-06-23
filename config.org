@@ -382,7 +382,7 @@
                 dashboard-mook-hook
                 so-long-mode-hook
                 pdf-view-mode-hook))
-  (add-hook mode (lambda () (display-line-numbers-mode nil))))
+  (add-hook mode (lambda () (display-line-numbers-mode -1))))
 #+end_src
 
 ** theme
@@ -1809,10 +1809,12 @@ as it is needed to get the database path."
         ((and val (pred stringp) (pred citre-dir-exists-p)) val)
         (_ (let ((default-directory (or default-directory dir)))
              (condition-case nil
-                 (setq citre--global-dbpath
-                       ;; (citre-global--get-output-lines '("--print-dbpath"))
-                       (string-trim (shell-command-to-string (concat (or citre-global-program "global") " --print-dbpath")))
-                       )
+                 (progn
+                   (setq dbpath (string-trim (shell-command-to-string (concat (or citre-global-program "global") " --print-dbpath"))))
+                   (setq citre--global-dbpath
+                         (if (equal dbpath "global: GTAGS not found.")
+                             nil
+                           dbpath)))
                (error (setq citre--global-dbpath 'none)
                       nil))))))))
 #+end_src
