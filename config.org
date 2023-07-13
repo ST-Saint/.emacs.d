@@ -1971,6 +1971,7 @@ as it is needed to get the database path."
   :config
   (with-eval-after-load 'pdf-tools
     (pdf-tools-install))
+  (set-face-attribute 'pdf-view-region nil :inherit 'highlight)
   ;; (define-key pdf-view-roll-minor-mode-map (kbd "<wheel-up>") (lambda () (interactive) (pdf-view-previous-line-or-previous-page 2)))
   ;; (define-key pdf-view-roll-minor-mode-map (kbd "<wheel-down>") (lambda () (interactive) (pdf-view-next-line-or-next-page 2)))
   )
