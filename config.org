@@ -1709,7 +1709,7 @@
 
   (setq lsp-bridge-complete-manually nil)
   ;; (setq lsp-bridge-python-lsp-server 'pyright)
-  (setq lsp-bridge-tex-lsp-server 'digestif)
+  (setq lsp-bridge-tex-lsp-server 'texlab)
 
   (define-key lsp-bridge-mode-map (kbd "C-M-i") #'lsp-bridge-popup-complete-menu)
 
