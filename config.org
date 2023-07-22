@@ -390,7 +390,7 @@
 (use-package doom-themes
   :config
   (load-theme 'doom-one t)
-  (doom-themes-org-config)
+  ;; (doom-themes-org-config)
   (set-face-attribute 'hl-line nil :inherit nil :background "gray8")
   (set-face-attribute 'region nil :background "#4F5766")
   (setq doom-modeline-project-detection 'project)
