@@ -1697,6 +1697,7 @@
   (python-ts-mode . lsp-bridge-mode)
   (typescript-mode . lsp-bridge-mode)
   (typescript-ts-mode . lsp-bridge-mode)
+  (latex-mode . lsp-bridge-mode)
 
   :config
   (setq lsp-bridge-enable-log nil)
