@@ -2215,7 +2215,14 @@ as it is needed to get the database path."
         message-send-mail-function #'message-send-mail-with-sendmail)
 
   (meow-leader-define-key
-   '("o m" . (lambda () (interactive) (persp-switch "mu4e") (mu4e))))
+   '("o m" . (lambda ()
+               (interactive)
+               (if (find "mu4e" persp-names-cache :test #'equal)
+                   (if (equal "mu4e "persp-last-persp-name)
+                       (mu4e)
+                     (persp-switch "mu4e"))
+                 (persp-switch "mu4e")
+                 (mu4e)))))
   )
 #+end_src
 
