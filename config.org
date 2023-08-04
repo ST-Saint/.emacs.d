@@ -90,6 +90,8 @@
 
 (add-hook 'before-save-hook #'whitespace-cleanup)
 
+(setq-default truncate-lines 't)
+
 (setq use-dialog-box nil)
 
 (recentf-mode t)
@@ -1532,12 +1534,26 @@
   :bind (:map flyspell-mode-map ("C-;" . flyspell-correct-wrapper)))
 #+end_src
 
+** grammerly
+
+#+begin_src emacs-lisp
+(use-package grammarly)
+
+(use-package flycheck-grammarly
+  :after grammarly
+  :config
+  (setq flycheck-grammarly-check-time 0.8)
+  (with-eval-after-load 'flycheck
+  (flycheck-grammarly-setup)))
+#+end_src
+
+
 * language
 
 ** english
 
 ** tree-sitter
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
 (use-package treesit-auto
   :config
   (add-hook 'java-ts-mode (lambda ()
@@ -1777,9 +1793,9 @@
 #+begin_src emacs-lisp
 (use-package cc-mode
   :config
-  (add-to-list 'major-mode-remap-alist '(c-mode . c-ts-mode))
-  (add-to-list 'major-mode-remap-alist '(c++-mode . c++-ts-mode))
-  (add-to-list 'major-mode-remap-alist '(c-or-c++-mode . c-or-c++-ts-mode))
+  ;; (add-to-list 'major-mode-remap-alist '(c-mode . c-ts-mode))
+  ;; (add-to-list 'major-mode-remap-alist '(c++-mode . c++-ts-mode))
+  ;; (add-to-list 'major-mode-remap-alist '(c-or-c++-mode . c-or-c++-ts-mode))
   (setq c-ts-mode-indent-offset 4)
   (setq lsp-clients-clangd-args
         '("-j=3"
@@ -1859,7 +1875,7 @@ as it is needed to get the database path."
 #+begin_src emacs-lisp
 (use-package typescript-mode
   :config
-  (add-to-list 'major-mode-remap-alist '(typescript-mode . typescript-ts-mode))
+  ;; (add-to-list 'major-mode-remap-alist '(typescript-mode . typescript-ts-mode))
   (setq typescript-ts-mode-indent-offset 4))
 #+end_src
 
@@ -2095,17 +2111,13 @@ as it is needed to get the database path."
 #+end_src
 
 * EAF
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
 (use-package eaf
   :ensure nil
-  :quelpa (eaf
-           :fetcher github
-           :repo  "manateelazycat/emacs-application-framework"
-           :files ("*"))
+  :load-path "/home/yayu/.emacs.d/quelpa/build/eaf"
   :config
   (require 'eaf-demo)
-  (require 'eaf-browser)
-  (require 'eaf-file-sender))
+  (require 'eaf-browser))
 #+end_src
 
 
