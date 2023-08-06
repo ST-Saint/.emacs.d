@@ -1098,87 +1098,89 @@
 ** corfu
 
 #+begin_src emacs-lisp
-(use-package corfu
-  :custom
-  ;; (corfu-cycle t)                ;; Enable cycling for `corfu-next/previous'
-  (corfu-auto t)                    ;; Enable auto completion
-  ;; (corfu-separator ?`)           ;; Orderless field separator
-  ;; (corfu-quit-at-boundary nil)   ;; Never quit at completion boundary
-  ;; (corfu-quit-no-match nil)      ;; Never quit, even if there is no match
-  ;; (corfu-preview-current nil)    ;; Disable current candidate preview
-  (corfu-preselect-first t)         ;; Disable candidate preselection
-  ;; (corfu-on-exact-match nil)     ;; Configure handling of exact matches
-  ;; (corfu-echo-documentation nil) ;; Disable documentation in the echo area
-  (corfu-auto-delay 0.5)
-  (corfu-scroll-margin 5)        ;; Use scroll margin
+  (use-package corfu
+    :custom
+    ;; (corfu-cycle t)                ;; Enable cycling for `corfu-next/previous'
+    (corfu-auto t)                    ;; Enable auto completion
+    ;; (corfu-separator ?`)           ;; Orderless field separator
+    ;; (corfu-quit-at-boundary nil)   ;; Never quit at completion boundary
+    ;; (corfu-quit-no-match nil)      ;; Never quit, even if there is no match
+    ;; (corfu-preview-current nil)    ;; Disable current candidate preview
+    (corfu-preselect-first t)         ;; Disable candidate preselection
+    ;; (corfu-on-exact-match nil)     ;; Configure handling of exact matches
+    ;; (corfu-echo-documentation nil) ;; Disable documentation in the echo area
+    (corfu-auto-delay 0.5)
+    (corfu-scroll-margin 5)        ;; Use scroll margin
 
-  :bind
-  (:map corfu-map
-        ("M-SPC" . corfu-insert-separator)
-        ("TAB" . corfu-next)
-        ([tab] . corfu-next)
-        ("S-TAB" . corfu-previous)
-        ([backtab] . corfu-previous))
+    :bind
+    (:map corfu-map
+          ("M-SPC" . corfu-insert-separator)
+          ("TAB" . corfu-next)
+          ([tab] . corfu-next)
+          ("S-TAB" . corfu-previous)
+          ([backtab] . corfu-previous))
 
-  :init
-  (global-corfu-mode)
-  :config
-  (corfu-popupinfo-mode)
-  (add-hook 'eval-expression-minibuffer-setup-hook #'corfu-mode))
+    :init
+    (global-corfu-mode)
+    :config
+    (corfu-popupinfo-mode)
+    (add-hook 'eval-expression-minibuffer-setup-hook #'corfu-mode))
 
-(use-package cape
-  :init
-  ;; Add `completion-at-point-functions', used by `completion-at-point'.
-  (add-to-list 'completion-at-point-functions #'cape-dabbrev)
-  (add-to-list 'completion-at-point-functions #'cape-file)
-  (add-to-list 'completion-at-point-functions #'cape-history)
-  (add-to-list 'completion-at-point-functions #'cape-keyword)
-  (add-to-list 'completion-at-point-functions #'cape-abbrev)
-  (add-to-list 'completion-at-point-functions #'cape-ispell)
-  (add-to-list 'completion-at-point-functions #'cape-dict)
-  (add-to-list 'completion-at-point-functions #'cape-symbol)
-  ;; (add-to-list 'completion-at-point-functions #'cape-line)
-  (add-to-list 'completion-at-point-functions #'cape-tex)
-  ;;(add-to-list 'completion-at-point-functions #'cape-sgml)
-  ;;(add-to-list 'completion-at-point-functions #'cape-rfc1345)
+  (use-package cape
+    :init
+    ;; Add `completion-at-point-functions', used by `completion-at-point'.
 
-  ;; Cape provides the adapter `cape-company-to-capf' for Company backends.
-  ;; (setq-local completion-at-point-functions
-  ;;             (mapcar #'cape-company-to-capf
-  ;;                     (list #'company-files #'company-ispell #'company-dabbrev)))
-  :config
-  (setq-default cape-symbol-wrapper nil))
+    (add-to-list 'completion-at-point-functions #'cape-dabbrev)
+    (add-to-list 'completion-at-point-functions #'cape-file)
+    (add-to-list 'completion-at-point-functions #'cape-elisp-block)
+    (add-to-list 'completion-at-point-functions #'cape-history)
+    (add-to-list 'completion-at-point-functions #'cape-keyword)
+    (add-to-list 'completion-at-point-functions #'cape-tex)
+    (add-to-list 'completion-at-point-functions #'cape-sgml)
+    (add-to-list 'completion-at-point-functions #'cape-rfc1345)
+    (add-to-list 'completion-at-point-functions #'cape-abbrev)
+    (add-to-list 'completion-at-point-functions #'cape-dict)
+    (add-to-list 'completion-at-point-functions #'cape-symbol)
+    ;;(add-to-list 'completion-at-point-functions #'cape-line)
 
-(use-package kind-icon
-  :after corfu
-  :custom
-  ;; to compute blended backgrounds correctly
-  (kind-icon-default-face 'corfu-default)
-  :config
-  (setq kind-icon-default-style
-        '(:padding -1 :stroke 0 :margin 0 :radius 0 :height 0.5 :scale 1))
-  (setq kind-icon-use-icons t)
-  (add-to-list 'corfu-margin-formatters #'kind-icon-margin-formatter))
-;; :config
-;; (add-hook 'my-completion-ui-mode-hook
-;;           (lambda ()
-;;             (setq completion-in-region-function
-;;                   (kind-icon-enhance-completion
-;;                    completion-in-region-function)))))
+    ;; Cape provides the adapter `cape-company-to-capf' for Company backends.
+    ;; (setq-local completion-at-point-functions
+    ;;             (mapcar #'cape-company-to-capf
+    ;;                     (list #'company-files #'company-ispell #'company-dabbrev)))
+    :config
+    (setq-default cape-symbol-wrapper nil))
+
+  (use-package kind-icon
+    :after corfu
+    :custom
+    ;; to compute blended backgrounds correctly
+    (kind-icon-default-face 'corfu-default)
+    :config
+    (setq kind-icon-default-style
+          '(:padding -1 :stroke 0 :margin 0 :radius 0 :height 0.5 :scale 1))
+    (setq kind-icon-use-icons t)
+    (add-to-list 'corfu-margin-formatters #'kind-icon-margin-formatter))
+  ;; :config
+  ;; (add-hook 'my-completion-ui-mode-hook
+  ;;           (lambda ()
+  ;;             (setq completion-in-region-function
+  ;;                   (kind-icon-enhance-completion
+  ;;                    completion-in-region-function)))))
 #+end_src
 
 ***  corful-terminal
 #+begin_src emacs-lisp
-(quelpa '(popon
-          :fetcher git
-          :url "https://codeberg.org/akib/emacs-popon.git"))
-(quelpa '(corfu-terminal
-          :fetcher git
-          :url "https://codeberg.org/akib/emacs-corfu-terminal.git"))
+  (quelpa '(popon
+            :fetcher git
+            :url "https://codeberg.org/akib/emacs-popon.git"))
 
-(use-package popon)
-(use-package corfu-terminal
-  :after popon)
+  (quelpa '(corfu-terminal
+            :fetcher git
+            :url "https://codeberg.org/akib/emacs-corfu-terminal.git"))
+
+  (use-package popon)
+  (use-package corfu-terminal
+    :after popon)
 #+end_src
 
 
@@ -1235,89 +1237,89 @@
 
 * org
 #+begin_src emacs-lisp
-(use-package org
-  :defer t
-  :bind
-  (:map org-mode-map
-        ("C-M-<return>" . org-insert-subheading))
-  :init
-  (org-babel-do-load-languages
-   'org-babel-load-languages
-   '(
-     (emacs-lisp . t)
-     (org . t)
-     (shell . t)
-     (C . t)
-     (latex . t)
-     (python . t)
-     (js . t)
-     (dot . t)
-     (awk . t)
-     ))
-  (if (display-graphic-p)
-      (setq org-startup-indented t))
+  (use-package org
+    :defer t
+    :bind
+    (:map org-mode-map
+          ("C-M-<return>" . org-insert-subheading))
+    :init
+    (org-babel-do-load-languages
+     'org-babel-load-languages
+     '(
+       (emacs-lisp . t)
+       (org . t)
+       (shell . t)
+       (C . t)
+       (latex . t)
+       (python . t)
+       (js . t)
+       (dot . t)
+       (awk . t)
+       ))
+    (if (display-graphic-p)
+        (setq org-startup-indented t))
 
-  (setq org-special-ctrl-a/e t
-        org-adapt-indentation t
-        org-edit-src-content-indentation 0
-        org-cycle-separator-lines 1
-        org-return-follows-link t
-        org-src-window-setup 'current-window
-        org-confirm-babel-evaluate nil
-        org-insert-heading-respect-content t
-        org-pretty-entities t
-        org-log-done t
-        org-imenu-depth 4
-        org-indent-indentation-per-level 4
-        org-list-allow-alphabetical t
-        org-goto-interface 'outline-path-completionp
-        org-image-actual-width nil
-        org-display-remote-inline-images 'download
-        org-outline-path-complete-in-steps nil)
+    (setq org-special-ctrl-a/e t
+          org-adapt-indentation t
+          org-edit-src-content-indentation 2
+          org-cycle-separator-lines 1
+          org-return-follows-link t
+          org-src-window-setup 'current-window
+          org-confirm-babel-evaluate nil
+          org-insert-heading-respect-content t
+          org-pretty-entities t
+          org-log-done t
+          org-imenu-depth 4
+          org-indent-indentation-per-level 4
+          org-list-allow-alphabetical t
+          org-goto-interface 'outline-path-completionp
+          org-image-actual-width nil
+          org-display-remote-inline-images 'download
+          org-outline-path-complete-in-steps nil)
 
-  (set-face-attribute 'org-ellipsis nil :bold nil)
+    (set-face-attribute 'org-ellipsis nil :bold nil)
 
-  ;; NOTE: snippet error in org-mode
-  (setq org-src-tab-acts-natively nil)
+    ;; NOTE: snippet error in org-mode
+    (setq org-src-tab-acts-natively nil)
 
-  (setq org-todo-keywords '((sequence "TODO(t)" "PROG(p)" "FIXME(f)" "REVIEW(r)" "HOLD(h)" "NOTE(n)" "|" "FAIL(F)" "DONE(d)" )))
-  (setq org-list-demote-modify-bullet
-        '(("+"  . "-")
-          ("-"  . "-")
-          ("*"  . "-")
-          ("1." . "A.")
-          ("A." . "a.")
-          ("1)" . "A)")
-          ("A)" . "a)")
-          ("1)" . "-")
-          ("a)" . "-")))
-  (setq org-ellipsis " ר")
+    (setq org-todo-keywords '((sequence "TODO(t)" "PROG(p)" "FIXME(f)" "REVIEW(r)" "HOLD(h)" "NOTE(n)" "|" "FAIL(F)" "DONE(d)" )))
+    (setq org-list-demote-modify-bullet
+          '(("+"  . "-")
+            ("-"  . "-")
+            ("*"  . "-")
+            ("1." . "A.")
+            ("A." . "a.")
+            ("1)" . "A)")
+            ("A)" . "a)")
+            ("1)" . "-")
+            ("a)" . "-")))
+    (setq org-ellipsis " ר")
 
-  (setq org-capture-templates
-        '(("t" "Todo" entry (file+headline "~/org/todo.org" "Capture")
-           "* TODO %?\n  %i\n  %a")
-          ("j" "Journal" entry (file+datetree "~/org/journal.org")
-           "* %?\nEntered on %U\n  %i\n  %a")))
+    (setq org-capture-templates
+          '(("t" "Todo" entry (file+headline "~/org/todo.org" "Capture")
+             "* TODO %?\n  %i\n  %a")
+            ("j" "Journal" entry (file+datetree "~/org/journal.org")
+             "* %?\nEntered on %U\n  %i\n  %a")))
 
-  (setq org-refile-use-outline-path t)
-  (setq org-reverse-note-order t)
-  (setq org-refile-targets '((nil :maxlevel . 5)
-        (org-agenda-files :maxlevel . 5)))
+    (setq org-refile-use-outline-path t)
+    (setq org-reverse-note-order t)
+    (setq org-refile-targets '((nil :maxlevel . 5)
+          (org-agenda-files :maxlevel . 5)))
 
-  (setq org-directory "/home/yayu/org/")
-  (setq org-agenda-files '("/home/yayu/org/todo.org"))
-  (setq org-default-notes-file (concat org-directory "notes.org"))
+    (setq org-directory "/home/yayu/org/")
+    (setq org-agenda-files '("/home/yayu/org/todo.org"))
+    (setq org-default-notes-file (concat org-directory "notes.org"))
 
-  :config
-  ;; TODO replace imenu with org-goto
-  (define-key org-mode-map (kbd "C-c s i") #'org-goto)
-  (setq org-format-latex-options (plist-put org-format-latex-options :scale 3.0))
+    :config
+    ;; TODO replace imenu with org-goto
+    (define-key org-mode-map (kbd "C-c s i") #'org-goto)
+    (setq org-format-latex-options (plist-put org-format-latex-options :scale 3.0))
 
-  (add-hook 'org-mode-hook #'visual-fill-column-mode)
-  (add-hook 'org-mode-hook #'flyspell-mode)
-  (meow-leader-define-key
-   '("n c" . org-capture)
-   '("n L" . org-store-link)))
+    (add-hook 'org-mode-hook #'visual-fill-column-mode)
+    (add-hook 'org-mode-hook #'flyspell-mode)
+    (meow-leader-define-key
+     '("n c" . org-capture)
+     '("n L" . org-store-link)))
 #+end_src
 
 ** org-modern
@@ -1477,22 +1479,22 @@
 * code
 ** format
 #+begin_src emacs-lisp
-(use-package format-all
-  :config
+  (use-package format-all
+    :config
 
-  (defun format-all-set-formatter ()
-    (if (and (buffer-file-name) (file-exists-p "~/.clang-format"))
-        (let ((format-all-directory (file-name-directory (buffer-file-name))))
-          (while (not (file-exists-p (concat format-all-directory ".clang-format")))
-            (setq format-all-directory (concat format-all-directory "../")))
-          (setq-local format-all-formatters `(("C" (clang-format ,(concat "-style=file:" (concat format-all-directory ".clang-format")))))))))
+    (defun format-all-set-formatter ()
+      (if (and (buffer-file-name) (file-exists-p "~/.clang-format"))
+          (let ((format-all-directory (file-name-directory (buffer-file-name))))
+            (while (not (file-exists-p (concat format-all-directory ".clang-format")))
+              (setq format-all-directory (concat format-all-directory "../")))
+            (setq-local format-all-formatters `(("C" (clang-format ,(concat "-style=file:" (concat format-all-directory ".clang-format")))))))))
 
-  (add-hook 'c-mode-hook #'format-all-set-formatter)
-  (add-hook 'c-ts-mode-hook #'format-all-set-formatter)
-  (add-hook 'java-mode-hook #'format-all-set-formatter)
-  (add-hook 'java-ts-mode-hook #'format-all-set-formatter)
-  (meow-leader-define-key
-   '("c f" . format-all-buffer)))
+    (add-hook 'c-mode-hook #'format-all-set-formatter)
+    ;; (add-hook 'c-ts-mode-hook #'format-all-set-formatter)
+    (add-hook 'java-mode-hook #'format-all-set-formatter)
+    ;; (add-hook 'java-ts-mode-hook #'format-all-set-formatter)
+    (meow-leader-define-key
+     '("c f" . format-all-buffer)))
 #+end_src
 
 ** pair
@@ -1705,15 +1707,10 @@
   :hook
   (lsp-bridge-mode . (lambda () (corfu-mode -1)))
   (c-mode . lsp-bridge-mode)
-  (c-ts-mode . lsp-bridge-mode)
   (c++-mode . lsp-bridge-mode)
-  (c++-ts-mode . lsp-bridge-mode)
   (java-mode . lsp-bridge-mode)
-  (java-ts-mode . lsp-bridge-mode)
   (python-mode . lsp-bridge-mode)
-  (python-ts-mode . lsp-bridge-mode)
   (typescript-mode . lsp-bridge-mode)
-  (typescript-ts-mode . lsp-bridge-mode)
   (latex-mode . lsp-bridge-mode)
 
   :config
@@ -1792,19 +1789,19 @@
 
 ** cc
 #+begin_src emacs-lisp
-(use-package cc-mode
-  :config
-  ;; (add-to-list 'major-mode-remap-alist '(c-mode . c-ts-mode))
-  ;; (add-to-list 'major-mode-remap-alist '(c++-mode . c++-ts-mode))
-  ;; (add-to-list 'major-mode-remap-alist '(c-or-c++-mode . c-or-c++-ts-mode))
-  (setq c-ts-mode-indent-offset 4)
-  (setq lsp-clients-clangd-args
-        '("-j=3"
-          "--background-index"
-          "--clang-tidy"
-          "--completion-style=detailed"
-          "--header-insertion=never"
-          "--header-insertion-decorators=0")))
+  (use-package cc-mode
+    :config
+    ;; (add-to-list 'major-mode-remap-alist '(c-mode . c-ts-mode))
+    ;; (add-to-list 'major-mode-remap-alist '(c++-mode . c++-ts-mode))
+    ;; (add-to-list 'major-mode-remap-alist '(c-or-c++-mode . c-or-c++-ts-mode))
+    ;; (setq c-ts-mode-indent-offset 4)
+    (setq lsp-clients-clangd-args
+          '("-j=3"
+            "--background-index"
+            "--clang-tidy"
+            "--completion-style=detailed"
+            "--header-insertion=never"
+            "--header-insertion-decorators=0")))
 #+end_src
 
 *** citre
@@ -1874,10 +1871,11 @@ as it is needed to get the database path."
 ** Javascript/Typescript
 
 #+begin_src emacs-lisp
-(use-package typescript-mode
-  :config
-  ;; (add-to-list 'major-mode-remap-alist '(typescript-mode . typescript-ts-mode))
-  (setq typescript-ts-mode-indent-offset 4))
+  (use-package typescript-mode
+    :config
+    ;; (add-to-list 'major-mode-remap-alist '(typescript-mode . typescript-ts-mode))
+    ;; (setq typescript-ts-mode-indent-offset 4)
+    )
 #+end_src
 
 
