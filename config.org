@@ -202,6 +202,16 @@
    '("m c r" . mc/mark-all-in-region-regexp)))
 #+end_src
 
+** input method
+#+begin_src emacs-lisp
+(use-package rime
+  :custom
+  (default-input-method "rime")
+  (rime-user-data-dir "~/.config/ibus/rime")
+  (rime-show-candidate 'posframe))
+#+end_src
+
+
 ** clip
 #+begin_src emacs-lisp
 (use-package clipetty
