@@ -5,10 +5,6 @@
 * patch
 #+begin_src emacs-lisp
 ;; -*- lexical-binding: t -*-
-;; (setq user-full-name "meow")
-;; (setq user-login-name "meow")
-;; (setq user-real-login-name "meow")
-;; (setq user-emacs-directory "/home/meow/.emacs.d")
 (setq custom-file (concat (file-name-as-directory user-emacs-directory) "custom.el"))
 
 ;; Automatically tangle our Emacs.org config file when we save it
@@ -61,7 +57,7 @@
 #+end_src
 
 
-* emacs
+* basic
 #+begin_src emacs-lisp
 (use-package benchmark-init
   :config
@@ -70,7 +66,7 @@
 (setq byte-compile-warnings nil
       native-comp-async-report-warnings-errors nil)
 (setq auth-sources '("~/.authinfo.gpg"))
-(setq-default c-basic-offset 4)
+(setq ring-bell-function 'ignore)
 (setq c-default-style nil)
 #+end_src
 
@@ -389,14 +385,13 @@
 
 ** theme
 #+begin_src emacs-lisp
-(use-package doom-themes
-  :config
-  (load-theme 'doom-one t)
-  ;; (doom-themes-org-config)
-  (set-face-attribute 'hl-line nil :inherit nil :background "gray8")
-  (set-face-attribute 'region nil :background "#4F5766")
-  (setq doom-modeline-project-detection 'project)
-  (setq doom-modeline-buffer-file-name-style 'truncate-with-project))
+  (use-package doom-themes
+    :config
+    (load-theme 'doom-one t)
+    ;; (doom-themes-org-config)
+    (eval-after-load 'hl-line
+      (set-face-attribute 'hl-line nil :inherit nil :background "gray8"))
+    (set-face-attribute 'region nil :background "#4F5766"))
 #+end_src
 
 ** color
@@ -466,10 +461,16 @@
   (dashboard-setup-startup-hook))
 #+end_src
 
-** doom-modeline
+** FIXME doom-modeline
+
+- first installation causes ~bar is not defined~ error
+
 #+begin_src emacs-lisp
-(use-package doom-modeline
-  :init (doom-modeline-mode 't))
+  (use-package doom-modeline
+    :config
+    (setq doom-modeline-project-detection 'project)
+    (setq doom-modeline-buffer-file-name-style 'truncate-with-project)
+    (doom-modeline-mode 't))
 #+end_src
 
 ** highlight
