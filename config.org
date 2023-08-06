@@ -1550,14 +1550,29 @@
 ** grammerly
 
 #+begin_src emacs-lisp
-(use-package grammarly)
+  (use-package grammarly)
 
-(use-package flycheck-grammarly
-  :after grammarly
-  :config
-  (setq flycheck-grammarly-check-time 0.8)
-  (with-eval-after-load 'flycheck
-  (flycheck-grammarly-setup)))
+  (use-package flycheck-grammarly
+    :after grammarly
+    :config
+    (setq flycheck-grammarly-check-time 0.8)
+    (setq flycheck-grammarly nil)
+    (defun flycheck-toggle-grammarly ()
+      "toggle grammarly."
+      (interactive)
+      (if flycheck-grammarly
+          (progn
+            (setq flycheck-grammarly nil)
+            (setq flycheck-checkers (remove 'grammarly flycheck-checkers))
+            (setq grammarly-on-open-function-list (remove 'flycheck-grammarly--on-open grammarly-on-open-function-list))
+            (setq grammarly-on-message-function-list (remove 'flycheck-grammarly--on-message grammarly-on-message-function-list))
+            (setq grammarly-on-close-function-list (remove 'flycheck-grammarly--on-close grammarly-on-close-function-list)))
+        (setq flycheck-grammarly t)
+        (add-to-list 'flycheck-checkers 'grammarly)
+        (add-to-list 'grammarly-on-open-function-list 'flycheck-grammarly--on-open)
+        (add-to-list 'grammarly-on-message-function-list 'flycheck-grammarly--on-message)
+        (add-to-list 'grammarly-on-close-function-list 'flycheck-grammarly--on-close)
+        )))
 #+end_src
 
 
