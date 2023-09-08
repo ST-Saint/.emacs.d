@@ -863,8 +863,9 @@
    '("6" . winum-select-window-6)
    '("7" . winum-select-window-7)
    '("8" . winum-select-window-8)
-   '("9" . winum-select-window-9))
-  (setq inum-auto-assign-0-to-minibuffer t)
+   '("9" . winum-select-window-9)
+   '("0" . winum-select-window-0))
+  (setq winum-auto-assign-0-to-minibuffer t)
   (setq winum-scope 'frame-local)
   (winum-mode 't))
 #+end_src
@@ -1136,7 +1137,6 @@
     :config
     (corfu-popupinfo-mode)
     (add-hook 'eval-expression-minibuffer-setup-hook #'corfu-mode))
-
 #+end_src
 
 ** cape
@@ -1552,7 +1552,7 @@
   :bind (:map flyspell-mode-map ("C-;" . flyspell-correct-wrapper)))
 #+end_src
 
-** grammerly
+** grammarly
 
 #+begin_src emacs-lisp
   (use-package grammarly)
@@ -1560,7 +1560,7 @@
   (use-package flycheck-grammarly
     :after grammarly
     :config
-    (setq flycheck-grammarly-check-time 0.8)
+    (setq flycheck-grammarly-check-time 2)
     (setq flycheck-grammarly nil)
     (defun flycheck-toggle-grammarly ()
       "toggle grammarly."
@@ -1579,7 +1579,6 @@
         (add-to-list 'grammarly-on-close-function-list 'flycheck-grammarly--on-close)
         )))
 #+end_src
-
 
 * language
 
@@ -2295,6 +2294,29 @@ as it is needed to get the database path."
     ;; ((font-size . "16pt")))))
     (setq org-msg-signature "#+begin_signature\nBest,\n\n-- *Yayu*\n#+end_signature")
     (org-msg-mode))
+#+end_src
+
+* irc
+
+** circe
+#+begin_src emacs-lisp :tangle yes
+  (use-package circe
+    :config
+    (setq circe-network-options
+          '(("asahi"
+             :use-tls t
+             :host "irc.oftc.net"
+             :port 6697
+             :nick "yayu"
+             :user "yayu"
+             :realname "yayu"
+             :channels ("#asahi" "#asahi-dev")
+             ))))
+
+
+  (use-package circe-notifications
+    :config
+    (add-hook 'circe-server-connected-hook 'enable-circe-notifications))
 #+end_src
 
 * misc
