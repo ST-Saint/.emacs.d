@@ -1137,6 +1137,10 @@
     (corfu-popupinfo-mode)
     (add-hook 'eval-expression-minibuffer-setup-hook #'corfu-mode))
 
+#+end_src
+
+** cape
+#+begin_src emacs-lisp
   (use-package cape
     :init
     ;; Add `completion-at-point-functions', used by `completion-at-point'.
@@ -1901,6 +1905,7 @@ as it is needed to get the database path."
     :config
     ;; (add-to-list 'major-mode-remap-alist '(typescript-mode . typescript-ts-mode))
     ;; (setq typescript-ts-mode-indent-offset 4)
+    (setq typescript-indent-level 4)
     )
 #+end_src
 
@@ -2033,48 +2038,54 @@ as it is needed to get the database path."
 
 ** org-noter
 #+begin_src emacs-lisp
-(use-package org-noter
-  :init
-  (setq org-noter-notes-search-path (list (concat org-directory "thesis/note")))
-  (setq org-noter-always-create-frame nil)
-  (setq org-noter-doc-split-fraction '(0.6 . 0.4))
-  :config
-  (meow-leader-define-key
-   '("n o" . org-noter)))
+  (use-package org-noter
+    :init
+    (setq org-noter-notes-search-path (list (concat org-directory "thesis/note")))
+    (setq org-noter-always-create-frame nil
+          org-noter-notes-window-location 'other-frame)
+    (setq org-noter-max-short-selected-text-length most-positive-fixnum)
+    (setq org-noter-doc-split-fraction '(0.6 . 0.4))
+    :config
+    (meow-leader-define-key
+     '("n o" . org-noter)))
 #+end_src
 
 ** org-pdftools
 #+begin_src emacs-lisp
-(use-package org-pdftools
-  :quelpa (org-pdftools
-           :fetcher github
-           :repo "ST-Saint/org-pdftools")
-  :after pdf-tools
-  :hook (org-mode . org-pdftools-setup-link))
+  (quelpa '(org-pdftools
+            :fetcher github
+            :repo "ST-Saint/org-pdftools"))
 
-(use-package org-noter-pdftools
-  :quelpa (org-pdftools
-           :fetcher github
-           :repo "ST-Saint/org-pdftools")
-  :after org-pdftools
-  :bind
-  (:map org-noter-notes-mode-map
-        ("C-." . #'org-noter-pdftools-activate-org-note)
-        ("M-." . #'org-noter-pdftools-embed-org-note-to-pdf))
-  (:map pdf-view-mode-map
-        ("C-c m i i" . #'org-noter-pdftools-insert-precise-note-underline)
-        ("C-c m i u" . #'org-noter-pdftools-insert-precise-note-underline)
-        ("C-c m i h" . #'org-noter-pdftools-insert-precise-note-highlight)
-        ("C-c m i s" . #'org-noter-pdftools-insert-precise-note-squiggly)
-        ("C-a" . #'pdf-view-align-left)
-        ("C-e" . #'pdf-view-align-right)
-        ("M-i" . #'org-noter-pdftools-insert-precise-note-underline)
-        ("C-l" . #'pdf-view-center-in-window))
+  (quelpa '(org-noter-pdftools
+            :fetcher github
+            :repo "ST-Saint/org-pdftools"))
 
-  :config
-  (setq org-noter-pdftools-insert-content-heading nil)
+  (use-package org-pdftools
+    :ensure nil
+    :after pdf-tools
+    :hook (org-mode . org-pdftools-setup-link))
 
-  (with-eval-after-load 'pdf-annot (add-hook 'pdf-annot-activate-handler-functions #'org-noter-pdftools-jump-to-note)))
+  (use-package org-noter-pdftools
+    :ensure nil
+    :after org-pdftools
+    :bind
+    (:map org-noter-notes-mode-map
+          ("C-." . #'org-noter-pdftools-activate-org-note)
+          ("M-." . #'org-noter-pdftools-embed-org-note-to-pdf))
+    (:map pdf-view-mode-map
+          ("C-c m i i" . #'org-noter-pdftools-insert-precise-note-underline)
+          ("C-c m i u" . #'org-noter-pdftools-insert-precise-note-underline)
+          ("C-c m i h" . #'org-noter-pdftools-insert-precise-note-highlight)
+          ("C-c m i s" . #'org-noter-pdftools-insert-precise-note-squiggly)
+          ("C-a" . #'pdf-view-align-left)
+          ("C-e" . #'pdf-view-align-right)
+          ("M-i" . #'org-noter-pdftools-insert-precise-note-underline)
+          ("C-l" . #'pdf-view-center-in-window))
+
+    :config
+    (setq org-noter-pdftools-insert-content-heading nil)
+
+    (with-eval-after-load 'pdf-annot (add-hook 'pdf-annot-activate-handler-functions #'org-noter-pdftools-jump-to-note)))
 #+end_src
 
 ** BibTeX
@@ -2255,7 +2266,7 @@ as it is needed to get the database path."
    '("o m" . (lambda ()
                (interactive)
                (if (find "mu4e" persp-names-cache :test #'equal)
-                   (if (equal "mu4e "persp-last-persp-name)
+                   (if (equal "mu4e" persp-last-persp-name)
                        (mu4e)
                      (persp-switch "mu4e"))
                  (persp-switch "mu4e")
