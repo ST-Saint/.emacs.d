@@ -1298,6 +1298,7 @@
           org-goto-interface 'outline-path-completionp
           org-image-actual-width nil
           org-display-remote-inline-images 'download
+          org-use-sub-superscripts nil
           org-outline-path-complete-in-steps nil)
 
     (set-face-attribute 'org-ellipsis nil :bold nil)
@@ -2135,8 +2136,8 @@ as it is needed to get the database path."
           `((file ,(all-the-icons-faicon "file-o" :face 'all-the-icons-green :v-adjust -0.1) . " ")
             (note ,(all-the-icons-material "speaker_notes" :face 'all-the-icons-blue :v-adjust -0.3) . " ")
             (link ,(all-the-icons-octicon "link" :face 'all-the-icons-orange :v-adjust 0.01) . " ")))
-    (setq citar-library-paths '("~/org/roam/thesis/pdf/")
-          citar-notes-paths '("~/org/roam/thesis/note")
+    (setq citar-library-paths '("~/org/thesis/pdf/")
+          citar-notes-paths '("~/org/thesis/note")
           citar-library-file-extensions '("pdf")))
 #+end_src
 
