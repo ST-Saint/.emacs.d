@@ -205,6 +205,7 @@
 #+end_src
 
 ** input method
+*** rime
 #+begin_src emacs-lisp
 (use-package rime
   :custom
@@ -596,7 +597,7 @@
   (keymap-unset magit-todos-item-section-map "j l" t)
   (keymap-unset magit-todos-item-section-map "j" t)
   (keymap-unset magit-todos-item-section-map "j" t)
-
+  (setq magit-todos-filename-filter '("node_modules"))
   ;; (magit-todos-mode t)
   (meow-leader-define-key
    '("p t" . magit-todos-list)))
@@ -689,100 +690,105 @@
 + [ ] create customized sort function
 
 #+begin_src emacs-lisp
-(use-package persp-mode
-  ;; :custom
-  ;; (persp-mode-prefix-key nil)
-  ;; (persp-sort 'created)
-  ;; (persp-modestring-short t)
-  :config
-  (setq persp-previous-persp-name nil)
-  (setq persp-nil-name "main")
-  (defun persp-show-persps ()
-    (interactive)
-    (message (concat persp-last-persp-name
-                     " ----- "
-                     "[ "
-                     (s-join " | " persp-names-cache)
-                     " ]")))
+  (use-package persp-mode
+    ;; :custom
+    ;; (persp-mode-prefix-key nil)
+    ;; (persp-sort 'created)
+    ;; (persp-modestring-short t)
+    :config
+    (setq persp-previous-persp-name nil)
+    (setq persp-nil-name "main")
+    (defun persp-show-persps ()
+      (interactive)
+      (message (concat persp-last-persp-name
+                       " ----- "
+                       "[ "
+                       (s-join " | " persp-names-cache)
+                       " ]")))
 
-  (defun project-switch-project (dir)
-    "\"Switch\" to another project by running an Emacs command.
-  The available commands are presented as a dispatch menu
-  made from `project-switch-commands'.
+    (defun project-switch-project (dir)
+      "\"Switch\" to another project by running an Emacs command.
+    The available commands are presented as a dispatch menu
+    made from `project-switch-commands'.
 
-  When called in a program, it will use the project corresponding
-  to directory DIR."
-    (interactive (list (project-prompt-project-dir)))
-    (let ((command (if (symbolp project-switch-commands)
-                       project-switch-commands
-                     (project--switch-project-command))))
-      (let ((project-current-directory-override dir))
-        (let ((project-root (project-root (project-current))))
-          (when project-root
-            (persp-switch (file-name-nondirectory (directory-file-name project-root)))))
-        (call-interactively command))))
-  (setq persp-autokill-buffer-on-remove 'kill-weak)
+    When called in a program, it will use the project corresponding
+    to directory DIR."
+      (interactive (list (project-prompt-project-dir)))
+      (let ((command (if (symbolp project-switch-commands)
+                         project-switch-commands
+                       (project--switch-project-command))))
+        (let ((project-current-directory-override dir))
+          (let ((project-root (project-root (project-current))))
+            (when project-root
+              (persp-switch (file-name-nondirectory (directory-file-name project-root)))))
+          (call-interactively command))))
+    (setq persp-autokill-buffer-on-remove 'kill-weak)
 
-  (defun open-config-file ()
-    (interactive)
-    (persp-switch ".emacs.d")
-    (find-file "~/.emacs.d/config.org")
-    (delete-other-windows))
+  (defun open-config-persp ()
+      (interactive)
+      (persp-switch ".emacs.d"))
 
-  (defun persp-save-previous-persp-name (name frame)
-    (unless (equal name persp-last-persp-name)
-      (setq persp-previous-persp-name persp-last-persp-name)))
+    (defun open-config-file ()
+      (interactive)
+      (persp-switch ".emacs.d")
+      (find-file "~/.emacs.d/config.org")
+      (delete-other-windows))
 
-  (add-hook 'persp-before-switch-functions #'persp-save-previous-persp-name)
+    (defun persp-save-previous-persp-name (name frame)
+      (unless (equal name persp-last-persp-name)
+        (setq persp-previous-persp-name persp-last-persp-name)))
 
-  (defun persp-switch-last ()
-    (interactive)
-    (persp-switch persp-previous-persp-name))
+    (add-hook 'persp-before-switch-functions #'persp-save-previous-persp-name)
 
-  (defun persp-move-left ()
-    (interactive)
-    (let ((pos (cl-position persp-last-persp-name persp-names-cache)))
-      (unless (< pos 1)
-        (cl-rotatef (nth (1- pos) persp-names-cache) (nth pos persp-names-cache))))
-    (persp-show-persps))
+    (defun persp-switch-last ()
+      (interactive)
+      (persp-switch persp-previous-persp-name))
 
-  (defun persp-move-right ()
-    (interactive)
-    (let ((pos (cl-position persp-last-persp-name persp-names-cache)))
-      (unless (= pos (length persp-names-cache))
-        (cl-rotatef (nth (1+ pos) persp-names-cache) (nth pos persp-names-cache))))
-    (persp-show-persps))
+    (defun persp-move-left ()
+      (interactive)
+      (let ((pos (cl-position persp-last-persp-name persp-names-cache)))
+        (unless (< pos 1)
+          (cl-rotatef (nth (1- pos) persp-names-cache) (nth pos persp-names-cache))))
+      (persp-show-persps))
 
-  (meow-leader-define-key
-   '("1" . (lambda() (interactive) (persp-switch (nth 0 persp-names-cache)) (persp-show-persps)))
-   '("2" . (lambda() (interactive) (persp-switch (nth 1 persp-names-cache)) (persp-show-persps)))
-   '("3" . (lambda() (interactive) (persp-switch (nth 2 persp-names-cache)) (persp-show-persps)))
-   '("4" . (lambda() (interactive) (persp-switch (nth 3 persp-names-cache)) (persp-show-persps)))
-   '("5" . (lambda() (interactive) (persp-switch (nth 4 persp-names-cache)) (persp-show-persps)))
-   '("6" . (lambda() (interactive) (persp-switch (nth 5 persp-names-cache)) (persp-show-persps)))
-   '("7" . (lambda() (interactive) (persp-switch (nth 6 persp-names-cache)) (persp-show-persps)))
-   '("8" . (lambda() (interactive) (persp-switch (nth 7 persp-names-cache)) (persp-show-persps)))
-   '("9" . (lambda() (interactive) (persp-switch (nth 8 persp-names-cache)) (persp-show-persps)))
-   '("f p" . open-config-file)
-   '("w s" . persp-switch)
-   '("w w" . persp-show-persps)
-   ;; '("w b" . persp-scratch-buffer)
-   '("TAB s" . persp-switch)
-   '("TAB p" . persp-switch)
-   '("TAB n" . persp-switch)
-   '("TAB SPC" . persp-switch)
-   '("p s" . persp-switch)
-   '("TAB `" . persp-switch-last)
-   '("TAB j" . persp-move-left)
-   '("TAB k" . persp-move-right)
-   '("TAB h" . persp-prev)
-   '("TAB l" . persp-next)
-   '("TAB TAB" . persp-show-persps)
-   '("TAB b" . persp-switch-to-buffer)
-   '("," . persp-switch-to-buffer)
-   '("TAB d" . persp-kill)
-   '("TAB D" . (lambda () (interactive) (persp-kill (persp-last-persp-name)))))
-  (persp-mode t))
+    (defun persp-move-right ()
+      (interactive)
+      (let ((pos (cl-position persp-last-persp-name persp-names-cache)))
+        (unless (= pos (length persp-names-cache))
+          (cl-rotatef (nth (1+ pos) persp-names-cache) (nth pos persp-names-cache))))
+      (persp-show-persps))
+
+    (meow-leader-define-key
+     ;; '("1" . (lambda() (interactive) (persp-switch (nth 0 persp-names-cache)) (persp-show-persps)))
+     ;; '("2" . (lambda() (interactive) (persp-switch (nth 1 persp-names-cache)) (persp-show-persps)))
+     ;; '("3" . (lambda() (interactive) (persp-switch (nth 2 persp-names-cache)) (persp-show-persps)))
+     ;; '("4" . (lambda() (interactive) (persp-switch (nth 3 persp-names-cache)) (persp-show-persps)))
+     ;; '("5" . (lambda() (interactive) (persp-switch (nth 4 persp-names-cache)) (persp-show-persps)))
+     ;; '("6" . (lambda() (interactive) (persp-switch (nth 5 persp-names-cache)) (persp-show-persps)))
+     ;; '("7" . (lambda() (interactive) (persp-switch (nth 6 persp-names-cache)) (persp-show-persps)))
+     ;; '("8" . (lambda() (interactive) (persp-switch (nth 7 persp-names-cache)) (persp-show-persps)))
+     ;; '("9" . (lambda() (interactive) (persp-switch (nth 8 persp-names-cache)) (persp-show-persps)))
+     '("f p" . open-config-persp)
+     '("f P" . open-config-file)
+     '("w s" . persp-switch)
+     '("w w" . persp-show-persps)
+     ;; '("w b" . persp-scratch-buffer)
+     '("TAB s" . persp-switch)
+     '("TAB p" . persp-switch)
+     '("TAB n" . persp-switch)
+     '("TAB SPC" . persp-switch)
+     '("p s" . persp-switch)
+     '("TAB `" . persp-switch-last)
+     '("TAB j" . persp-move-left)
+     '("TAB k" . persp-move-right)
+     '("TAB h" . persp-prev)
+     '("TAB l" . persp-next)
+     '("TAB TAB" . persp-show-persps)
+     '("TAB b" . persp-switch-to-buffer)
+     '("," . persp-switch-to-buffer)
+     '("TAB d" . persp-kill)
+     '("TAB D" . (lambda () (interactive) (persp-kill (persp-last-persp-name)))))
+    (persp-mode t))
 #+end_src
 
 ** centaur-tabs
@@ -1451,6 +1457,28 @@
         org-pomodoro-short-break-sound-args nil)
   (meow-leader-define-key
    '("n p" . org-pomodoro)))
+#+end_src
+
+** org-alert
+#+begin_src emacs-lisp
+  (use-package org-alert
+    :config
+    (org-alert-enable)
+    (setq alert-default-style 'libnotify)
+    (setq org-alert-interval 300
+          org-alert-notify-cutoff 10
+          org-alert-notify-after-event-cutoff 10))
+#+end_src
+
+** org-wild-notifier
+#+begin_src emacs-lisp
+  (use-package org-wild-notifier
+    :config
+    (setq org-wild-notifier-alert-time '(30 10 5 0)
+          org-wild-notifier-notification-title "Org-Notify"
+          org-wild-notifier-notification-icon "/home/yayu/org/emacs-dragon.svg")
+    (org-wild-notifier-mode)
+    )
 #+end_src
 
 
@@ -2163,7 +2191,8 @@ as it is needed to get the database path."
 #+begin_src emacs-lisp
   (use-package pinentry
     :init
-    (setq epg-pinentry-mode 'loopback))
+    (setq epg-pinentry-mode 'loopback)
+    (pinentry-start))
 
   (use-package mu4e
     :ensure nil
@@ -2181,6 +2210,85 @@ as it is needed to get the database path."
     (setq mu4e-confirm-quit nil)
     (setq mu4e-hide-index-messages t)
     (setq message-citation-line-format "%N @ %Y-%m-%d %H:%M :\n")
+
+    (defun mu4e~read-mail-content (content-type)
+      (interactive)
+      (let ((mail-path (mu4e-message-readable-path)))
+        (with-temp-buffer
+          (insert-file-contents mail-path)
+          (let ((file-contents (buffer-string)))
+            (pcase content-type
+              ("html"
+               (let ((boundary (progn (string-match "boundary=\"\?\\(.+?\\)\"\?$" file-contents)
+                                      (match-string 1 file-contents))))
+                 (if boundary
+                     (let ((start (progn (search-forward "content-type: text/html")
+                                         (search-forward "
+
+  "))
+                                  )
+                           (end (- (search-forward (concat "--" boundary)) (+ (length boundary) 3)))
+                           )
+                       (substring file-contents start end)
+                       )
+                   )))
+              ("text"
+               (message "text")))
+            )
+          )
+        )
+      )
+
+    (defun mu4e~write-body-to-html (msg)
+      "Write MSG's body (either html or text) to a temporary file;
+  return the filename."
+      (let* ((html (mu4e~read-mail-content "html"))
+             (text (mu4e~read-mail-content "text"))
+             (tmpfile (mu4e-make-temp-file "html"))
+             )
+        (unless (or html text)
+          (mu4e-error "No body part for this message"))
+        (with-temp-buffer
+          (insert "<head><meta charset=\"UTF-8\"></head>\n")
+          (insert (concat "<p><strong>From</strong>: "
+                          (mu4e~action-header-to-html msg :from) "</br>"))
+          (insert (concat "<strong>To</strong>: "
+                          (mu4e~action-header-to-html msg :to) "</br>"))
+          (insert (concat "<strong>Date</strong>: "
+                          (format-time-string mu4e-view-date-format (mu4e-message-field msg :date)) "</br>"))
+          (insert (concat "<strong>Subject</strong>: " (mu4e-message-field msg :subject) "</p>"))
+          (insert (or html (concat "<pre>" text "</pre>")))
+          (write-file tmpfile)
+          (save-buffer)
+          tmpfile)))
+
+    (defun mu4e~action-header-to-html (msg field)
+      "Convert the FIELD of MSG to an HTML string."
+      (mapconcat
+       (lambda(c)
+         (let* ((name (when (car c)
+                        (replace-regexp-in-string "[[:cntrl:]]" "" (car c))))
+                (email (when (cdr c)
+                         (replace-regexp-in-string "[[:cntrl:]]" "" (cdr c))))
+                (addr (if mu4e-view-show-addresses
+                          (if name (format "%s <%s>" name email) email)
+                        (or name email))) ;; name may be nil
+                ;; Escape HTML entities
+                (addr (replace-regexp-in-string "&" "&amp;" addr))
+                (addr (replace-regexp-in-string "<" "&lt;" addr))
+                (addr (replace-regexp-in-string ">" "&gt;" addr)))
+           addr))
+       (mu4e-message-field msg field) ", "))
+
+    (defun mu4e-action-save-to-pdf (msg)
+      (let* ((date (mu4e-message-field msg :date))
+             (infile (mu4e~write-body-to-html msg))
+             (outfile (format-time-string "%Y-%m-%d%H%M%S.pdf" date)))
+        (with-temp-buffer
+          (shell-command
+           (format "wkhtmltopdf %s /tmp/%s" infile outfile) t))))
+
+    (add-to-list 'mu4e-view-actions '("pdf" . mu4e-action-save-to-pdf) t)
 
     (setq mail-user-agent 'mu4e-user-agent
           read-mail-command 'mu4e)
@@ -2283,6 +2391,15 @@ as it is needed to get the database path."
                    (mu4e)))))
     )
 #+end_src
+*** mu4e-views
+#+begin_src emacs-lisp
+  (use-package mu4e-views
+    :config
+    (setq mu4e-views-default-view-method "html")
+    (mu4e-views-mu4e-use-view-msg-method "html")
+    (setq mu4e-views-next-previous-message-behaviour 'stick-to-current-window))
+#+end_src
+
 
 ** org-msg
 #+begin_src emacs-lisp
