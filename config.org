@@ -2118,15 +2118,27 @@ as it is needed to get the database path."
 #+end_src
 
 ** BibTeX
-#+begin_src emacs-lisp
-(use-package citar
-  :custom
-  (citar-bibliography '("~/org/thesis/references.bib"))
-  :hook
-  (LaTeX-mode . citar-capf-setup)
-  (org-mode . citar-capf-setup))
-#+end_src
 
+*** citar
+
+#+begin_src emacs-lisp
+  (use-package citar
+    :hook
+    (LaTeX-mode . citar-capf-setup)
+    (org-mode . citar-capf-setup)
+    :config
+    (setq citar-bibliography '("~/org/thesis/references.bib"))
+    (setq org-cite-insert-processor 'citar)
+    (setq org-cite-follow-processor 'citar)
+    (setq org-cite-activate-processor 'citar)
+    (setq citar-symbols
+          `((file ,(all-the-icons-faicon "file-o" :face 'all-the-icons-green :v-adjust -0.1) . " ")
+            (note ,(all-the-icons-material "speaker_notes" :face 'all-the-icons-blue :v-adjust -0.3) . " ")
+            (link ,(all-the-icons-octicon "link" :face 'all-the-icons-orange :v-adjust 0.01) . " ")))
+    (setq citar-library-paths '("~/org/roam/thesis/pdf/")
+          citar-notes-paths '("~/org/roam/thesis/note")
+          citar-library-file-extensions '("pdf")))
+#+end_src
 
 * shell
 
