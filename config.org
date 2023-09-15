@@ -1303,6 +1303,7 @@
 
     (set-face-attribute 'org-ellipsis nil :bold nil)
 
+    (add-to-list 'org-export-backends 'md)
     ;; NOTE: snippet error in org-mode
     (setq org-src-tab-acts-natively nil)
 
@@ -1427,7 +1428,7 @@
 (use-package org-roam
   :config
   (setq org-roam-directory "~/org/")
-  (setq org-roam-completion-everywhere t)
+  (setq org-roam-completion-everywhere nil)
   (org-roam-db-autosync-mode))
 #+end_src
 
