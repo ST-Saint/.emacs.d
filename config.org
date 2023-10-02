@@ -65,6 +65,7 @@
   :config
   (add-hook 'after-init-hook 'benchmark-init/deactivate))
 
+(setq confirm-kill-emacs 'y-or-n-p)
 (setq byte-compile-warnings nil
       native-comp-async-report-warnings-errors nil)
 (setq auth-sources '("~/.authinfo.gpg"))
@@ -659,7 +660,6 @@
                                   (project-open-magit "Magit" ?g)
                                   (project-open-magit-todos "Todos" ?t)))
 
-  (setq project-vc-merge-submodules nil)
   (setq vc-dir-backend 'git
         vc-handled-backends '(Git))
 
@@ -1282,6 +1282,9 @@
     (if (display-graphic-p)
         (setq org-startup-indented t))
 
+    (setq org-icalendar-include-todo 'unblocked
+          org-icalendar-use-scheduled '(event-if-todo))
+
     (setq org-special-ctrl-a/e t
           org-adapt-indentation t
           org-edit-src-content-indentation 2
@@ -1329,7 +1332,7 @@
     (setq org-refile-use-outline-path t)
     (setq org-reverse-note-order t)
     (setq org-refile-targets '((nil :maxlevel . 5)
-          (org-agenda-files :maxlevel . 5)))
+                               (org-agenda-files :maxlevel . 5)))
 
     (setq org-directory "~/org/")
     (setq org-agenda-files '("~/org/todo.org"))
@@ -2138,7 +2141,7 @@ as it is needed to get the database path."
             (note ,(all-the-icons-material "speaker_notes" :face 'all-the-icons-blue :v-adjust -0.3) . " ")
             (link ,(all-the-icons-octicon "link" :face 'all-the-icons-orange :v-adjust 0.01) . " ")))
     (setq citar-library-paths '("~/org/literature/pdf/")
-          citar-notes-paths '("~/org/literature/note")
+          citar-notes-paths '("~/org/literature/note/")
           citar-library-file-extensions '("pdf")))
 #+end_src
 
