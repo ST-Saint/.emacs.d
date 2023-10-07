@@ -640,37 +640,67 @@
 
 * project
 #+begin_src emacs-lisp
-(use-package ripgrep)
+  (use-package ripgrep)
 
-(use-package project
-  :init
-  (setq project-vc-merge-submodules nil)
-  :config
-  (defun project-open-magit ()
-    (interactive)
-    (magit (project-root (project-current t))))
+  (use-package project
+    :init
+    (setq project-vc-merge-submodules nil)
+    :config
+    (defun project-open-magit ()
+      (interactive)
+      (magit (project-root (project-current t))))
 
-  (defun project-open-magit-todos ()
-    (interactive)
-    (magit-todos-list (project-root (project-current t))))
+    (defun project-open-magit-todos ()
+      (interactive)
+      (magit-todos-list (project-root (project-current t))))
 
-  (setq project-switch-commands '((persp-show-persps "" ? )
-                                  (persp-show-persps "" ?)
-                                  (project-find-file "File file" ?f)
-                                  (project-open-magit "Magit" ?g)
-                                  (project-open-magit-todos "Todos" ?t)))
+    (setq project-switch-commands '((persp-show-persps "" ? )
+                                    (persp-show-persps "" ?)
+                                    (project-find-file "File file" ?f)
+                                    (project-open-magit "Magit" ?g)
+                                    (project-open-magit-todos "Todos" ?t)))
 
-  (setq vc-dir-backend 'git
-        vc-handled-backends '(Git))
+    (setq vc-dir-backend 'git
+          vc-handled-backends '(Git))
 
-  (meow-leader-define-key
-   '("p p" . project-switch-project)
-   '("p f" . project-find-file)
-   '("p b" . project-switch-to-buffer)
-   '("p B" . project-list-buffers)
-   '("p c" . project-compile)
-   '("p d" . project-find-dir)
-   '("p D" . project-dired)))
+
+    (defgroup project-local nil
+      "Local, non-VC-backed project.el root directories."
+      :group 'project)
+
+    (defcustom project-local-identifier ".project"
+      "Specify a single filename or a list of names."
+      :type '(choice (string :tag "Single file")
+                     (repeat (string :tag "Filename")))
+      :group 'project-local)
+
+    (cl-defmethod project-root ((project (head local)))
+      "Return root directory of current PROJECT."
+      (cdr project))
+
+    (defun project-local-try-local (dir)
+      "Determine if DIR is a non-VC project.
+  DIR must include a file with the name determined by the
+  variable `project-local-identifier' to be considered a project."
+      (if-let ((root (if (listp project-local-identifier)
+                         (seq-some (lambda (n)
+                                     (locate-dominating-file dir n))
+                                   project-local-identifier)
+                       (locate-dominating-file dir project-local-identifier))))
+          (cons 'local root)))
+
+    (customize-set-variable 'project-find-functions
+                            (list #'project-try-vc
+                                  #'project-local-try-local))
+
+    (meow-leader-define-key
+     '("p p" . project-switch-project)
+     '("p f" . project-find-file)
+     '("p b" . project-switch-to-buffer)
+     '("p B" . project-list-buffers)
+     '("p c" . project-compile)
+     '("p d" . project-find-dir)
+     '("p D" . project-dired)))
 #+end_src
 
 * navigate
