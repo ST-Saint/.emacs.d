@@ -1646,6 +1646,18 @@
         )))
 #+end_src
 
+** language tool
+#+begin_src emacs-lisp
+  (use-package langtool
+    :config
+    (setq langtool-language-tool-jar "/usr/share/java/languagetool/languagetool-commandline.jar"
+          langtool-java-classpath "/usr/share/languagetool:/usr/share/java/languagetool/*"
+          langtool-language-tool-server-jar "/usr/share/java/languagetool/languagetool-server.jar"
+          langtool-server-user-arguments nil)
+    (set-face-attribute 'langtool-errline nil :background nil :inherit 'flycheck-error))
+#+end_src
+
+
 * language
 
 ** english
@@ -2068,25 +2080,16 @@ as it is needed to get the database path."
 
 ** pdf-tools
 #+begin_src emacs-lisp
-;; (quelpa '(pdf-tools
-;;           :fetcher github
-;;           :repo "ST-Saint/pdf-tools"
-;;           :branch "pdf-roll"
-;;           :files ("lisp/*.el"
-;;                   "README"
-;;                   ("build" "Makefile")
-;;                   ("build" "server")
-;;                   (:exclude "lisp/tablist.el" "lisp/tablist-filter.el"))))
-
-(use-package pdf-tools
-  ;; :ensure nil
-  :config
-  (with-eval-after-load 'pdf-tools
-    (pdf-tools-install))
-  (set-face-attribute 'pdf-view-region nil :inherit 'highlight)
-  ;; (define-key pdf-view-roll-minor-mode-map (kbd "<wheel-up>") (lambda () (interactive) (pdf-view-previous-line-or-previous-page 2)))
-  ;; (define-key pdf-view-roll-minor-mode-map (kbd "<wheel-down>") (lambda () (interactive) (pdf-view-next-line-or-next-page 2)))
-  )
+  (use-package pdf-tools
+    ;; :ensure nil
+    :config
+    (add-hook 'pdf-view-mode-hook 'auto-revert-mode)
+    (with-eval-after-load 'pdf-tools
+      (pdf-tools-install))
+    (set-face-attribute 'pdf-view-region nil :inherit 'highlight)
+    ;; (define-key pdf-view-roll-minor-mode-map (kbd "<wheel-up>") (lambda () (interactive) (pdf-view-previous-line-or-previous-page 2)))
+    ;; (define-key pdf-view-roll-minor-mode-map (kbd "<wheel-down>") (lambda () (interactive) (pdf-view-next-line-or-next-page 2)))
+    )
 #+end_src
 
 
