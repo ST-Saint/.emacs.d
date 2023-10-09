@@ -2105,7 +2105,8 @@ as it is needed to get the database path."
 #+begin_src emacs-lisp
   (use-package org-noter
     :init
-    (setq org-noter-notes-search-path (list (concat org-directory "literature/note")))
+    (setq org-noter-notes-search-path (list (concat org-directory "literature/note"))
+          org-noter-default-notes-file-names '())
     (setq org-noter-always-create-frame nil
           org-noter-notes-window-location 'other-frame)
     (setq org-noter-max-short-selected-text-length most-positive-fixnum)
