@@ -1799,53 +1799,53 @@
 
 ** lsp
 
-#+begin_src emacs-lisp :tangle no
-(quelpa '(lsp-bridge
-           :fetcher github
-           :repo "manateelazycat/lsp-bridge"
-           :files ("*.el" "*.py"
-                   ("acm" "acm/*")
-                   ("core" "core/*")
-                   ("langserver" "langserver/*")
-                   ("multiserver" "multiserver/*")
-                   ("resources" "resources/*"))))
+#+begin_src emacs-lisp
+  (quelpa '(lsp-bridge
+             :fetcher github
+             :repo "manateelazycat/lsp-bridge"
+             :files ("*.el" "*.py"
+                     ("acm" "acm/*")
+                     ("core" "core/*")
+                     ("langserver" "langserver/*")
+                     ("multiserver" "multiserver/*")
+                     ("resources" "resources/*"))))
 
-(use-package lsp-bridge
-  :hook
-  (lsp-bridge-mode . (lambda () (corfu-mode -1)))
-  (c-mode . lsp-bridge-mode)
-  (c++-mode . lsp-bridge-mode)
-  (java-mode . lsp-bridge-mode)
-  (python-mode . lsp-bridge-mode)
-  (typescript-mode . lsp-bridge-mode)
-  (latex-mode . lsp-bridge-mode)
+  (use-package lsp-bridge
+    :hook
+    (lsp-bridge-mode . (lambda () (corfu-mode -1)))
+    (c-mode . lsp-bridge-mode)
+    (c++-mode . lsp-bridge-mode)
+    (java-mode . lsp-bridge-mode)
+    (python-mode . lsp-bridge-mode)
+    (typescript-mode . lsp-bridge-mode)
+    (latex-mode . lsp-bridge-mode)
 
-  :config
-  (setq lsp-bridge-enable-log nil)
-  (setq lsp-bridge-enable-hover-diagnostic t)
-  (setq acm-markdown-render-font-height 160)
-  (setq acm-backend-lsp-candidate-max-length 200)
-  (setq acm-backend-lsp-candidate-min-length 0)
-  (setq lsp-bridge-complete-manually nil)
-  (setq lsp-bridge-user-langserver-dir "~/.emacs.d/")
+    :config
+    (setq lsp-bridge-enable-log nil)
+    (setq lsp-bridge-enable-hover-diagnostic t)
+    (setq acm-markdown-render-font-height 160)
+    (setq acm-backend-lsp-candidate-max-length 200)
+    (setq acm-backend-lsp-candidate-min-length 0)
+    (setq lsp-bridge-complete-manually nil)
+    (setq lsp-bridge-user-langserver-dir "~/.emacs.d/")
 
-  (setq lsp-bridge-complete-manually nil)
-  ;; (setq lsp-bridge-python-lsp-server 'pyright)
-  (setq lsp-bridge-tex-lsp-server 'texlab)
+    (setq lsp-bridge-complete-manually nil)
+    ;; (setq lsp-bridge-python-lsp-server 'pyright)
+    (setq lsp-bridge-tex-lsp-server 'texlab)
 
-  (define-key lsp-bridge-mode-map (kbd "C-M-i") #'lsp-bridge-popup-complete-menu)
+    (define-key lsp-bridge-mode-map (kbd "C-M-i") #'lsp-bridge-popup-complete-menu)
 
-  (meow-leader-define-key
-   '("c l d" . lsp-bridge-find-def)
-   '("c l r" . lsp-bridge-find-references)
-   '("c l R" . lsp-bridge-rename)
-   '("c l I" . lsp-bridge-find-impl)
-   '("c l e" . lsp-bridge-diagnostic-list)
-   '("c l s" . lsp-bridge-mode)
-   '("c l S" . lsp-bridge-workspace-list-symbols)
-   '("c l a" . lsp-bridge-code-action)
-   '("c l q" . lsp-bridge-kill-process)
-   '("c l Q" . lsp-bridge-restart-process)))
+    (meow-leader-define-key
+     '("c l d" . lsp-bridge-find-def)
+     '("c l r" . lsp-bridge-find-references)
+     '("c l R" . lsp-bridge-rename)
+     '("c l I" . lsp-bridge-find-impl)
+     '("c l e" . lsp-bridge-diagnostic-list)
+     '("c l s" . lsp-bridge-mode)
+     '("c l S" . lsp-bridge-workspace-list-symbols)
+     '("c l a" . lsp-bridge-code-action)
+     '("c l q" . lsp-bridge-kill-process)
+     '("c l Q" . lsp-bridge-restart-process)))
 #+end_src
 
 #+begin_src emacs-lisp :tangle no
@@ -2137,21 +2137,22 @@ as it is needed to get the database path."
   (use-package org-noter-pdftools
     :ensure nil
     :after org-pdftools
-    :bind
-    (:map org-noter-notes-mode-map
-          ("C-." . #'org-noter-pdftools-activate-org-note)
-          ("M-." . #'org-noter-pdftools-embed-org-note-to-pdf))
-    (:map pdf-view-mode-map
-          ("C-c m i i" . #'org-noter-pdftools-insert-precise-note-underline)
-          ("C-c m i u" . #'org-noter-pdftools-insert-precise-note-underline)
-          ("C-c m i h" . #'org-noter-pdftools-insert-precise-note-highlight)
-          ("C-c m i s" . #'org-noter-pdftools-insert-precise-note-squiggly)
-          ("C-a" . #'pdf-view-align-left)
-          ("C-e" . #'pdf-view-align-right)
-          ("M-i" . #'org-noter-pdftools-insert-precise-note-underline)
-          ("C-l" . #'pdf-view-center-in-window))
 
     :config
+    (bind-keys :map org-noter-notes-mode-map
+               ("C-." . org-noter-pdftools-activate-org-note)
+               ("M-." . org-noter-pdftools-embed-org-note-to-pdf))
+    (bind-keys :map pdf-view-mode-map
+               ("C-c m i i" . org-noter-pdftools-insert-precise-note-underline)
+               ("C-c m i u" . org-noter-pdftools-insert-precise-note-underline)
+               ("C-c m i h" . org-noter-pdftools-insert-precise-note-highlight)
+               ("C-c m i H" . (lambda () (interactive) (org-noter-pdftools-insert-precise-note-highlight t)))
+               ("C-c m i s" . org-noter-pdftools-insert-precise-note-squiggly)
+               ("C-a" . pdf-view-align-left)
+               ("C-e" . pdf-view-align-right)
+               ("M-i" . org-noter-pdftools-insert-precise-note-underline)
+               ("C-l" . pdf-view-center-in-window))
+
     (setq org-noter-pdftools-insert-content-heading nil)
 
     (with-eval-after-load 'pdf-annot (add-hook 'pdf-annot-activate-handler-functions #'org-noter-pdftools-jump-to-note)))
@@ -2163,14 +2164,64 @@ as it is needed to get the database path."
 
 #+begin_src emacs-lisp
   (use-package citar
-    :hook
-    (LaTeX-mode . citar-capf-setup)
-    (org-mode . citar-capf-setup)
+    ;; :hook
+    ;; (LaTeX-mode . citar-capf-setup)
+    ;; (org-mode . citar-capf-setup)
     :config
-    (setq citar-bibliography '("~/org/literature/references.bib"))
-    (setq org-cite-insert-processor 'citar)
-    (setq org-cite-follow-processor 'citar)
-    (setq org-cite-activate-processor 'citar)
+    (setq citar-bibliography '("~/org/literature/bibtex.bib"))
+    (setq org-cite-insert-processor 'citar
+          org-cite-follow-processor 'citar
+          org-cite-activate-processor 'citar)
+    (defvar citar-indicator-files-icons
+      (citar-indicator-create
+       :symbol (all-the-icons-faicon
+                "file-o"
+                :face 'all-the-icons-green
+                :v-adjust -0.1)
+       :function #'citar-has-files
+       :padding "  " ; need this because the default padding is too low for these icons
+       :tag "has:files"))
+
+    (defvar citar-indicator-links-icons
+      (citar-indicator-create
+       :symbol (all-the-icons-octicon
+                "link"
+                :face 'all-the-icons-orange
+                :v-adjust 0.01)
+       :function #'citar-has-links
+       :padding "  "
+       :tag "has:links"))
+
+    (defvar citar-indicator-notes-icons
+      (citar-indicator-create
+       :symbol (all-the-icons-material
+                "speaker_notes"
+                :face 'all-the-icons-blue
+                :v-adjust -0.3)
+       :function #'citar-has-notes
+       :padding "  "
+       :tag "has:notes"))
+
+    (defvar citar-indicator-cited-icons
+      (citar-indicator-create
+       :symbol (all-the-icons-faicon
+                "circle-o"
+                :face 'all-the-icon-green)
+       :function #'citar-is-cited
+       :padding "  "
+       :tag "is:cited"))
+
+    (setq citar-indicators
+          (list citar-indicator-files-icons
+                citar-indicator-links-icons
+                citar-indicator-notes-icons
+                citar-indicator-cited-icons))
+    (setq citar-templates
+          '((main . "${author editor:30%sn}  ${date year issued:4}  ${=key=:15}  ${title:48}")
+            (suffix . "  ${tags keywords:*}")
+            (preview . "${author editor:%etal} (${year issued date}) ${title}, ${journal journaltitle publisher container-title collection-title}.\n")
+            (note . "Notes on ${author editor:%etal}, ${title}")))
+
     (setq citar-symbols
           `((file ,(all-the-icons-faicon "file-o" :face 'all-the-icons-green :v-adjust -0.1) . " ")
             (note ,(all-the-icons-material "speaker_notes" :face 'all-the-icons-blue :v-adjust -0.3) . " ")
