@@ -587,6 +587,17 @@
    '("g g" . magit)))
 #+end_src
 
+** magit-delta
+#+begin_src emacs-lisp
+(use-package magit-delta
+  :hook (magit-mode . magit-delta-mode)
+  :config
+  (setq magit-delta-default-dark-theme "1337")
+  ;; (setq magit-delta-default-dark-theme "Visual Studio Dark+")
+  )
+#+end_src
+
+
 ** magit-todos
 #+begin_src emacs-lisp
 (use-package magit-todos
@@ -636,7 +647,6 @@
     (add-hook 'magit-pre-refresh-hook #'diff-hl-magit-pre-refresh)
     (add-hook 'magit-post-refresh-hook #'diff-hl-magit-post-refresh)))
 #+end_src
-
 
 * project
 #+begin_src emacs-lisp
@@ -1291,94 +1301,94 @@
 
 * org
 #+begin_src emacs-lisp
-  (use-package org
-    :defer t
-    :bind
-    (:map org-mode-map
-          ("C-M-<return>" . org-insert-subheading))
-    :init
-    (org-babel-do-load-languages
-     'org-babel-load-languages
-     '(
-       (emacs-lisp . t)
-       (org . t)
-       (shell . t)
-       (C . t)
-       (latex . t)
-       (python . t)
-       (js . t)
-       (dot . t)
-       (awk . t)
-       ))
-    (if (display-graphic-p)
-        (setq org-startup-indented t))
+(use-package org
+  :defer t
+  :bind
+  (:map org-mode-map
+        ("C-M-<return>" . org-insert-subheading))
+  :init
+  (org-babel-do-load-languages
+   'org-babel-load-languages
+   '(
+     (emacs-lisp . t)
+     (org . t)
+     (shell . t)
+     (C . t)
+     (latex . t)
+     (python . t)
+     (js . t)
+     (dot . t)
+     (awk . t)
+     ))
+  (if (display-graphic-p)
+      (setq org-startup-indented t))
 
-    (setq org-icalendar-include-todo 'unblocked
-          org-icalendar-use-scheduled '(event-if-todo))
+  (setq org-icalendar-include-todo 'unblocked
+        org-icalendar-use-scheduled '(event-if-todo))
 
-    (setq org-special-ctrl-a/e t
-          org-adapt-indentation t
-          org-edit-src-content-indentation 2
-          org-cycle-separator-lines 1
-          org-return-follows-link t
-          org-src-window-setup 'current-window
-          org-confirm-babel-evaluate nil
-          org-insert-heading-respect-content t
-          org-pretty-entities t
-          org-log-done t
-          org-imenu-depth 4
-          org-indent-indentation-per-level 4
-          org-list-allow-alphabetical t
-          org-goto-interface 'outline-path-completionp
-          org-image-actual-width nil
-          org-display-remote-inline-images 'download
-          org-use-sub-superscripts nil
-          org-outline-path-complete-in-steps nil)
+  (setq org-special-ctrl-a/e t
+        org-adapt-indentation t
+        org-edit-src-content-indentation 0
+        org-cycle-separator-lines 1
+        org-return-follows-link t
+        org-src-window-setup 'current-window
+        org-confirm-babel-evaluate nil
+        org-insert-heading-respect-content t
+        org-pretty-entities t
+        org-log-done t
+        org-imenu-depth 4
+        org-indent-indentation-per-level 4
+        org-list-allow-alphabetical t
+        org-goto-interface 'outline-path-completionp
+        org-image-actual-width nil
+        org-display-remote-inline-images 'download
+        org-use-sub-superscripts nil
+        org-outline-path-complete-in-steps nil)
 
-    (set-face-attribute 'org-ellipsis nil :bold nil)
+  (set-face-attribute 'org-ellipsis nil :bold nil)
 
-    (add-to-list 'org-export-backends 'md)
-    ;; NOTE: snippet error in org-mode
-    (setq org-src-tab-acts-natively nil)
+  (add-to-list 'org-export-backends 'md)
+  ;; NOTE: snippet error in org-mode
+  (setq org-src-tab-acts-natively nil)
 
-    (setq org-todo-keywords '((sequence "TODO(t)" "PROG(p)" "FIXME(f)" "REVIEW(r)" "HOLD(h)" "NOTE(n)" "|" "FAIL(F)" "DONE(d)" )))
-    (setq org-list-demote-modify-bullet
-          '(("+"  . "-")
-            ("-"  . "-")
-            ("*"  . "-")
-            ("1." . "A.")
-            ("A." . "a.")
-            ("1)" . "A)")
-            ("A)" . "a)")
-            ("1)" . "-")
-            ("a)" . "-")))
-    (setq org-ellipsis " ר")
+  (setq org-todo-keywords '((sequence "TODO(t)" "PROG(p)" "FIXME(f)" "REVIEW(r)" "HOLD(h)" "NOTE(n)" "|" "FAIL(F)" "DONE(d)" )))
+  (setq org-list-demote-modify-bullet
+        '(("+"  . "-")
+          ("-"  . "-")
+          ("*"  . "-")
+          ("1." . "A.")
+          ("A." . "a.")
+          ("1)" . "A)")
+          ("A)" . "a)")
+          ("1)" . "-")
+          ("a)" . "-")))
+  (setq org-ellipsis " ר")
 
-    (setq org-capture-templates
-          '(("t" "Todo" entry (file+headline "~/org/todo.org" "Capture")
-             "* TODO %?\n  %i\n  %a")
-            ("j" "Journal" entry (file+datetree "~/org/journal.org")
-             "* %?\nEntered on %U\n  %i\n  %a")))
+  (setq org-capture-templates
+        '(("t" "Todo" entry (file+headline "~/org/todo.org" "Capture")
+           "* TODO %?\n  %i\n  %a")
+          ("j" "Journal" entry (file+datetree "~/org/journal.org")
+           "* %?\nEntered on %U\n  %i\n  %a")))
 
-    (setq org-refile-use-outline-path t)
-    (setq org-reverse-note-order t)
-    (setq org-refile-targets '((nil :maxlevel . 5)
-                               (org-agenda-files :maxlevel . 5)))
+  (setq org-refile-use-outline-path t)
+  (setq org-reverse-note-order t)
+  (setq org-refile-targets '((nil :maxlevel . 5)
+                             (org-agenda-files :maxlevel . 5)))
 
-    (setq org-directory "~/org/")
-    (setq org-agenda-files '("~/org/todo.org"))
-    (setq org-default-notes-file (concat org-directory "notes.org"))
+  (setq org-directory "~/org/")
+  (setq org-agenda-files '("~/org/todo.org"))
+  (setq org-default-notes-file (concat org-directory "notes.org"))
 
-    :config
-    ;; TODO replace imenu with org-goto
-    (define-key org-mode-map (kbd "C-c s i") #'org-goto)
-    (setq org-format-latex-options (plist-put org-format-latex-options :scale 3.0))
+  :config
+  ;; TODO replace imenu with org-goto
+  (define-key org-mode-map (kbd "C-c s i") #'org-goto)
+  (setq org-format-latex-options (plist-put org-format-latex-options :scale 3.0))
 
-    (add-hook 'org-mode-hook #'visual-fill-column-mode)
-    (add-hook 'org-mode-hook #'flyspell-mode)
-    (meow-leader-define-key
-     '("n c" . org-capture)
-     '("n L" . org-store-link)))
+  (add-hook 'org-mode-hook #'visual-fill-column-mode)
+  (add-hook 'org-mode-hook #'flyspell-mode)
+  (meow-leader-define-key
+   '("n c" . org-capture)
+   '("n L" . org-store-link)))
 #+end_src
 
 ** org-modern
@@ -1648,13 +1658,13 @@
 
 ** language tool
 #+begin_src emacs-lisp
-  (use-package langtool
-    :config
-    (setq langtool-language-tool-jar "/usr/share/java/languagetool/languagetool-commandline.jar"
-          langtool-java-classpath "/usr/share/languagetool:/usr/share/java/languagetool/*"
-          langtool-language-tool-server-jar "/usr/share/java/languagetool/languagetool-server.jar"
-          langtool-server-user-arguments nil)
-    (set-face-attribute 'langtool-errline nil :background nil :inherit 'flycheck-error))
+(use-package langtool
+  :config
+  (setq langtool-language-tool-jar "/usr/share/java/languagetool/languagetool-commandline.jar"
+        langtool-java-classpath "/usr/share/languagetool:/usr/share/java/languagetool/*"
+        langtool-language-tool-server-jar "/usr/share/java/languagetool/languagetool-server.jar"
+        langtool-server-user-arguments nil)
+  (set-face-attribute 'langtool-errline nil :background nil :inherit 'flycheck-error))
 #+end_src
 
 
@@ -2228,7 +2238,12 @@ as it is needed to get the database path."
             (link ,(all-the-icons-octicon "link" :face 'all-the-icons-orange :v-adjust 0.01) . " ")))
     (setq citar-library-paths '("~/org/literature/pdf/")
           citar-notes-paths '("~/org/literature/note/")
-          citar-library-file-extensions '("pdf")))
+          citar-library-file-extensions '("pdf"))
+    (meow-leader-define-key
+     '("b b" . citar-open-entry)
+     '("b a" . citar-add-file-to-library)
+     '("b f" . citar-open-files)
+     '("b l" . citar-open-links)))
 #+end_src
 
 * shell
@@ -2277,6 +2292,21 @@ as it is needed to get the database path."
 #+begin_src emacs-lisp
 (use-package vundo)
 #+end_src
+
+* remote
+
+** ssh-deploy
+#+begin_src emacs-lisp
+(use-package ssh-deploy
+  :defer 5
+  :hook ((after-save . ssh-deploy-after-save)
+         (find-file . ssh-deploy-find-file))
+  :config
+  (ssh-deploy-line-mode) ;; If you want mode-line feature
+  (ssh-deploy-add-menu) ;; If you want menu-bar feature
+  )
+#+end_src
+
 
 * EAF
 #+begin_src emacs-lisp :tangle no
