@@ -730,105 +730,98 @@
 + [ ] create customized sort function
 
 #+begin_src emacs-lisp
-  (use-package persp-mode
-    ;; :custom
-    ;; (persp-mode-prefix-key nil)
-    ;; (persp-sort 'created)
-    ;; (persp-modestring-short t)
-    :config
-    (setq persp-previous-persp-name nil)
-    (setq persp-nil-name "main")
-    (defun persp-show-persps ()
-      (interactive)
-      (message (concat persp-last-persp-name
-                       " ----- "
-                       "[ "
-                       (s-join " | " persp-names-cache)
-                       " ]")))
+(use-package persp-mode
+  ;; :custom
+  ;; (persp-mode-prefix-key nil)
+  ;; (persp-sort 'created)
+  ;; (persp-modestring-short t)
+  :config
+  (setq persp-previous-persp-name nil)
+  (setq persp-nil-name "main")
+  (setq persp-autokill-buffer-on-remove 'kill)
 
-    (defun project-switch-project (dir)
-      "\"Switch\" to another project by running an Emacs command.
-    The available commands are presented as a dispatch menu
-    made from `project-switch-commands'.
+  (defun persp-show-persps ()
+    (interactive)
+    (message (concat persp-last-persp-name
+                     " ----- "
+                     "[ "
+                     (s-join " | " persp-names-cache)
+                     " ]")))
 
-    When called in a program, it will use the project corresponding
-    to directory DIR."
-      (interactive (list (project-prompt-project-dir)))
-      (let ((command (if (symbolp project-switch-commands)
-                         project-switch-commands
-                       (project--switch-project-command))))
-        (let ((project-current-directory-override dir))
-          (let ((project-root (project-root (project-current))))
-            (when project-root
-              (persp-switch (file-name-nondirectory (directory-file-name project-root)))))
-          (call-interactively command))))
-    (setq persp-autokill-buffer-on-remove 'kill-weak)
+  (defun project-switch-project (dir)
+    "\"Switch\" to another project by running an Emacs command.
+  The available commands are presented as a dispatch menu
+  made from `project-switch-commands'.
 
-  (defun open-config-persp ()
-      (interactive)
-      (persp-switch ".emacs.d"))
+  When called in a program, it will use the project corresponding
+  to directory DIR."
+    (interactive (list (project-prompt-project-dir)))
+    (let ((command (if (symbolp project-switch-commands)
+                       project-switch-commands
+                     (project--switch-project-command))))
+      (let ((project-current-directory-override dir))
+        (let ((project-root (project-root (project-current))))
+          (when project-root
+            (persp-switch (file-name-nondirectory (directory-file-name project-root)))))
+        (call-interactively command))))
+  (setq persp-autokill-buffer-on-remove 'kill-weak)
 
-    (defun open-config-file ()
-      (interactive)
-      (persp-switch ".emacs.d")
-      (find-file "~/.emacs.d/config.org")
-      (delete-other-windows))
+(defun open-config-persp ()
+    (interactive)
+    (persp-switch ".emacs.d"))
 
-    (defun persp-save-previous-persp-name (name frame)
-      (unless (equal name persp-last-persp-name)
-        (setq persp-previous-persp-name persp-last-persp-name)))
+  (defun open-config-file ()
+    (interactive)
+    (persp-switch ".emacs.d")
+    (find-file "~/.emacs.d/config.org")
+    (delete-other-windows))
 
-    (add-hook 'persp-before-switch-functions #'persp-save-previous-persp-name)
+  (defun persp-save-previous-persp-name (name frame)
+    (unless (equal name persp-last-persp-name)
+      (setq persp-previous-persp-name persp-last-persp-name)))
 
-    (defun persp-switch-last ()
-      (interactive)
-      (persp-switch persp-previous-persp-name))
+  (add-hook 'persp-before-switch-functions #'persp-save-previous-persp-name)
 
-    (defun persp-move-left ()
-      (interactive)
-      (let ((pos (cl-position persp-last-persp-name persp-names-cache)))
-        (unless (< pos 1)
-          (cl-rotatef (nth (1- pos) persp-names-cache) (nth pos persp-names-cache))))
-      (persp-show-persps))
+  (defun persp-switch-last ()
+    (interactive)
+    (persp-switch persp-previous-persp-name))
 
-    (defun persp-move-right ()
-      (interactive)
-      (let ((pos (cl-position persp-last-persp-name persp-names-cache)))
-        (unless (= pos (length persp-names-cache))
-          (cl-rotatef (nth (1+ pos) persp-names-cache) (nth pos persp-names-cache))))
-      (persp-show-persps))
+  (defun persp-move-left ()
+    (interactive)
+    (let ((pos (cl-position persp-last-persp-name persp-names-cache)))
+      (unless (< pos 1)
+        (cl-rotatef (nth (1- pos) persp-names-cache) (nth pos persp-names-cache))))
+    (persp-show-persps))
 
-    (meow-leader-define-key
-     ;; '("1" . (lambda() (interactive) (persp-switch (nth 0 persp-names-cache)) (persp-show-persps)))
-     ;; '("2" . (lambda() (interactive) (persp-switch (nth 1 persp-names-cache)) (persp-show-persps)))
-     ;; '("3" . (lambda() (interactive) (persp-switch (nth 2 persp-names-cache)) (persp-show-persps)))
-     ;; '("4" . (lambda() (interactive) (persp-switch (nth 3 persp-names-cache)) (persp-show-persps)))
-     ;; '("5" . (lambda() (interactive) (persp-switch (nth 4 persp-names-cache)) (persp-show-persps)))
-     ;; '("6" . (lambda() (interactive) (persp-switch (nth 5 persp-names-cache)) (persp-show-persps)))
-     ;; '("7" . (lambda() (interactive) (persp-switch (nth 6 persp-names-cache)) (persp-show-persps)))
-     ;; '("8" . (lambda() (interactive) (persp-switch (nth 7 persp-names-cache)) (persp-show-persps)))
-     ;; '("9" . (lambda() (interactive) (persp-switch (nth 8 persp-names-cache)) (persp-show-persps)))
-     '("f p" . open-config-file)
-     '("f P" . open-config-persp)
-     '("w s" . persp-switch)
-     '("w w" . persp-show-persps)
-     ;; '("w b" . persp-scratch-buffer)
-     '("TAB s" . persp-switch)
-     '("TAB p" . persp-switch)
-     '("TAB n" . persp-switch)
-     '("TAB SPC" . persp-switch)
-     '("p s" . persp-switch)
-     '("TAB `" . persp-switch-last)
-     '("TAB j" . persp-move-left)
-     '("TAB k" . persp-move-right)
-     '("TAB h" . persp-prev)
-     '("TAB l" . persp-next)
-     '("TAB TAB" . persp-show-persps)
-     '("TAB b" . persp-switch-to-buffer)
-     '("," . persp-switch-to-buffer)
-     '("TAB d" . persp-kill)
-     '("TAB D" . (lambda () (interactive) (persp-kill (persp-last-persp-name)))))
-    (persp-mode t))
+  (defun persp-move-right ()
+    (interactive)
+    (let ((pos (cl-position persp-last-persp-name persp-names-cache)))
+      (unless (= pos (length persp-names-cache))
+        (cl-rotatef (nth (1+ pos) persp-names-cache) (nth pos persp-names-cache))))
+    (persp-show-persps))
+
+  (meow-leader-define-key
+   '("f p" . open-config-file)
+   '("f P" . open-config-persp)
+   '("w s" . persp-switch)
+   '("w w" . persp-show-persps)
+   ;; '("w b" . persp-scratch-buffer)
+   '("TAB s" . persp-switch)
+   '("TAB p" . persp-switch)
+   '("TAB n" . persp-switch)
+   '("TAB SPC" . persp-switch)
+   '("p s" . persp-switch)
+   '("TAB `" . persp-switch-last)
+   '("TAB j" . persp-move-left)
+   '("TAB k" . persp-move-right)
+   '("TAB h" . persp-prev)
+   '("TAB l" . persp-next)
+   '("TAB TAB" . persp-show-persps)
+   '("TAB b" . persp-switch-to-buffer)
+   '("," . persp-switch-to-buffer)
+   '("TAB d" . persp-kill)
+   '("TAB D" . (lambda () (interactive) (persp-kill (persp-last-persp-name)))))
+  (persp-mode t))
 #+end_src
 
 ** centaur-tabs
@@ -1810,52 +1803,53 @@
 ** lsp
 
 #+begin_src emacs-lisp
-  (quelpa '(lsp-bridge
-             :fetcher github
-             :repo "manateelazycat/lsp-bridge"
-             :files ("*.el" "*.py"
-                     ("acm" "acm/*")
-                     ("core" "core/*")
-                     ("langserver" "langserver/*")
-                     ("multiserver" "multiserver/*")
-                     ("resources" "resources/*"))))
+(quelpa '(lsp-bridge
+           :fetcher github
+           :repo "manateelazycat/lsp-bridge"
+           :files ("*.el" "*.py"
+                   ("acm" "acm/*")
+                   ("core" "core/*")
+                   ("langserver" "langserver/*")
+                   ("multiserver" "multiserver/*")
+                   ("resources" "resources/*"))))
 
-  (use-package lsp-bridge
-    :hook
-    (lsp-bridge-mode . (lambda () (corfu-mode -1)))
-    (c-mode . lsp-bridge-mode)
-    (c++-mode . lsp-bridge-mode)
-    (java-mode . lsp-bridge-mode)
-    (python-mode . lsp-bridge-mode)
-    (typescript-mode . lsp-bridge-mode)
-    (latex-mode . lsp-bridge-mode)
+(use-package lsp-bridge
+  :hook
+  (lsp-bridge-mode . (lambda () (corfu-mode -1)))
+  (c-mode . lsp-bridge-mode)
+  (c++-mode . lsp-bridge-mode)
+  (java-mode . lsp-bridge-mode)
+  (python-mode . lsp-bridge-mode)
+  (typescript-mode . lsp-bridge-mode)
+  (TeX-mode . lsp-bridge-mode)
 
-    :config
-    (setq lsp-bridge-enable-log nil)
-    (setq lsp-bridge-enable-hover-diagnostic t)
-    (setq acm-markdown-render-font-height 160)
-    (setq acm-backend-lsp-candidate-max-length 200)
-    (setq acm-backend-lsp-candidate-min-length 0)
-    (setq lsp-bridge-complete-manually nil)
-    (setq lsp-bridge-user-langserver-dir "~/.emacs.d/")
+  :config
+  (setq lsp-bridge-enable-log nil)
+  (setq lsp-bridge-enable-hover-diagnostic t)
+  (setq acm-markdown-render-font-height 160)
+  (setq acm-backend-lsp-candidate-max-length 200)
+  (setq acm-backend-lsp-candidate-min-length 0)
+  (setq lsp-bridge-complete-manually nil)
+  (setq lsp-bridge-user-langserver-dir "~/.emacs.d/")
 
-    (setq lsp-bridge-complete-manually nil)
-    ;; (setq lsp-bridge-python-lsp-server 'pyright)
-    (setq lsp-bridge-tex-lsp-server 'texlab)
+  (setq lsp-bridge-complete-manually nil)
+  ;; (setq lsp-bridge-python-lsp-server 'pyright)
+  (setq lsp-bridge-tex-lsp-server 'texlab)
+  ;; (setq lsp-bridge-tex-lsp-server 'digestif)
 
-    (define-key lsp-bridge-mode-map (kbd "C-M-i") #'lsp-bridge-popup-complete-menu)
+  (define-key lsp-bridge-mode-map (kbd "C-M-i") #'lsp-bridge-popup-complete-menu)
 
-    (meow-leader-define-key
-     '("c l d" . lsp-bridge-find-def)
-     '("c l r" . lsp-bridge-find-references)
-     '("c l R" . lsp-bridge-rename)
-     '("c l I" . lsp-bridge-find-impl)
-     '("c l e" . lsp-bridge-diagnostic-list)
-     '("c l s" . lsp-bridge-mode)
-     '("c l S" . lsp-bridge-workspace-list-symbols)
-     '("c l a" . lsp-bridge-code-action)
-     '("c l q" . lsp-bridge-kill-process)
-     '("c l Q" . lsp-bridge-restart-process)))
+  (meow-leader-define-key
+   '("c l d" . lsp-bridge-find-def)
+   '("c l r" . lsp-bridge-find-references)
+   '("c l R" . lsp-bridge-rename)
+   '("c l I" . lsp-bridge-find-impl)
+   '("c l e" . lsp-bridge-diagnostic-list)
+   '("c l s" . lsp-bridge-mode)
+   '("c l S" . lsp-bridge-workspace-list-symbols)
+   '("c l a" . lsp-bridge-code-action)
+   '("c l q" . lsp-bridge-kill-process)
+   '("c l Q" . lsp-bridge-restart-process)))
 #+end_src
 
 #+begin_src emacs-lisp :tangle no
