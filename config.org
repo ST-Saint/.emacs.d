@@ -156,6 +156,15 @@
 (use-package scratch)
 #+end_src
 
+** long-line
+#+begin_src emacs-lisp
+(setq-default bidi-display-reordering nil)
+(setq bidi-inhibit-bpa t
+      long-line-threshold 1000
+      large-hscroll-threshold 1000
+      syntax-wholeline-max 1000)
+#+end_src
+
 ** scroll
 #+begin_src emacs-lisp
 (setq scroll-conservatively 101
@@ -1509,17 +1518,6 @@
           org-alert-notify-after-event-cutoff 10))
 #+end_src
 
-** org-wild-notifier
-#+begin_src emacs-lisp
-  (use-package org-wild-notifier
-    :config
-    (setq org-wild-notifier-alert-time '(30 10 5 0)
-          org-wild-notifier-notification-title "Org-Notify"
-          org-wild-notifier-notification-icon "/home/yayu/org/emacs-dragon.svg")
-    (org-wild-notifier-mode)
-    )
-#+end_src
-
 
 * calendar
 #+begin_src emacs-lisp
@@ -2084,16 +2082,15 @@ as it is needed to get the database path."
 
 ** pdf-tools
 #+begin_src emacs-lisp
-  (use-package pdf-tools
-    ;; :ensure nil
-    :config
-    (add-hook 'pdf-view-mode-hook 'auto-revert-mode)
-    (with-eval-after-load 'pdf-tools
-      (pdf-tools-install))
-    (set-face-attribute 'pdf-view-region nil :inherit 'highlight)
-    ;; (define-key pdf-view-roll-minor-mode-map (kbd "<wheel-up>") (lambda () (interactive) (pdf-view-previous-line-or-previous-page 2)))
-    ;; (define-key pdf-view-roll-minor-mode-map (kbd "<wheel-down>") (lambda () (interactive) (pdf-view-next-line-or-next-page 2)))
-    )
+(use-package pdf-tools
+  :config
+  (add-hook 'pdf-view-mode-hook 'auto-revert-mode)
+  (with-eval-after-load 'pdf-tools
+    (pdf-tools-install))
+  (set-face-attribute 'pdf-view-region nil :inherit 'highlight)
+  ;; (define-key pdf-view-roll-minor-mode-map (kbd "<wheel-up>") (lambda () (interactive) (pdf-view-previous-line-or-previous-page 2)))
+  ;; (define-key pdf-view-roll-minor-mode-map (kbd "<wheel-down>") (lambda () (interactive) (pdf-view-next-line-or-next-page 2)))
+  )
 #+end_src
 
 
