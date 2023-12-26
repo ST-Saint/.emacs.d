@@ -2032,6 +2032,7 @@ as it is needed to get the database path."
   :ensure auctex
   :config
   (add-hook 'LaTeX-mode-hook #'flyspell-mode)
+  (setq LaTeX-command "latex -shell-escape")
   (setq TeX-auto-save t)
   (setq TeX-view-program-list '(("PDF Tools" TeX-pdf-tools-sync-view))
         TeX-view-program-selection '((output-pdf "PDF Tools"))
@@ -2527,25 +2528,25 @@ as it is needed to get the database path."
 
 ** org-msg
 #+begin_src emacs-lisp
-  (use-package org-msg
-    :after mu4e
-    :config
-    (setq org-msg-options "html-postamble:nil H:5 num:nil ^:{} toc:nil author:nil email:nil \\n:t"
-          org-msg-startup "hidestars indent inlineimages"
-          org-msg-greeting-fmt "\nHi%s,\n\n"
-          org-msg-recipient-names '(("yayuwang@cs.ubc.ca" . "Yayu Wang"))
-          org-msg-greeting-name-limit 3
-          org-msg-default-alternatives '((new                 . (text html))
-                                         (reply-to-html	. (text html))
-                                         (reply-to-text	. (text)))
-          org-msg-convert-citation t)
+(use-package org-msg
+  :after mu4e
+  :config
+  (setq org-msg-options "html-postamble:nil H:5 num:nil ^:{} toc:nil author:nil email:nil \\n:t"
+        org-msg-startup "hidestars indent inlineimages"
+        org-msg-greeting-fmt "\nHi%s,\n\n"
+        org-msg-recipient-names '(("yayuwang@cs.ubc.ca" . "Yayu Wang"))
+        org-msg-greeting-name-limit 3
+        org-msg-default-alternatives '((new                 . (text html))
+                                       (reply-to-html	. (text html))
+                                       (reply-to-text	. (text)))
+        org-msg-convert-citation t)
 
-    ;; (setq org-msg-enforce-css '((p nil
-    ;; ((font-size . "16pt")))
-    ;; (li nil
-    ;; ((font-size . "16pt")))))
-    (setq org-msg-signature "#+begin_signature\nBest,\n\n-- *Yayu*\n#+end_signature")
-    (org-msg-mode))
+  (setq org-msg-enforce-css '((p nil
+  ((font-size . "12pt")))
+  (li nil
+  ((font-size . "12pt")))))
+  (setq org-msg-signature "#+begin_signature\nBest,\n\n-- *Yayu*\n#+end_signature")
+  (org-msg-mode))
 #+end_src
 
 * irc
