@@ -59,11 +59,19 @@
 #+end_src
 
 
-* basic
+* misc
 #+begin_src emacs-lisp
 (use-package benchmark-init
   :config
   (add-hook 'after-init-hook 'benchmark-init/deactivate))
+
+(setq window-resize-pixelwise t)
+(setq frame-resize-pixelwise t)
+(save-place-mode t)
+(savehist-mode t)
+(recentf-mode t)
+(or (server-mode)
+    (server-start))
 
 (setq confirm-kill-emacs 'y-or-n-p)
 (setq byte-compile-warnings nil
@@ -73,13 +81,18 @@
 (setq c-default-style nil)
 #+end_src
 
+** subword
+#+begin_src emacs-lisp
+(use-package subword
+  ;; :hook (after-init . global-subword-mode)
+  )
+#+end_src
+
 * handy
 
 ** customize
 #+begin_src emacs-lisp
 (defalias 'yes-or-no-p 'y-or-n-p)
-
-(save-place-mode 't)
 
 (global-hl-line-mode 't)
 
@@ -93,14 +106,10 @@
 
 (setq use-dialog-box nil)
 
-(recentf-mode t)
 (setq recentf-max-saved-items nil)
 
 (setq-default indent-tabs-mode nil)
 (setq electric-indent-mode t)
-
-(or (server-mode)
-    (server-start))
 
 (define-key minibuffer-mode-map (kbd "C-M-<backspace>") #'backward-kill-sexp)
 
@@ -221,7 +230,10 @@
   :custom
   (default-input-method "rime")
   (rime-user-data-dir "~/.config/ibus/rime")
-  (rime-show-candidate 'posframe))
+  (rime-show-candidate 'posframe)
+  (add-hook 'rime-mode-hook (lambda () (if rime-mode
+                                           (meow-insert-mode)
+                                         (meow-normal-mode)))))
 #+end_src
 
 
@@ -349,12 +361,12 @@
      '("M-<SPC>" . meow-keypad)
      '("<escape>" . ignore)))
 
+  ;; ಎ·ω·ಎ
+  ;; ಎ-ω-ಎ
   :config
-  (setq meow-replace-state-name-list '((normal . "ಎ·ω·ಎ")
-                                       (motion . "ಎ-ω-ಎ")
-                                       (keypad . "/ᐠ.ˬ.ᐟ\\")
+  (setq meow-replace-state-name-list '((normal . "/ᐠ.ˬ.ᐟ\\")
                                        (insert . "/ᐠ.ꞈ.ᐟ\\")
-                                       (beacon . "/ᐠ..ᐟ\\")))
+                                       (keypad . "/ᐠ. .ᐟ\\")))
 
   (setq meow-keypad-start-keys nil
         meow-keypad-literal-prefix nil
@@ -388,7 +400,7 @@
 (scroll-bar-mode -1)        ; disable visible scrollbar
 (tool-bar-mode -1)          ; disable the toolbar
 (tooltip-mode -1)           ; disable tooltips
-(menu-bar-mode -1)            ; disable the menu bar
+(menu-bar-mode -1)          ; disable the menu bar
 
 (setq display-line-numbers-type 'relative)
 (global-display-line-numbers-mode)
@@ -408,12 +420,12 @@
 
 ** theme
 #+begin_src emacs-lisp
-  (use-package doom-themes
-    :config
-    (load-theme 'doom-one t)
-    ;; (doom-themes-org-config)
-    (eval-after-load 'hl-line
-      (set-face-attribute 'hl-line nil :inherit nil :background "gray8"))
+(use-package doom-themes
+  :config
+  (load-theme 'doom-one t)
+  ;; (doom-themes-org-config)
+  (eval-after-load 'hl-line
+    (set-face-attribute 'hl-line nil :inherit nil :background "gray8"))
     (set-face-attribute 'region nil :background "#4F5766"))
 #+end_src
 
@@ -489,7 +501,7 @@
 - first installation causes ~bar is not defined~ error
 
 #+begin_src emacs-lisp
-  (use-package doom-modeline
+(use-package doom-modeline
     :config
     (setq doom-modeline-project-detection 'project)
     (setq doom-modeline-buffer-file-name-style 'truncate-with-project)
@@ -526,7 +538,7 @@
   (add-to-list 'beacon-dont-blink-commands #'consult-line)
   (add-to-list 'beacon-dont-blink-major-modes #'pdf-view-mdoe)
   (setq beacon-blink-when-window-scrolls nil)
-  (beacon-mode nil))
+  (beacon-mode -1))
 #+end_src
 **** TODO better flush
 
@@ -659,67 +671,67 @@
 
 * project
 #+begin_src emacs-lisp
-  (use-package ripgrep)
+(use-package ripgrep)
 
-  (use-package project
-    :init
-    (setq project-vc-merge-submodules nil)
-    :config
-    (defun project-open-magit ()
-      (interactive)
-      (magit (project-root (project-current t))))
+(use-package project
+  :init
+  (setq project-vc-merge-submodules nil)
+  :config
+  (defun project-open-magit ()
+    (interactive)
+    (magit (project-root (project-current t))))
 
-    (defun project-open-magit-todos ()
-      (interactive)
-      (magit-todos-list (project-root (project-current t))))
+  (defun project-open-magit-todos ()
+    (interactive)
+    (magit-todos-list (project-root (project-current t))))
 
-    (setq project-switch-commands '((persp-show-persps "" ? )
-                                    (persp-show-persps "" ?)
-                                    (project-find-file "File file" ?f)
-                                    (project-open-magit "Magit" ?g)
-                                    (project-open-magit-todos "Todos" ?t)))
+  (setq project-switch-commands '((persp-show-persps "" ? )
+                                  (persp-show-persps "" ?)
+                                  (project-find-file "File file" ?f)
+                                  (project-open-magit "Magit" ?g)
+                                  (project-open-magit-todos "Todos" ?t)))
 
-    (setq vc-dir-backend 'git
-          vc-handled-backends '(Git))
+  (setq vc-dir-backend 'git
+        vc-handled-backends '(Git))
 
 
-    (defgroup project-local nil
-      "Local, non-VC-backed project.el root directories."
-      :group 'project)
+  (defgroup project-local nil
+    "Local, non-VC-backed project.el root directories."
+    :group 'project)
 
-    (defcustom project-local-identifier ".project"
-      "Specify a single filename or a list of names."
-      :type '(choice (string :tag "Single file")
-                     (repeat (string :tag "Filename")))
-      :group 'project-local)
+  (defcustom project-local-identifier ".project"
+    "Specify a single filename or a list of names."
+    :type '(choice (string :tag "Single file")
+                   (repeat (string :tag "Filename")))
+    :group 'project-local)
 
-    (cl-defmethod project-root ((project (head local)))
-      "Return root directory of current PROJECT."
-      (cdr project))
+  (cl-defmethod project-root ((project (head local)))
+    "Return root directory of current PROJECT."
+    (cdr project))
 
-    (defun project-local-try-local (dir)
-      "Determine if DIR is a non-VC project.
-  DIR must include a file with the name determined by the
-  variable `project-local-identifier' to be considered a project."
-      (if-let ((root (if (listp project-local-identifier)
-                         (seq-some (lambda (n)
-                                     (locate-dominating-file dir n))
-                                   project-local-identifier)
-                       (locate-dominating-file dir project-local-identifier))))
-          (cons 'local root)))
+  (defun project-local-try-local (dir)
+    "Determine if DIR is a non-VC project.
+DIR must include a file with the name determined by the
+variable `project-local-identifier' to be considered a project."
+    (if-let ((root (if (listp project-local-identifier)
+                       (seq-some (lambda (n)
+                                   (locate-dominating-file dir n))
+                                 project-local-identifier)
+                     (locate-dominating-file dir project-local-identifier))))
+        (cons 'local root)))
 
-    (customize-set-variable 'project-find-functions
-                            (list #'project-try-vc
-                                  #'project-local-try-local))
+  (customize-set-variable 'project-find-functions
+                          (list #'project-try-vc
+                                #'project-local-try-local))
 
-    (meow-leader-define-key
-     '("p p" . project-switch-project)
-     '("p f" . project-find-file)
-     '("p b" . project-switch-to-buffer)
-     '("p B" . project-list-buffers)
-     '("p c" . project-compile)
-     '("p d" . project-find-dir)
-     '("p D" . project-dired)))
+  (meow-leader-define-key
+   '("p p" . project-switch-project)
+   '("p f" . project-find-file)
+   '("p b" . project-switch-to-buffer)
+   '("p B" . project-list-buffers)
+   '("p c" . project-compile)
+   '("p d" . project-find-dir)
+   '("p D" . project-dired)))
 #+end_src
 
 * navigate
@@ -899,7 +911,7 @@
     '("C-S-<iso-lefttab>" . centaur-tabs-backward)))
 #+end_src
 
-** winnum
+** winum
 #+begin_src emacs-lisp
 (use-package winum
   :config
@@ -1801,6 +1813,13 @@
 ** lsp
 
 #+begin_src emacs-lisp
+(use-package eglot
+  :config
+  (add-hook 'prog-mode-hook #'eglot-ensure))
+#+end_src
+
+
+#+begin_src emacs-lisp :tangle no
 (quelpa '(lsp-bridge
            :fetcher github
            :repo "manateelazycat/lsp-bridge"
@@ -2032,6 +2051,8 @@ as it is needed to get the database path."
   :ensure auctex
   :config
   (add-hook 'LaTeX-mode-hook #'flyspell-mode)
+  (add-hook 'LaTeX-mode-hook #'LaTeX-math-mode)
+  (add-hook 'LaTeX-mode-hook #'reftex-mode)
   (setq LaTeX-command "latex -shell-escape")
   (setq TeX-auto-save t)
   (setq TeX-view-program-list '(("PDF Tools" TeX-pdf-tools-sync-view))
@@ -2570,14 +2591,6 @@ as it is needed to get the database path."
   (use-package circe-notifications
     :config
     (add-hook 'circe-server-connected-hook 'enable-circe-notifications))
-#+end_src
-
-* misc
-** subword
-#+begin_src emacs-lisp
-(use-package subword
-  ;; :hook (after-init . global-subword-mode)
-  )
 #+end_src
 
 * debug
