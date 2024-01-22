@@ -1,6 +1,6 @@
 #+TITLE: emacs config
 #+STARTUP: content
-#+PROPERTY: header-args:emacs-lisp :tangle ~/Project/miao/init.el :results none
+#+PROPERTY: header-args:emacs-lisp :tangle ~/.emacs.d/init.el :results none
 
 * config.org
 #+begin_src emacs-lisp
@@ -65,7 +65,7 @@
 * miao
 #+begin_src emacs-lisp
 (use-package miao
-  :load-path "~/Project/miao/miao/"
+  :load-path "~/Project/miao/"
   :config
   (miao-global-mode)
   (setq miao-modeline-indicators '((normal . "ಎ/ᐠ.ˬ.ᐟ\\ಎ")
@@ -222,12 +222,13 @@
 
 ** theme
 #+begin_src emacs-lisp
-  (use-package doom-themes
-    :config
-    (load-theme 'doom-one t)
-    ;; (eval-after-load 'hl-line
-    ;;   (set-face-attribute 'hl-line nil :inherit nil :background "gray8"))
-    (set-face-attribute 'region nil :background "#4F5766"))
+(use-package doom-themes
+  :ensure t
+  :config
+  (load-theme 'doom-one t)
+  ;; (eval-after-load 'hl-line
+  ;;   (set-face-attribute 'hl-line nil :inherit nil :background "gray8"))
+  (set-face-attribute 'region nil :background "#4F5766"))
 #+end_src
 
 ** font
@@ -265,6 +266,7 @@
 
 #+begin_src emacs-lisp
 (use-package goggles
+  :ensure t
   :config
   (add-hook 'prog-mode-hook #'goggles-mode)
   (add-hook 'text-mode-hook #'goggles-mode)
@@ -309,6 +311,7 @@
 ** multi-cursor
 #+begin_src emacs-lisp
 (use-package multiple-cursors
+  :ensure t
   :config
   (miao-define-keys 'leader
    '("m c l" . mc/edit-lines)
@@ -322,8 +325,8 @@
 (use-package yasnippet
   :ensure t
   :config
-  (add-to-list 'yas-snippet-dirs "~/org/yasnippets")
-  (yas-load-directory "~/org/yasnippets")
+  (add-to-list 'yas-snippet-dirs (concat (file-truename user-emacs-directory) "yasnippets"))
+  (yas-load-directory (concat (file-truename user-emacs-directory) "/yasnippets"))
   (add-to-list 'warning-suppress-types '(yasnippet backquote-change))
   (add-hook 'prog-mode-hook #'yas-minor-mode)
   (add-hook 'latex-mode-hook #'yas-minor-mode)
@@ -332,6 +335,17 @@
 (use-package yasnippet-snippets
   :after yasnippet
   :ensure t)
+#+end_src
+
+
+* language
+
+** kmonad
+#+begin_src emacs-lisp
+(use-package kbd-mode
+  :quelpa (kbd-mode :fetcher github :repo "kmonad/kbd-mode")
+  :mode "\\.kbd\\'"
+  :commands kbd-mode)
 #+end_src
 
 
@@ -584,6 +598,7 @@
 
 #+begin_src emacs-lisp
 (use-package marginalia
+  :ensure t
   ;; Bind `marginalia-cycle' locally in the minibuffer.  To make the binding
   ;; available in the *Completions* buffer, add it to the
   ;; `completion-list-mode-map'.

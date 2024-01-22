@@ -1,0 +1,12 @@
+# -*- mode: snippet -*-
+# name: hugo
+# key: <hugo
+# --
+
+#+TITLE: `(file-name-sans-extension (buffer-name))`$1
+#+DATE: `(date-time)`
+#+Summary: $2
+#+categories[]: $3
+#+tags[]: $4
+
+$0
