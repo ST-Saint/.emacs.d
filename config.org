@@ -40,19 +40,6 @@
 (require 'use-package)
 #+end_src
 
-** quelpa
-#+begin_src emacs-lisp
-(use-package quelpa
-  :ensure t
-  :config
-  (setq quelpa-upgrade-p nil
-        quelpa-self-upgrade-p nil
-        quelpa-update-melpa-p nil))
-
-(use-package quelpa-use-package
-  :ensure t)
-#+end_src
-
 ** auto-package-update
 #+begin_src emacs-lisp
 (use-package auto-package-update
@@ -343,7 +330,7 @@
 ** kmonad
 #+begin_src emacs-lisp
 (use-package kbd-mode
-  :quelpa (kbd-mode :fetcher github :repo "kmonad/kbd-mode")
+  :vc (:url "https://github.com/kmonad/kbd-mode" :branch "master")
   :mode "\\.kbd\\'"
   :commands kbd-mode)
 #+end_src
@@ -679,9 +666,9 @@
   (setq org-ellipsis " ר")
 
   (setq org-capture-templates
-        '(("t" "Todo" entry (file+headline "~/org/todo.org" "Capture")
+        '(("t" "Todo" entry (file+headline "~/Project/org/todo.org" "Capture")
            "* TODO %?\n  %i\n  %a")
-          ("j" "Journal" entry (file+datetree "~/org/journal.org")
+          ("j" "Journal" entry (file+datetree "~/Project/org/journal.org")
            "* %?\nEntered on %U\n  %i\n  %a")))
 
   (setq org-refile-use-outline-path t)
@@ -689,8 +676,8 @@
   (setq org-refile-targets '((nil :maxlevel . 5)
                              (org-agenda-files :maxlevel . 5)))
 
-  (setq org-directory "~/org/")
-  (setq org-agenda-files '("~/org/todo.org"))
+  (setq org-directory "~/Project/org/")
+  (setq org-agenda-files '("~/Project/org/todo.org"))
   (setq org-default-notes-file (concat org-directory "notes.org"))
 
   :config
