@@ -570,6 +570,20 @@
 
   (global-set-key (kbd "M-g M-g") #'consult-goto-line)
   (global-set-key (kbd "M-y") #'consult-yank-pop)
+
+
+  (defun consult-ripgrep-at-point ()
+    (interactive)
+    (miao-mark-symbol)
+    (let ((symbol (buffer-substring-no-properties (region-beginning) (region-end))))
+      (consult-ripgrep nil symbol)))
+
+  (defun consult-line-at-point ()
+    (interactive)
+    (miao-mark-symbol)
+    (let ((symbol (buffer-substring-no-properties (region-beginning) (region-end))))
+      (consult-line symbol)))
+
   (miao-define-keys 'leader
    '("s s" . consult-line)
    '("s S" . consult-line-at-point)
@@ -693,6 +707,45 @@
    '("n L" . org-store-link)))
 #+end_src
 
+** org-agenda
+#+begin_src emacs-lisp
+(defun open-org-todo-files()
+  (interactive)
+  ;; (persp-switch "org")
+  (find-file org-directory)
+  (project-find-file))
+
+(defun open-org-todo-file()
+  (interactive)
+  ;; (persp-switch "org")
+  (find-file (concat org-directory "todo.org"))
+  (delete-other-windows))
+
+
+(set-face-attribute 'org-agenda-current-time nil :bold t :foreground "#EEEEEE")
+(setq org-agenda-tags-column 0
+      org-agenda-block-separator ?─
+      org-agenda-time-grid
+      '((daily today require-timed)
+        (800 1000 1200 1400 1600 1800 2000)
+        " ┄┄┄┄┄ " "┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄")
+      org-agenda-current-time-string
+      "  now ─────────────────────────────────────────────────")
+
+
+(miao-define-keys 'leader
+ '("n a" . org-agenda)
+ '("n t" . open-org-todo-file)
+ '("n f" . open-org-todo-files)
+ )
+
+
+(use-package org-super-agenda
+  :ensure t
+  ;; TODO: set up org-super-agenda-groups
+  )
+#+end_src
+
 ** org-modern
 #+begin_src emacs-lisp
   (use-package org-modern
@@ -713,6 +766,22 @@
     (global-org-modern-mode))
 #+end_src
 
+
+** org-noter
+#+begin_src emacs-lisp
+(use-package org-noter
+  :ensure t
+  :init
+  (setq org-noter-notes-search-path (list (concat org-directory "literature/note"))
+        org-noter-default-notes-file-names '())
+  (setq org-noter-always-create-frame nil
+        org-noter-notes-window-location 'other-frame)
+  (setq org-noter-max-short-selected-text-length most-positive-fixnum)
+  (setq org-noter-doc-split-fraction '(0.6 . 0.4))
+  :config
+  (miao-define-keys 'leader
+   '("n o" . org-noter)))
+#+end_src
 
 * magit
 
@@ -839,9 +908,6 @@ variable `project-local-identifier' to be considered a project."
   (set-face-attribute 'pdf-view-region nil :inherit 'highlight)
 )
 #+end_src
-
-
-
 * remote
 
 ** ssh-deploy
