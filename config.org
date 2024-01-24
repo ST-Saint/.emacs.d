@@ -329,18 +329,16 @@
 #+begin_src emacs-lisp
 (use-package parinfer-rust-mode
   :ensure t
-  :hook emacs-lisp-mode
-  :init
-  (setq parinfer-rust-auto-download t))
+  :hook emacs-lisp-mode)
 #+end_src
 
 ** objed
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
 (use-package objed
   :ensure t
   :config
   (miao-define-keys 'normal
-    '("." . obj-identifier-object)
+    '("." . objed-identifier-object)
     '("o" . objed-expand-context)
     '(";" . objed-toggle-side)))
 #+end_src
@@ -571,7 +569,6 @@
 #+begin_src emacs-lisp
 (use-package consult
   :ensure t
-  :hook (completion-list-mode . consult-preview-at-point-mode)
   :init
   (setq register-preview-delay 0.5
         register-preview-function #'consult-register-format)
@@ -582,6 +579,7 @@
         xref-show-definitions-function #'consult-xref)
 
   :config
+  (add-hook 'completion-list-mode #'consult-preview-at-point-mode)
   (setq consult-preview-key 'any)
 
   (consult-customize
@@ -620,6 +618,7 @@
    '("u SPC" . consult-mark)
    '("s SPC" . consult-global-mark)))
 #+end_src
+
 ** marginalia
 - Enable rich annotations using the Marginalia package
 
