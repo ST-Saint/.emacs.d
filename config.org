@@ -773,22 +773,22 @@
 
 ** org-modern
 #+begin_src emacs-lisp
-  (use-package org-modern
-    :ensure t
-    :config
-    (setq
-     ;; Edit settings
-     org-auto-align-tags nil
-     org-tags-column 0
-     org-catch-invisible-edits 'show-and-error
-     ;; Org styling, hide markup etc.
-     org-modern-block-name t
-     org-modern-star '("◉")
-     org-modern-list '((?+ . "▸")
-                       (?- . "–")
-                       (?* . "▸")))
+(use-package org-modern
+  :ensure t
+  :config
+  (setq
+   ;; Edit settings
+   org-auto-align-tags nil
+   org-tags-column 0
+   org-catch-invisible-edits 'show-and-error
+   ;; Org styling, hide markup etc.
+   org-modern-block-name t
+   org-modern-star '("◉")
+   org-modern-list '((?+ . "▸")
+                     (?- . "–")
+                     (?* . "▸")))
 
-    (global-org-modern-mode))
+  (global-org-modern-mode))
 #+end_src
 
 
