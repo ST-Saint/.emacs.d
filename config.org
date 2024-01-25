@@ -63,6 +63,14 @@
     (defun doom-modeline-segment--modals ()
       (miao-indicator)))
 
+  (defun delete-current-file ()
+   (interactive)
+   (delete-file (copy-file-name)))
+
+  (defun root-open-buffer-file ()
+   (interactive)
+   (find-file (concat "/sudo::" (copy-file-name))))
+
   (add-to-list 'isearch-forward-thing-at-point 'word)
 
   (define-key minibuffer-mode-map (kbd "C-M-<backspace>") #'backward-kill-sexp)
@@ -79,6 +87,8 @@
     '("f r" . recentf)
     '("f R" . rename-visited-file)
     '("f f" . find-file)
+    '("f y" . copy-file-name)
+    '("f U" . root-open-buffer-file)
     '("f p" . open-config-file)
     '("g g" . magit)))
 #+end_src
@@ -497,7 +507,16 @@
         corfu-separator ?\s
         corfu-auto-delay 0.3)
 
-  (define-key corfu-map (kbd "RET") nil)
+ (defun corfu-enable-in-minibuffer ()
+   "Enable Corfu in the minibuffer."
+   (when (local-variable-p 'completion-at-point-functions)
+     ;; (setq-local corfu-auto nil) ;; Enable/disable auto completion
+     (setq-local corfu-echo-delay nil ;; Disable automatic echo and popup
+                 corfu-popupinfo-delay nil)
+     (corfu-mode 1)))
+ (add-hook 'minibuffer-setup-hook #'corfu-enable-in-minibuffer)
+
+ (define-key corfu-map (kbd "RET") nil)
   ;; Enable Corfu only for certain modes.
   ;; :hook ((prog-mode . corfu-mode)
   ;;        (shell-mode . corfu-mode)
@@ -506,8 +525,8 @@
   ;; Recommended: Enable Corfu globally.  This is recommended since Dabbrev can
   ;; be used globally (M-/).  See also the customization variable
   ;; `global-corfu-modes' to exclude certain modes.
-  (global-corfu-mode)
-  (corfu-popupinfo-mode))
+ (global-corfu-mode)
+ (corfu-popupinfo-mode))
 
 (use-package kind-icon
   :ensure t
