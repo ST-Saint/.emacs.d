@@ -79,7 +79,8 @@
     '("b" . backward-word)
     '("f" . forward-word)
     '("w" . miao-mark-word)
-    '("W" . miao-mark-symbol))
+    '("W" . miao-mark-symbol)
+    '("o" . miao-mark-list))
   (miao-define-keys 'insert
     '("M-SPC" . miao-leader-mode))
   (miao-define-keys 'leader
