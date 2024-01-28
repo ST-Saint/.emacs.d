@@ -20,6 +20,11 @@
 (add-hook 'org-mode-hook (lambda () (add-hook 'after-save-hook #'org-babel-tangle-config)))
 #+end_src
 
+* system
+#+begin_src emacs-lisp
+(setq mac-command-modifier 'meta)
+#+end_src
+
 * package
 
 + [ ] after load with-eval-after-load
@@ -325,7 +330,7 @@
   :config
   (add-to-list 'yas-snippet-dirs (concat (file-truename user-emacs-directory) "yasnippets"))
   (yas-load-directory (concat (file-truename user-emacs-directory) "/yasnippets"))
-  (add-to-list 'warning-suppress-types '(yasnippet backquote-change))
+  ;; (add-to-list 'warning-suppress-types '(yasnippet backquote-change))
   (add-hook 'prog-mode-hook #'yas-minor-mode)
   (add-hook 'latex-mode-hook #'yas-minor-mode)
   (add-hook 'org-mode-hook #'yas-minor-mode))
@@ -337,7 +342,7 @@
 
 
 ** parinfer
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
 (use-package parinfer-rust-mode
   :ensure t
   :hook emacs-lisp-mode)
@@ -357,7 +362,7 @@
 * language
 
 ** kmonad
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
 (use-package kbd-mode
   :vc (:url "https://github.com/kmonad/kbd-mode" :branch "master")
   :mode "\\.kbd\\'"
@@ -889,7 +894,6 @@
   (when (memq window-system '(mac ns x))
     (exec-path-from-shell-initialize)))
 #+end_src
-
 * project
 
 #+begin_src emacs-lisp
