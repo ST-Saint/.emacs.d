@@ -302,6 +302,7 @@
   (add-hook 'text-mode-hook #'goggles-mode)
   (setq-default goggles-pulse nil))
 #+end_src
+
 * navigate
 
 ** windmove
@@ -398,6 +399,23 @@
   :ensure t)
 #+end_src
 
+** agda
+#+begin_src emacs-lisp
+(load-file (let ((coding-system-for-read 'utf-8))
+             (shell-command-to-string "agda-mode locate")))
+
+(setq auto-mode-alist
+      (append
+       '(("\\.agda\\'" . agda2-mode)
+         ("\\.lagda.md\\'" . agda2-mode))
+       auto-mode-alist))
+#+end_src
+
+** sml
+#+begin_src emacs-lisp
+(use-package sml-mode
+  :ensure t)
+#+end_src
 
 * code
 ** format
