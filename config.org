@@ -85,7 +85,8 @@
     '("f" . forward-word)
     '("w" . miao-mark-word)
     '("W" . miao-mark-symbol)
-    '("o" . miao-mark-list))
+    '("o" . miao-mark-list)
+    '(";" . miao-toggle-mark-point))
   (miao-define-keys 'insert
     '("M-SPC" . miao-leader-mode))
   (miao-define-keys 'leader
@@ -96,7 +97,9 @@
     '("f y" . copy-file-name)
     '("f U" . root-open-buffer-file)
     '("f p" . open-config-file)
-    '("g g" . magit)))
+    '("g g" . magit)
+    '("g f" . magit-find-file)
+    '("<SPC>" . miao-cursor-blink)))
 #+end_src
 
 * customize
@@ -345,18 +348,14 @@
 #+begin_src emacs-lisp :tangle no
 (use-package parinfer-rust-mode
   :ensure t
-  :hook emacs-lisp-mode)
+  :hook emacs-lisp-mode
+  :config
+  (setq parinfer-rust-check-before-enable nil))
 #+end_src
 
 ** objed
 #+begin_src emacs-lisp :tangle no
-(use-package objed
-  :ensure t
-  :config
-  (miao-define-keys 'normal
-    '("." . objed-identifier-object)
-    '("o" . objed-expand-context)
-    '(";" . objed-toggle-side)))
+(use-package objed)
 #+end_src
 
 * language
@@ -580,12 +579,12 @@
   (add-to-list 'completion-at-point-functions #'cape-elisp-block)
   ;;(add-to-list 'completion-at-point-functions #'cape-history)
   (add-to-list 'completion-at-point-functions #'cape-keyword)
-  ;;(add-to-list 'completion-at-point-functions #'cape-tex)
+  (add-to-list 'completion-at-point-functions #'cape-tex)
   ;;(add-to-list 'completion-at-point-functions #'cape-sgml)
   ;;(add-to-list 'completion-at-point-functions #'cape-rfc1345)
-  ;;(add-to-list 'completion-at-point-functions #'cape-abbrev)
+  (add-to-list 'completion-at-point-functions #'cape-abbrev)
   (add-to-list 'completion-at-point-functions #'cape-dict)
-  ;;(add-to-list 'completion-at-point-functions #'cape-elisp-symbol)
+  (add-to-list 'completion-at-point-functions #'cape-elisp-symbol)
   ;;(add-to-list 'completion-at-point-functions #'cape-line)
 )
 #+end_src
