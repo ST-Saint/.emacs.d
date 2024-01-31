@@ -83,6 +83,8 @@
   (miao-define-keys 'normal
     '("b" . backward-word)
     '("f" . forward-word)
+    '("x" . miao-delete-char)
+    '("q" . miao-quit-window)
     '("w" . miao-mark-word)
     '("W" . miao-mark-symbol)
     '("o" . miao-mark-list)
@@ -1034,6 +1036,11 @@ variable `project-local-identifier' to be considered a project."
   :init
   (setq epg-pinentry-mode 'loopback)
   (pinentry-start))
+#+end_src
+
+** tramp
+#+begin_src emacs-lisp
+(setq tramp-allow-unsafe-temporary-files t)
 #+end_src
 
 * rime
