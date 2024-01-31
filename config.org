@@ -459,11 +459,13 @@
   :config
 
   (defun format-all-set-c-formatter ()
-    (if (and (buffer-file-name) (file-exists-p "~/.clang-format"))
-        (let ((format-all-directory (file-name-directory (buffer-file-name))))
-          (while (not (file-exists-p (concat format-all-directory ".clang-format")))
-            (setq format-all-directory (concat format-all-directory "../")))
-          (setq-local format-all-formatters `(("C" (clang-format ,(concat "-style=file:" (concat format-all-directory ".clang-format")))))))))
+    (let ((format-all-directory (file-name-directory (buffer-file-name))))
+      (setq retry 10)
+      (while (and (> retry 0)
+                  (not (file-exists-p (concat format-all-directory ".clang-format"))))
+        (setq retry (- retry 1))
+        (setq format-all-directory (concat format-all-directory "../")))
+      (setq-local format-all-formatters `(("C" (clang-format ,(concat "-style=file:" (concat format-all-directory ".clang-format"))))))))
 
   (add-hook 'c-mode-hook #'format-all-set-c-formatter)
   (add-hook 'java-mode-hook #'format-all-set-c-formatter)
