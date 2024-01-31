@@ -172,10 +172,31 @@
   :ensure nil
   :hook
   (prog-mode . which-function-mode))
+#+end_src
 
+** scratch
+#+begin_src emacs-lisp
 (use-package scratch
-  :ensure t)
+  :ensure t
+  :config
+  (defun project-scratch ()
+    (interactive)
+    (let* ((project (project-name (project-current)))
+          (scratch-buffer-name (format "*scratch* <%s>" project))
+          (project-scratch-buffer (get-buffer scratch-buffer-name)))
+      (if project-scratch-buffer
+          (pop-to-buffer project-scratch-buffer)
+        (progn
+          (pop-to-buffer (get-buffer-create scratch-buffer-name)))
+        (org-mode))))
 
+  (miao-define-keys 'leader
+    '("b s" . scratch-buffer)
+    '("p s" . project-scratch)))
+#+end_src
+
+** restart
+#+begin_src emacs-lisp
 (use-package restart-emacs
   :ensure t
   :config
@@ -183,8 +204,8 @@
    '("q q" . save-buffers-kill-emacs)
    '("q r" . restart-emacs)
    '("r r" . restart-emacs)))
-
 #+end_src
+
 
 ** long-line
 #+begin_src emacs-lisp
@@ -194,6 +215,7 @@
       large-hscroll-threshold 1000
       syntax-wholeline-max 1000)
 #+end_src
+
 * ui
 
 ** emacs basic
