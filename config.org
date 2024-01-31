@@ -14,8 +14,10 @@
 
 (defun open-config-file ()
   (interactive)
-  (find-file (concat (file-truename user-emacs-directory) "config.org"))
-  (delete-other-windows))
+  (let ((config-file (concat (file-truename user-emacs-directory) "config.org")))
+    (if (equal config-file (buffer-file-name))
+        (delete-other-windows)
+      (find-file config-file))))
 
 (add-hook 'org-mode-hook (lambda () (add-hook 'after-save-hook #'org-babel-tangle-config)))
 #+end_src
@@ -84,10 +86,13 @@
     '("b" . backward-word)
     '("f" . forward-word)
     '("x" . miao-delete-char)
+    '("v" . miao-mark-line)
     '("q" . miao-quit-window)
     '("w" . miao-mark-word)
     '("W" . miao-mark-symbol)
-    '("o" . miao-mark-list)
+    '("o" . miao-mark-list-inner)
+    '("O" . miao-mark-list)
+    '("." . miao-mark-string-inner)
     '(";" . miao-toggle-mark-point))
   (miao-define-keys 'insert
     '("M-SPC" . miao-leader-mode))
@@ -140,16 +145,6 @@
 
 (setq auth-sources '("~/.authinfo.gpg"))
 (setq ring-bell-function 'ignore)
-
-(use-package helpful
-  :ensure t
-  :config
-  (global-set-key (kbd "C-h f") #'helpful-callable)
-  (global-set-key (kbd "C-h v") #'helpful-variable)
-  (global-set-key (kbd "C-h k") #'helpful-key)
-  (global-set-key (kbd "C-h SPC") #'helpful-at-point)
-  (global-set-key (kbd "C-h C") #'helpful-command)
-  (global-set-key (kbd "C-h p") #'describe-package))
 
 (defun copy-file-name ()
   (interactive)
@@ -269,6 +264,21 @@
   (setq doom-modeline-buffer-file-name-style 'truncate-with-project)
   (doom-modeline-mode 't))
 #+end_src
+
+** helpful
+#+begin_src emacs-lisp
+(use-package helpful
+  :ensure t
+  :config
+  (setq helpful-switch-buffer-function 'switch-to-buffer)
+  (global-set-key (kbd "C-h f") #'helpful-callable)
+  (global-set-key (kbd "C-h v") #'helpful-variable)
+  (global-set-key (kbd "C-h k") #'helpful-key)
+  (global-set-key (kbd "C-h SPC") #'helpful-at-point)
+  (global-set-key (kbd "C-h C") #'helpful-command)
+  (global-set-key (kbd "C-h p") #'describe-package))
+#+end_src
+
 
 ** symbol-overlay
 #+begin_src emacs-lisp
