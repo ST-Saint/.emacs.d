@@ -513,6 +513,7 @@
 
 #+begin_src emacs-lisp
 (use-package lsp-mode
+  :defer t
   :custom
   (lsp-completion-provider :none) ;; we use Corfu!
 
@@ -551,6 +552,7 @@
 *** lsp-pyright
 #+begin_src emacs-lisp
 (use-package lsp-pyright
+  :after lsp
   :ensure t
   :hook (python-mode . (lambda ()
                           (require 'lsp-pyright)
@@ -559,6 +561,7 @@
 *** lsp-ui
 #+begin_src emacs-lisp
 (use-package lsp-ui
+  :after lsp
   :ensure t
   :config
   (setq lsp-ui-doc-show-with-mouse nil))
@@ -786,6 +789,10 @@
   (:map org-mode-map
         ("C-M-<return>" . org-insert-subheading))
   :init
+  (setq org-directory "~/Project/org/")
+  (setq org-agenda-files '("~/Project/org/todo.org"))
+  (setq org-default-notes-file (concat org-directory "notes.org"))
+
   (org-babel-do-load-languages
    'org-babel-load-languages
    '(
@@ -853,10 +860,6 @@
   (setq org-reverse-note-order t)
   (setq org-refile-targets '((nil :maxlevel . 5)
                              (org-agenda-files :maxlevel . 5)))
-
-  (setq org-directory "~/Project/org/")
-  (setq org-agenda-files '("~/Project/org/todo.org"))
-  (setq org-default-notes-file (concat org-directory "notes.org"))
 
   :config
   ;; TODO replace imenu with org-goto
@@ -935,6 +938,7 @@
 #+begin_src emacs-lisp
 (use-package org-noter
   :ensure t
+  :defer t
   :init
   (setq org-noter-notes-search-path (list (concat org-directory "literature/note"))
         org-noter-default-notes-file-names '())
@@ -1111,7 +1115,11 @@ variable `project-local-identifier' to be considered a project."
 
 ** tramp
 #+begin_src emacs-lisp
-(setq tramp-allow-unsafe-temporary-files t)
+(use-package tramp
+  :ensure nil
+  :defer t
+  :config
+  (setq tramp-allow-unsafe-temporary-files t))
 #+end_src
 
 * rime
