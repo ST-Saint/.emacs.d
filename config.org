@@ -56,7 +56,7 @@
 #+end_src
 
 * startup
-#+begin_src emacs-lisp :tangle no
+#+begin_src emacs-lisp
 (use-package benchmark-init
   :ensure t
   :config
@@ -99,6 +99,7 @@
     '("W" . miao-mark-symbol)
     '("o" . miao-mark-list-inner)
     '("O" . miao-mark-list)
+    '("n" . miao-next-item)
     '("." . miao-mark-string-inner)
     '(";" . miao-toggle-mark-point))
   (miao-define-keys 'insert
@@ -138,14 +139,12 @@
 
 (save-place-mode t)
 
-(savehist-mode t)
-
 (recentf-mode t)
 
 (setq recentf-max-saved-items nil)
 
 (setq-default indent-tabs-mode nil)
-(setq electric-indent-mode t)
+;; (setq electric-indent-mode t)
 
 (setq byte-compile-warnings nil
       native-comp-async-report-warnings-errors nil)
@@ -238,9 +237,6 @@
 
 (setq display-line-numbers-type 'relative)
 (global-display-line-numbers-mode)
-
-(add-hook 'org-mode-hook #'visual-line-mode)
-(add-hook 'prog-mode-hook #'visual-line-mode)
 
 ;; disable line numbers for some modes
 (dolist (mode '(term-mode-hook
@@ -342,6 +338,7 @@
   :ensure t
   :config
   (add-hook 'prog-mode-hook #'symbol-overlay-mode)
+  (set-face-background 'symbol-overlay-default-face nil)
   (set-face-attribute 'symbol-overlay-default-face nil :underline t))
 #+end_src
 
@@ -377,12 +374,11 @@
 #+begin_src emacs-lisp
 (use-package windmove
   :config
-  ;; (miao-define-keys '(normal insert)
-  ;;   '("M-j" . windmove-down)
-  ;;   '("M-k" . windmove-up)
-  ;;   '("M-h" . windmove-left)
-  ;;   '("M-l" . windmove-right))
-    )
+  (miao-define-keys '(normal insert)
+    '("C-M-<down>" . windmove-down)
+    '("C-M-<up>". windmove-up)
+    '("C-M-<left>" . windmove-left)
+    '("C-M-<right>" . windmove-right)))
 #+end_src
 
 ** winum
@@ -467,6 +463,17 @@
   :ensure t)
 #+end_src
 
+** Javascript/Typescript
+#+begin_src emacs-lisp
+(use-package typescript-mode
+  :ensure t
+  :config
+  ;; (add-to-list 'major-mode-remap-alist '(typescript-mode . typescript-ts-mode))
+  ;; (setq typescript-ts-mode-indent-offset 4)
+  (setq typescript-indent-level 4))
+#+end_src
+
+
 ** agda
 #+begin_src emacs-lisp
 (use-package adga
@@ -488,6 +495,30 @@
   :ensure t)
 #+end_src
 
+** latex
+
+#+begin_src emacs-lisp
+(use-package tex
+  :defer t
+  :ensure auctex
+  :config
+  (add-hook 'LaTeX-mode-hook #'flyspell-mode)
+  (add-hook 'LaTeX-mode-hook #'LaTeX-math-mode)
+  (add-hook 'LaTeX-mode-hook #'reftex-mode)
+  (setq LaTeX-command "latex -shell-escape")
+  (setq TeX-auto-save t)
+  (setq TeX-view-program-list '(("PDF Tools" TeX-pdf-tools-sync-view))
+        TeX-view-program-selection '((output-pdf "PDF Tools"))
+        TeX-source-correlate-start-server t)
+  )
+#+end_src
+
+#+begin_src emacs-lisp
+(use-package magic-latex-buffer
+  :ensure t
+  :config
+  (add-hook 'latex-mode-hook 'magic-latex-buffer))
+#+end_src
 * code
 ** format
 #+begin_src emacs-lisp
@@ -564,37 +595,43 @@
   :after lsp
   :ensure t
   :config
-  (setq lsp-ui-doc-show-with-mouse nil))
+  (setq lsp-ui-doc-show-with-mouse nil
+        lsp-ui-sideline-update-mode nil
+        lsp-ui-sideline-show-hover nil
+        lsp-ui-sideline-show-diagnostics t
+        lsp-ui-sideline-show-code-actions t
+        lsp-ui-doc-use-childframe t
+        lsp-ui-doc-position 'at-point))
 #+end_src
 
 * completion
 ** vertico
 #+begin_src emacs-lisp
-  (use-package vertico
-    :ensure t
-    :init
-    ;; Grow and shrink the Vertico minibuffer
-    (setq vertico-resize t)
-    ;; Optionally enable cycling for `vertico-next' and `vertico-previous'.
-    (setq vertico-cycle t)
-    ;; Show more candidates
-    (setq vertico-count 20)
+(use-package vertico
+  :ensure t
+  :init
+  ;; Grow and shrink the Vertico minibuffer
+  (setq vertico-resize t)
+  ;; Optionally enable cycling for `vertico-next' and `vertico-previous'.
+  (setq vertico-cycle t)
+  ;; Show more candidates
+  (setq vertico-count 20)
 
-    (defun crm-indicator (args)
-      (cons (format "[CRM%s] %s"
-                    (replace-regexp-in-string
-                     "\\`\\[.*?]\\*\\|\\[.*?]\\*\\'" ""
-                     crm-separator)
-                    (car args))
-            (cdr args)))
-    (advice-add #'completing-read-multiple :filter-args #'crm-indicator)
+  (defun crm-indicator (args)
+    (cons (format "[CRM%s] %s"
+                  (replace-regexp-in-string
+                   "\\`\\[.*?]\\*\\|\\[.*?]\\*\\'" ""
+                   crm-separator)
+                  (car args))
+          (cdr args)))
+  (advice-add #'completing-read-multiple :filter-args #'crm-indicator)
 
-    (vertico-multiform-mode)
-    (vertico-mode))
+  (vertico-multiform-mode)
+  (vertico-mode))
 
-  (use-package savehist
-    :init
-    (savehist-mode))
+(use-package savehist
+  :init
+  (savehist-mode))
 #+end_src
 
 ** orderless
@@ -1081,13 +1118,12 @@ variable `project-local-identifier' to be considered a project."
 ** pdf-tools
 #+begin_src emacs-lisp
 (use-package pdf-tools
+  :defer t
   :ensure t
   :config
-  (with-eval-after-load 'pdf-tools
-    (pdf-tools-install))
+  (pdf-tools-install)
   (add-hook 'pdf-view-mode-hook 'auto-revert-mode)
-  (set-face-attribute 'pdf-view-region nil :inherit 'highlight)
-)
+  (set-face-attribute 'pdf-view-region nil :inherit 'highlight))
 #+end_src
 * remote
 
@@ -1120,6 +1156,18 @@ variable `project-local-identifier' to be considered a project."
   :defer t
   :config
   (setq tramp-allow-unsafe-temporary-files t))
+#+end_src
+
+** restclient
+#+begin_src emacs-lisp
+(use-package restclient
+  :ensure t
+  :config
+  (setq auto-mode-alist
+        (append
+         '(("\\.http\\'" . restclient-mode))
+         auto-mode-alist))
+  )
 #+end_src
 
 * rime
