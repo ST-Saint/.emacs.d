@@ -339,7 +339,7 @@
   :config
   (add-hook 'prog-mode-hook #'symbol-overlay-mode)
   (set-face-background 'symbol-overlay-default-face nil)
-  (set-face-attribute 'symbol-overlay-default-face nil :underline t))
+  (set-face-attribute 'symbol-overlay-default-face nil :underline t :inherit 'region))
 #+end_src
 
 ** highlight-indent
@@ -1049,6 +1049,19 @@
   (when (memq window-system '(mac ns x))
     (exec-path-from-shell-initialize)))
 #+end_src
+** vterm
+#+begin_src emacs-lisp
+(use-package vterm
+  :ensure t
+  :config
+  (setq vterm-shell "/bin/zsh")
+
+  (setq vterm-buffer-name-string "vterm %s")
+  (setq vterm-max-scrollback 65536)
+  (miao-leader-define-keys
+   '("o t" . vterm)))
+#+end_src
+
 * project
 
 #+begin_src emacs-lisp
