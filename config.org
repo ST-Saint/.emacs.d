@@ -1140,26 +1140,53 @@ variable `project-local-identifier' to be considered a project."
 ** pdf-tools
 #+begin_src emacs-lisp
 (use-package pdf-tools
-  :defer t
   :ensure t
   :config
   (pdf-tools-install)
   (add-hook 'pdf-view-mode-hook 'auto-revert-mode)
   (set-face-attribute 'pdf-view-region nil :inherit 'highlight))
 #+end_src
+** org-noter-pdftools
+#+begin_src emacs-lisp :tangle no
+(use-package org-pdftools
+  :ensure nil
+  :vc (:url "git@github.com:ST-Saint/org-pdftools.git" :branch "master")
+  :hook (org-mode . org-pdftools-setup-link))
+
+(use-package org-noter-pdftools
+  :ensure nil
+  :vc (:url "git@github.com:ST-Saint/org-pdftools.git" :branch "master")
+  :config
+  (bind-keys :map org-noter-notes-mode-map
+             ("C-." . org-noter-pdftools-activate-org-note)
+             ("M-." . org-noter-pdftools-embed-org-note-to-pdf))
+  (bind-keys :map pdf-view-mode-map
+             ("C-c m i i" . org-noter-pdftools-insert-precise-note-underline)
+             ("C-c m i u" . org-noter-pdftools-insert-precise-note-underline)
+             ("C-c m i h" . org-noter-pdftools-insert-precise-note-highlight)
+             ("C-c m i H" . (lambda () (interactive) (org-noter-pdftools-insert-precise-note-highlight t)))
+             ("C-c m i s" . org-noter-pdftools-insert-precise-note-squiggly)
+             ("C-a" . pdf-view-align-left)
+             ("C-e" . pdf-view-align-right)
+             ("M-i" . org-noter-pdftools-insert-precise-note-underline)
+             ("C-l" . pdf-view-center-in-window))
+
+  (setq org-noter-pdftools-insert-content-heading nil)
+
+  (with-eval-after-load 'pdf-annot (add-hook 'pdf-annot-activate-handler-functions #'org-noter-pdftools-jump-to-note)))
+#+end_src
+
 * remote
 
 ** ssh-deploy
 #+begin_src emacs-lisp
 (use-package ssh-deploy
   :ensure t
-  :defer t
   :hook ((after-save . ssh-deploy-after-save)
          (find-file . ssh-deploy-find-file))
   :config
   (ssh-deploy-line-mode) ;; If you want mode-line feature
-  (ssh-deploy-add-menu) ;; If you want menu-bar feature
-  )
+  (ssh-deploy-add-menu)) ;; If you want menu-bar feature
 #+end_src
 
 ** gpg
