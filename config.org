@@ -100,6 +100,7 @@
     '("o" . miao-mark-list-inner)
     '("O" . miao-mark-list)
     '("n" . miao-next-item)
+    '("N" . miao-prev-item)
     '("." . miao-mark-string-inner)
     '(";" . miao-toggle-mark-point))
   (miao-define-keys 'insert
@@ -114,6 +115,7 @@
     '("f p" . open-config-file)
     '("g g" . magit)
     '("g f" . magit-find-file)
+    '("l l" . visual-line-mode)
     '("<SPC>" . miao-cursor-blink)))
 #+end_src
 
@@ -317,6 +319,13 @@
   (dashboard-setup-startup-hook))
 #+end_src
 
+** which-key
+#+begin_src emacs-lisp
+(use-package which-key
+  :ensure t
+  :config
+  (which-key-mode))
+#+end_src
 ** helpful
 #+begin_src emacs-lisp
 (use-package helpful
