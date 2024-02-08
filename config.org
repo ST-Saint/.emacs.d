@@ -55,12 +55,20 @@
   (setq auto-package-update-prompt-before-update t))
 #+end_src
 
+* FIXME FIX
+#+begin_src emacs-lisp
+(defun package--print-email-button (RECIPIENT))
+#+end_src
+
 * startup
 #+begin_src emacs-lisp
 (use-package benchmark-init
   :ensure t
   :config
   (add-hook 'after-init-hook 'benchmark-init/deactivate))
+
+(or (server-mode)
+    (server-start))
 #+end_src
 
 * miao
@@ -431,7 +439,7 @@
   :config
   (add-to-list 'yas-snippet-dirs (concat (file-truename user-emacs-directory) "yasnippets"))
   (yas-load-directory (concat (file-truename user-emacs-directory) "/yasnippets"))
-  ;; (add-to-list 'warning-suppress-types '(yasnippet backquote-change))
+  (add-to-list 'warning-suppress-types '(yasnippet backquote-change))
   (add-hook 'prog-mode-hook #'yas-minor-mode)
   (add-hook 'latex-mode-hook #'yas-minor-mode)
   (add-hook 'org-mode-hook #'yas-minor-mode))
@@ -451,81 +459,12 @@
   (setq parinfer-rust-check-before-enable nil))
 #+end_src
 
+
 ** objed
 #+begin_src emacs-lisp :tangle no
 (use-package objed)
 #+end_src
 
-* language
-
-** kmonad
-#+begin_src emacs-lisp :tangle no
-(use-package kbd-mode
-  :vc (:url "https://github.com/kmonad/kbd-mode" :branch "master")
-  :mode "\\.kbd\\'"
-  :commands kbd-mode)
-#+end_src
-
-** proof-general
-#+begin_src emacs-lisp
-(use-package proof-general
-  :ensure t)
-#+end_src
-
-** Javascript/Typescript
-#+begin_src emacs-lisp
-(use-package typescript-mode
-  :ensure t
-  :config
-  ;; (add-to-list 'major-mode-remap-alist '(typescript-mode . typescript-ts-mode))
-  ;; (setq typescript-ts-mode-indent-offset 4)
-  (setq typescript-indent-level 4))
-#+end_src
-
-
-** agda
-#+begin_src emacs-lisp
-(use-package adga
-  :ensure nil
-  :config
-  (load-file (let ((coding-system-for-read 'utf-8))
-               (shell-command-to-string "agda-mode locate")))
-  (setq auto-mode-alist
-         (append
-          '(("\\.agda\\'" . agda2-mode)
-            ("\\.lagda.md\\'" . agda2-mode))
-          auto-mode-alist)))
-#+end_src
-
-** sml
-#+begin_src emacs-lisp
-(use-package sml-mode
-  :ensure t)
-#+end_src
-
-** latex
-
-#+begin_src emacs-lisp
-(use-package tex
-  :ensure auctex
-  :config
-  (add-hook 'LaTeX-mode-hook #'flyspell-mode)
-  (add-hook 'LaTeX-mode-hook #'LaTeX-math-mode)
-  (add-hook 'LaTeX-mode-hook #'reftex-mode)
-  (setq LaTeX-command "latex -shell-escape")
-  (setq TeX-auto-save t)
-  (setq TeX-view-program-list '(("PDF Tools" TeX-pdf-tools-sync-view))
-        TeX-view-program-selection '((output-pdf "PDF Tools"))
-        TeX-source-correlate-start-server t)
-  )
-#+end_src
-
-#+begin_src emacs-lisp
-(use-package magic-latex-buffer
-  :ensure t
-  :config
-  (add-hook 'latex-mode-hook 'magic-latex-buffer))
-#+end_src
 * code
 ** format
 #+begin_src emacs-lisp
@@ -595,6 +534,11 @@
    '("c l o" . lsp-organize-imports)
    '("c l i" . lsp-find-implementation)))
 #+end_src
+*** consult-lsp
+#+begin_src emacs-lisp
+(use-package consult-lsp
+  :ensure t)
+#+end_src
 *** lsp-pyright
 #+begin_src emacs-lisp
 (use-package lsp-pyright
@@ -611,7 +555,6 @@
   (add-hook 'java-mode-hook #'lsp)
   (add-hook 'dap-stopped-hook
           (lambda (arg) (call-interactively #'dap-hydra)))
-  (delete "java" lsp-semgrep-languages)
   (setq lsp-java-format-on-type-enabled nil)
   (setq lsp-java-format-comments-enabled nil)
   (setq lsp-java-java-path "/usr/lib/jvm/java-17-openjdk/bin/java")
@@ -635,6 +578,91 @@
         lsp-ui-doc-use-childframe t
         lsp-ui-doc-position 'at-point))
 #+end_src
+*** language-tool
+#+begin_src emacs-lisp
+(use-package langtool
+  :ensure t
+  :init
+  (setq langtool-language-tool-jar "/usr/share/java/languagetool/languagetool-commandline.jar"
+        langtool-java-classpath "/usr/share/languagetool:/usr/share/java/languagetool/*"
+        langtool-language-tool-server-jar "/usr/share/java/languagetool/languagetool-server.jar"
+        langtool-java-bin "/usr/lib/jvm/java-21-openjdk/bin/java"
+        langtool-server-user-arguments nil)
+  (set-face-attribute 'langtool-errline nil :background nil :inherit 'flycheck-error))
+#+end_src
+
+* language
+
+** cc
+#+begin_src emacs-lisp
+(use-package cc-mode
+ :ensure nil
+ :config
+ (add-hook 'c-mode-hook 'lsp)
+ (add-hook 'c++-mode-hook 'lsp))
+#+end_src
+
+** proof-general
+#+begin_src emacs-lisp
+(use-package proof-general
+  :ensure t)
+#+end_src
+
+** JavaScript/Typescript
+#+begin_src emacs-lisp
+(use-package typescript-mode
+  :ensure t
+  :config
+  ;; (add-to-list 'major-mode-remap-alist '(typescript-mode . typescript-ts-mode))
+  ;; (setq typescript-ts-mode-indent-offset 4)
+  (setq typescript-indent-level 4))
+#+end_src
+
+
+** agda
+#+begin_src emacs-lisp
+(use-package adga
+  :ensure nil
+  :config
+  (load-file (let ((coding-system-for-read 'utf-8))
+               (shell-command-to-string "agda-mode locate")))
+  (setq auto-mode-alist
+         (append
+          '(("\\.agda\\'" . agda2-mode)
+            ("\\.lagda.md\\'" . agda2-mode))
+          auto-mode-alist)))
+#+end_src
+
+** sml
+#+begin_src emacs-lisp
+(use-package sml-mode
+  :ensure t)
+#+end_src
+
+** latex
+
+#+begin_src emacs-lisp
+(use-package tex
+  :ensure auctex
+  :config
+  (add-hook 'LaTeX-mode-hook #'flyspell-mode)
+  (add-hook 'LaTeX-mode-hook #'LaTeX-math-mode)
+  (add-hook 'LaTeX-mode-hook #'reftex-mode)
+  (setq LaTeX-command "latex -shell-escape")
+  (setq TeX-auto-save t)
+  (setq TeX-view-program-list '(("PDF Tools" TeX-pdf-tools-sync-view))
+        TeX-view-program-selection '((output-pdf "PDF Tools"))
+        TeX-source-correlate-start-server t)
+  )
+#+end_src
+
+#+begin_src emacs-lisp
+(use-package magic-latex-buffer
+  :ensure t
+  :config
+  (add-hook 'latex-mode-hook 'magic-latex-buffer))
+#+end_src
+
 * completion
 ** vertico
 #+begin_src emacs-lisp
@@ -1141,8 +1169,8 @@ variable `project-local-identifier' to be considered a project."
         (cons 'local root)))
 
   (customize-set-variable 'project-find-functions
-                          (list #'project-try-vc
-                                #'project-local-try-local))
+                          (list #'project-local-try-local
+                                #'project-try-vc))
 
   (miao-define-keys 'leader
    '("p p" . project-switch-project)
@@ -1151,6 +1179,7 @@ variable `project-local-identifier' to be considered a project."
    '("p B" . project-list-buffers)
    '("p c" . project-compile)
    '("p d" . project-find-dir)
+   '("p k" . project-kill-buffers)
    '("p D" . project-dired)))
 #+end_src
 
