@@ -251,6 +251,7 @@
 ;; disable line numbers for some modes
 (dolist (mode '(term-mode-hook
                 vterm-mode-hook
+                dired-mode-hook
                 treemacs-mode-hook
                 dashboard-mook-hook
                 so-long-mode-hook
@@ -298,6 +299,38 @@
   (setq doom-modeline-project-detection 'project)
   (setq doom-modeline-buffer-file-name-style 'truncate-with-project)
   (doom-modeline-mode 't))
+#+end_src
+
+** dirvish
+#+begin_src emacs-lisp
+(use-package dirvish
+  :ensure t
+  :config
+  (dirvish-override-dired-mode)
+  (setq dirvish-mode-line-format
+        '(:left (sort symlink) :right (omit yank index)))
+  (setq dirvish-use-mode-line nil
+        dirvish-use-header-line nil)
+  (setq dirvish-attributes
+        '(all-the-icons file-time file-size collapse subtree-state vc-state git-msg))
+  (setq delete-by-moving-to-trash t)
+  (setq dired-listing-switches
+        "-l --almost-all --human-readable --group-directories-first --no-group")
+  (bind-keys :map dirvish-mode-map
+             ("b"   . dirvish-quick-access)
+             ("f"   . dirvish-fd)
+             ("y"   . dirvish-yank-menu)
+             ("N"   . dirvish-narrow)
+             ("^"   . dirvish-history-last)
+             ("H"   . dirvish-history-jump) ; remapped `describe-mode'
+             ("s"   . dirvish-quicksort)    ; remapped `dired-sort-toggle-or-edit'
+             ("TAB" . dirvish-subtree-toggle)
+             ("h" . dirvish-history-go-forward)
+             ("l" . dirvish-history-go-backward)
+             ("M-l" . dirvish-ls-switches-menu)
+             ("M-m" . dirvish-mark-menu)
+             ("T" . dirvish-layout-toggle)))
+
 #+end_src
 
 ** dashboard
@@ -465,6 +498,7 @@
 (use-package objed)
 #+end_src
 
+  :ensure t)
 * code
 ** format
 #+begin_src emacs-lisp
@@ -578,17 +612,10 @@
         lsp-ui-doc-use-childframe t
         lsp-ui-doc-position 'at-point))
 #+end_src
-*** language-tool
+*** grammarly
 #+begin_src emacs-lisp
-(use-package langtool
-  :ensure t
-  :init
-  (setq langtool-language-tool-jar "/usr/share/java/languagetool/languagetool-commandline.jar"
-        langtool-java-classpath "/usr/share/languagetool:/usr/share/java/languagetool/*"
-        langtool-language-tool-server-jar "/usr/share/java/languagetool/languagetool-server.jar"
-        langtool-java-bin "/usr/lib/jvm/java-21-openjdk/bin/java"
-        langtool-server-user-arguments nil)
-  (set-face-attribute 'langtool-errline nil :background nil :inherit 'flycheck-error))
+(use-package lsp-grammarly
+  :ensure t)
 #+end_src
 
 * language
