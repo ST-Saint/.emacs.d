@@ -139,7 +139,7 @@
 
 (add-hook 'before-save-hook #'whitespace-cleanup)
 
-(setq-default truncate-lines 't)
+(add-hook 'prog-mode-hook #'visual-line-mode)
 
 (setq use-dialog-box nil)
 
@@ -360,6 +360,18 @@
   (dashboard-setup-startup-hook))
 #+end_src
 
+** visual-fill-column
+#+begin_src emacs-lisp
+(use-package visual-fill-column
+  :ensure t
+  :config
+  (setq-default visual-fill-column-width 100)
+  (setq-default visual-fill-column-center-text t)
+  (miao-leader-define-keys
+   '("l L" . visual-fill-column-mode)))
+#+end_src
+
+
 ** which-key
 #+begin_src emacs-lisp
 (use-package which-key
@@ -367,6 +379,7 @@
   :config
   (which-key-mode))
 #+end_src
+
 ** helpful
 #+begin_src emacs-lisp
 (use-package helpful
@@ -559,6 +572,7 @@
           '(orderless)))
 
   (add-hook 'lsp-completion-mode-hook #'lsp-mode-setup-completion)
+  (add-hook 'lsp-mode-hook #'lsp-enable-which-key-integration)
 
   (miao-define-keys 'leader
    '("c l S" . lsp)
@@ -573,11 +587,13 @@
    '("c l o" . lsp-organize-imports)
    '("c l i" . lsp-find-implementation)))
 #+end_src
+
 *** consult-lsp
 #+begin_src emacs-lisp
 (use-package consult-lsp
   :ensure t)
 #+end_src
+
 *** lsp-pyright
 #+begin_src emacs-lisp
 (use-package lsp-pyright
@@ -586,6 +602,7 @@
                           (require 'lsp-pyright)
                           (lsp-deferred))))  ; or lsp-deferred
 #+end_src
+
 *** lsp-java
 #+begin_src emacs-lisp :tangle yes
 (use-package lsp-java
@@ -604,6 +621,7 @@
                                               :path "/usr/lib/jvm/java-11-openjdk")])
   (setq lsp-java-vmargs '("-XX:+UseParallelGC" "-XX:GCTimeRatio=4" "-XX:AdaptiveSizePolicyWeight=90" "-Dsun.zip.disableMemoryMapping=true" "-Xmx4G" "-Xms100m")))
 #+end_src
+
 *** lsp-ui
 #+begin_src emacs-lisp
 (use-package lsp-ui
@@ -617,6 +635,7 @@
         lsp-ui-doc-use-childframe t
         lsp-ui-doc-position 'at-point))
 #+end_src
+
 *** grammarly
 #+begin_src emacs-lisp
 (use-package lsp-grammarly
