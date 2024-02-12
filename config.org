@@ -162,6 +162,14 @@
 (setq auth-sources '("~/.authinfo.gpg"))
 (setq ring-bell-function 'ignore)
 
+(setq backup-directory-alist '(("." . "~/.emacs.d/backup"))
+  backup-by-copying t     ; Don't delink hardlinks
+  version-control t       ; Use version numbers on backups
+  delete-old-versions t   ; Automatically delete excess backups
+  kept-new-versions 20    ; how many of the newest versions to keep
+  kept-old-versions 5)    ; and how many of the old
+
+
 (defun copy-file-name ()
   (interactive)
   (let ((path nil))
@@ -309,8 +317,9 @@
   (dirvish-override-dired-mode)
   (setq dirvish-mode-line-format
         '(:left (sort symlink) :right (omit yank index)))
-  (setq dirvish-use-mode-line nil
-        dirvish-use-header-line nil)
+  (setq dirvish-use-mode-line t
+        dirvish-use-header-line nil
+        dirvish-mode-line-height 23)
   (setq dirvish-attributes
         '(all-the-icons file-time file-size collapse subtree-state vc-state git-msg))
   (setq delete-by-moving-to-trash t)
