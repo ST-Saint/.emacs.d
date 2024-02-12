@@ -498,7 +498,12 @@
 (use-package objed)
 #+end_src
 
+** vundo
+#+begin_src emacs-lisp
+(use-package vundo
   :ensure t)
+#+end_src
+
 * code
 ** format
 #+begin_src emacs-lisp
