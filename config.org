@@ -1193,8 +1193,8 @@
     (interactive)
     (magit-todos-list (project-root (project-current t))))
 
-  (setq project-switch-commands '((persp-show-persps "" ? )
-                                  (persp-show-persps "" ?)
+  (setq project-switch-commands '((persp-show-persps "" "<SPC>")
+                                  (persp-show-persps "" "<RET>")
                                   (project-find-file "File file" ?f)
                                   (project-find-dir "Find directory" ?d)
                                   (project-open-magit "Magit" ?g)
