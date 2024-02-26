@@ -170,6 +170,10 @@
   kept-old-versions 5)    ; and how many of the old
 
 
+; lsp
+(setq read-process-output-max (* 1024 1024)) ;; 1mb
+(setq gc-cons-threshold 100000000)
+
 (defun copy-file-name ()
   (interactive)
   (let ((path nil))
@@ -600,7 +604,19 @@
 *** consult-lsp
 #+begin_src emacs-lisp
 (use-package consult-lsp
-  :ensure t)
+  :ensure t
+  :config
+  (miao-leader-define-keys
+   '("c l e" . consult-lsp-diagnostics)))
+#+end_src
+
+*** emacs-ccls
+#+begin_src emacs-lisp
+(use-package ccls
+  :ensure t
+  :config
+  (add-hook 'c-mode-hook 'lsp)
+  (add-hook 'c++-mode-hook 'lsp))
 #+end_src
 
 *** lsp-pyright
@@ -641,7 +657,9 @@
         lsp-ui-sideline-show-hover nil
         lsp-ui-sideline-show-diagnostics t
         lsp-ui-sideline-show-code-actions t
+        lsp-ui-doc-show-with-cursor nil
         lsp-ui-doc-use-childframe t
+        lsp-ui-sideline-delay 0.5
         lsp-ui-doc-position 'at-point))
 #+end_src
 
@@ -656,10 +674,7 @@
 ** cc
 #+begin_src emacs-lisp
 (use-package cc-mode
- :ensure nil
- :config
- (add-hook 'c-mode-hook 'lsp)
- (add-hook 'c++-mode-hook 'lsp))
+ :ensure nil)
 #+end_src
 
 ** proof-general
@@ -681,11 +696,12 @@
 
 ** agda
 #+begin_src emacs-lisp
-(use-package adga
+(use-package agda2
   :ensure nil
+  :load-path (lambda () (file-name-directory (shell-command-to-string "agda-mode locate")))
   :config
-  (load-file (let ((coding-system-for-read 'utf-8))
-               (shell-command-to-string "agda-mode locate")))
+  ;; (load-file (let ((coding-system-for-read 'utf-8))
+  ;;              (shell-command-to-string "agda-mode locate")))
   (setq auto-mode-alist
          (append
           '(("\\.agda\\'" . agda2-mode)
@@ -713,7 +729,7 @@
   (setq TeX-view-program-list '(("PDF Tools" TeX-pdf-tools-sync-view))
         TeX-view-program-selection '((output-pdf "PDF Tools"))
         TeX-source-correlate-start-server t)
-  )
+  (add-hook 'TeX-after-compilation-finished-functions #'TeX-revert-document-buffer))
 #+end_src
 
 #+begin_src emacs-lisp
