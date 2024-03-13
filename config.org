@@ -610,15 +610,6 @@
    '("c l e" . consult-lsp-diagnostics)))
 #+end_src
 
-*** emacs-ccls
-#+begin_src emacs-lisp
-(use-package ccls
-  :ensure t
-  :config
-  (add-hook 'c-mode-hook 'lsp)
-  (add-hook 'c++-mode-hook 'lsp))
-#+end_src
-
 *** lsp-pyright
 #+begin_src emacs-lisp
 (use-package lsp-pyright
@@ -1357,7 +1348,7 @@ variable `project-local-identifier' to be considered a project."
 
   (defun rime-miao-off ()
     (unless miao-insert-mode
-      (set-input-method nil)))
+     (deactivate-input-method)))
 
   (add-hook 'rime-mode-hook
             (lambda () (if (not rime-mode)
