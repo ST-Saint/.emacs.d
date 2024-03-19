@@ -85,7 +85,7 @@
     (defun doom-modeline-segment--modals ()
       (miao-indicator)))
 
-  (defun delete-current-file ()
+  (defun delete-buffer-file ()
    (interactive)
    (delete-file (copy-file-name)))
 
@@ -119,6 +119,7 @@
     '("f R" . rename-visited-file)
     '("f f" . find-file)
     '("f y" . copy-file-name)
+    '("f D" . delete-buffer-file)
     '("f U" . root-open-buffer-file)
     '("f p" . open-config-file)
     '("g g" . magit)
@@ -150,6 +151,8 @@
 (save-place-mode t)
 
 (recentf-mode t)
+
+(setq confirm-kill-emacs 'y-or-n-p)
 
 (setq recentf-max-saved-items nil)
 
@@ -315,10 +318,14 @@
 
 ** dirvish
 #+begin_src emacs-lisp
+(use-package all-the-icons
+  :ensure t
+  :config
+  (all-the-icons-install-fonts))
+
 (use-package dirvish
   :ensure t
   :config
-  (dirvish-override-dired-mode)
   (setq dirvish-mode-line-format
         '(:left (sort symlink) :right (omit yank index)))
   (setq dirvish-use-mode-line t
@@ -342,7 +349,9 @@
              ("l" . dirvish-history-go-backward)
              ("M-l" . dirvish-ls-switches-menu)
              ("M-m" . dirvish-mark-menu)
-             ("T" . dirvish-layout-toggle)))
+             ("T" . dirvish-layout-toggle))
+
+  (dirvish-override-dired-mode))
 
 #+end_src
 
@@ -530,6 +539,17 @@
   :ensure t)
 #+end_src
 
+** undo-fu
+#+begin_src emacs-lisp
+(use-package undo-fu
+  :ensure t)
+(use-package undo-fu-session
+  :ensure t
+  :config
+  (undo-fu-session-global-mode))
+#+end_src
+
+
 * code
 ** format
 #+begin_src emacs-lisp
@@ -593,6 +613,8 @@
    '("c l d" . lsp-find-definition)
    '("c l r" . lsp-find-references)
    '("c l F" . lsp-format-buffer)
+   '("c l h" . lsp-ui-doc-glance)
+   '("c l E" . lsp-treemacs-errors-list)
    '("c l R" . lsp-rename)
    '("c l q" . lsp-workspace-shutdown)
    '("c l Q" . lsp-workspace-restart)
@@ -645,11 +667,14 @@
   :config
   (setq lsp-ui-doc-show-with-mouse nil
         lsp-ui-sideline-update-mode 'point
+        lsp-ui-doc-include-signature t
         lsp-ui-sideline-show-hover nil
+        lsp-ui-sideline-show-symbol nil
         lsp-ui-sideline-show-diagnostics t
         lsp-ui-sideline-show-code-actions t
         lsp-ui-doc-show-with-cursor nil
         lsp-ui-doc-use-childframe t
+        lsp-ui-doc-delay 0
         lsp-ui-sideline-delay 0.5
         lsp-ui-doc-position 'at-point))
 #+end_src
@@ -665,7 +690,10 @@
 ** cc
 #+begin_src emacs-lisp
 (use-package cc-mode
- :ensure nil)
+ :ensure nil
+ :config
+ (add-hook 'c-mode-hook 'lsp)
+ (add-hook 'c++-mode-hook 'lsp))
 #+end_src
 
 ** proof-general
@@ -697,7 +725,8 @@
          (append
           '(("\\.agda\\'" . agda2-mode)
             ("\\.lagda.md\\'" . agda2-mode))
-          auto-mode-alist)))
+          auto-mode-alist))
+  (setq agda2-program-args '("-i.")))
 #+end_src
 
 ** sml
@@ -1295,6 +1324,9 @@ variable `project-local-identifier' to be considered a project."
 
 ** ssh-deploy
 #+begin_src emacs-lisp
+(use-package async
+  :ensure t)
+
 (use-package ssh-deploy
   :ensure t
   :hook ((after-save . ssh-deploy-after-save)
