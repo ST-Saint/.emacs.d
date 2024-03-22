@@ -619,7 +619,6 @@
    '("c l r" . lsp-find-references)
    '("c l F" . lsp-format-buffer)
    '("c l h" . lsp-ui-doc-glance)
-   '("c l E" . lsp-treemacs-errors-list)
    '("c l R" . lsp-rename)
    '("c l q" . lsp-workspace-shutdown)
    '("c l Q" . lsp-workspace-restart)
@@ -627,6 +626,16 @@
    '("c l o" . lsp-organize-imports)
    '("c l i" . lsp-find-implementation)))
 #+end_src
+
+*** lsp-treemacs
+#+begin_src emacs-lisp
+(use-package lsp-treemacs
+  :ensure t
+  :config
+  (miao-define-keys 'leader
+   '("c l E" . lsp-treemacs-errors-list)))
+#+end_src
+
 
 *** consult-lsp
 #+begin_src emacs-lisp
@@ -647,7 +656,7 @@
 #+end_src
 
 *** lsp-java
-#+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp
 (use-package lsp-java
   :ensure t
   :config
