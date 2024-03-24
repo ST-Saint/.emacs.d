@@ -468,6 +468,24 @@
         highlight-indent-guides-auto-top-character-face-perc 60))
 #+end_src
 
+** hl-todo
+#+begin_src emacs-lisp
+(use-package hl-todo
+  :ensure t
+  :config
+  (setq hl-todo-keyword-faces
+        '(("TODO"   . "#43cd80") ;;  2e8b57 00ee00 32cd32
+          ("PROG"   . "#44CCCC")
+          ("FIXME"  . "#FF4444")
+          ("REVIEW" . "#A020F0")
+          ("HOLD"   . "#FFD700")
+          ("NOTE"   . "#1E90FF")
+          ("FAIL"   . "#EE6666")
+          ("DONE"   . "#808080"))) ;;
+  (add-hook 'org-mode-hook #'hl-todo-mode)
+  (global-hl-todo-mode t))
+#+end_src
+
 ** goggles
 
 #+begin_src emacs-lisp
