@@ -1399,6 +1399,238 @@ variable `project-local-identifier' to be considered a project."
   )
 #+end_src
 
+* email
+** mu4e
+#+begin_src emacs-lisp
+(use-package pinentry
+  :ensure t
+  :init
+  (setq epg-pinentry-mode 'loopback)
+  (pinentry-start))
+
+(use-package mu4e
+  :ensure nil
+  :load-path (lambda ()
+               (cond
+                ((string-equal system-type "windows-nt") ; windows
+                 "")
+                ((string-equal system-type "darwin") ; macOS
+                 "/opt/homebrew/Cellar/mu/1.10.7/share/emacs/site-lisp/mu/mu4e/")
+                ((string-equal system-type "gnu/linux") ; linux
+                 "/usr/share/emacs/site-lisp/mu4e/")))
+  :after pinentry
+  :config
+  (setq mu4e-get-mail-command "mbsync -a")
+  (setq mu4e-confirm-quit nil)
+  (setq mu4e-hide-index-messages t)
+  (setq message-citation-line-format "%N @ %Y-%m-%d %H:%M :\n")
+
+  (defun mu4e~read-mail-content (content-type)
+    (interactive)
+    (let ((mail-path (mu4e-message-readable-path)))
+      (with-temp-buffer
+        (insert-file-contents mail-path)
+        (let ((file-contents (buffer-string)))
+          (pcase content-type
+            ("html"
+             (let ((boundary (progn (string-match "boundary=\"\?\\(.+?\\)\"\?$" file-contents)
+                                    (match-string 1 file-contents))))
+               (if boundary
+                   (let ((start (progn (search-forward "content-type: text/html")
+                                       (search-forward "
+
+")))
+
+                         (end (- (search-forward (concat "--" boundary)) (+ (length boundary) 3))))
+
+                     (substring file-contents start end)))))
+
+
+            ("text"
+             (message "text")))))))
+
+
+
+
+
+  (defun mu4e~write-body-to-html (msg)
+    "Write MSG's body (either html or text) to a temporary file;
+return the filename."
+    (let* ((html (mu4e~read-mail-content "html"))
+           (text (mu4e~read-mail-content "text"))
+           (tmpfile (mu4e-make-temp-file "html")))
+
+      (unless (or html text)
+        (mu4e-error "No body part for this message"))
+      (with-temp-buffer
+        (insert "<head><meta charset=\"UTF-8\"></head>\n")
+        (insert (concat "<p><strong>From</strong>: "
+                        (mu4e~action-header-to-html msg :from) "</br>"))
+        (insert (concat "<strong>To</strong>: "
+                        (mu4e~action-header-to-html msg :to) "</br>"))
+        (insert (concat "<strong>Date</strong>: "
+                        (format-time-string mu4e-view-date-format (mu4e-message-field msg :date)) "</br>"))
+        (insert (concat "<strong>Subject</strong>: " (mu4e-message-field msg :subject) "</p>"))
+        (insert (or html (concat "<pre>" text "</pre>")))
+        (write-file tmpfile)
+        (save-buffer)
+        tmpfile)))
+
+  (defun mu4e~action-header-to-html (msg field)
+    "Convert the FIELD of MSG to an HTML string."
+    (mapconcat
+     (lambda(c)
+       (let* ((name (when (car c)
+                      (replace-regexp-in-string "[[:cntrl:]]" "" (car c))))
+              (email (when (cdr c)
+                       (replace-regexp-in-string "[[:cntrl:]]" "" (cdr c))))
+              (addr (if mu4e-view-show-addresses
+                        (if name (format "%s <%s>" name email) email)
+                      (or name email))) ;; name may be nil
+              ;; Escape HTML entities
+              (addr (replace-regexp-in-string "&" "&amp;" addr))
+              (addr (replace-regexp-in-string "<" "&lt;" addr))
+              (addr (replace-regexp-in-string ">" "&gt;" addr)))
+         addr))
+     (mu4e-message-field msg field) ", "))
+
+  (defun mu4e-action-save-to-pdf (msg)
+    (let* ((date (mu4e-message-field msg :date))
+           (infile (mu4e~write-body-to-html msg))
+           (outfile (format-time-string "%Y-%m-%d%H%M%S.pdf" date)))
+      (with-temp-buffer
+        (shell-command
+         (format "wkhtmltopdf %s /tmp/%s" infile outfile) t))))
+
+  (add-to-list 'mu4e-view-actions '("pdf" . mu4e-action-save-to-pdf) t)
+
+  (setq mail-user-agent 'mu4e-user-agent
+        read-mail-command 'mu4e)
+
+  (setq mu4e-update-interval 120
+        mu4e-index-update-error-continue 't
+        mu4e-index-update-error-warning 't
+        mu4e-index-update-in-background 't
+        mu4e-html2text-command 'mu4e-shr2text)
+
+  (setq mu4e-headers-include-related nil
+        mu4e-headers-fields '(
+                              (:human-date . 12)
+                              (:flags . 10)
+                              (:mailing-list . 15)
+                              (:from-or-to . 25)
+                              (:subject)))
+
+  (add-hook 'mu4e-context-changed-hook #'mu4e)
+
+  (setq mu4e-context-policy 'pick-first)
+  (setq mu4e-contexts
+        (list
+         (make-mu4e-context
+          :name "gmail"
+          :match-func (lambda (msg)
+                        (when msg
+                          (string-match-p "/gmail" (mu4e-message-field msg :maildir))))
+
+          :vars '((user-mail-address . "st.saint.wyy@gmail.com")
+                  (user-full-name . "Yayu Wang")
+                  (smtpmail-smtp-user "st.saint.wyy@gmail.com")
+                  (smtpmail-smtp-server "smtp.gmail.com")
+                  (mu4e-sent-folder       . "/gmail/sent")
+                  (mu4e-drafts-folder     . "/gmail/drafts")
+                  (mu4e-trash-folder      . "/gmail/trash")
+                  (mu4e-refile-folder     . "/gmail/all")
+                  (mu4e-bookmarks . (
+                                     (:name "Important" :query "maildir:/gmail/Important" :key ?i)
+                                     (:name "Unread messages" :query "maildir:/gmail/All flag:unread AND NOT flag:trashed" :key ?u)
+                                     (:name "Today's messages" :query "maildir:/gmail/All date:today..now" :key ?t)
+                                     (:name "Last 7 days" :query "maildir:/gmail/All date:7d..now" :key ?w)
+                                     (:name "Last month" :query "maildir:/gmail/All date:4w..now" :key ?m)
+                                     (:name "Messages with attachments" :query "maildir:/gmail/All flag:attach" :key ?a)
+                                     (:name "Flagged messages" :query "maildir:/gmail/All flag:flagged" :key ?f)))
+                  (mu4e-maildir-shortcuts . ( (:maildir "/gmail/INBOX" :key ?b)
+                                              (:maildir "/gmail/sent"  :key ?s)
+                                              (:maildir "/gmail/drafts"      :key ?d)
+                                              (:maildir "/gmail/trash"      :key ?t)
+                                              (:maildir "/gmail/all"   :key ?a)))))
+
+
+         (make-mu4e-context
+          :name "ubc"
+          :match-func (lambda (msg)
+                        (when msg
+                          (string-match-p "/UBC" (mu4e-message-field msg :maildir))))
+          :vars '((user-mail-address . "yayuwang@cs.ubc.ca")
+                  (user-full-name . "Yayu Wang")
+                  (smtpmail-smtp-user "yayuwang@cs.ubc.ca")
+                  (smtpmail-smtp-server "mail.cs.ubc.ca")
+                  (mu4e-sent-folder       . "/UBC/Sent")
+                  (mu4e-drafts-folder     . "/UBC/Draft")
+                  (mu4e-trash-folder      . "/UBC/Trash")
+                  (mu4e-refile-folder     . "/UBC/All")
+                  (mu4e-bookmarks . (
+                                     (:name "Unread messages" :query "maildir:/UBC/Inbox flag:unread AND NOT flag:trashed" :key ?u)
+                                     (:name "Today's messages" :query "maildir:/UBC/Inbox date:today..now" :key ?t)
+                                     (:name "Last 7 days" :query "maildir:/UBC/Inbox date:7d..now" :key ?w)
+                                     (:name "Last month" :query "maildir:/UBC/Inbox date:4w..now" :key ?m)
+                                     (:name "Messages with attachments" :query "maildir:/UBC/Inbox flag:attach" :key ?a)
+                                     (:name "Flagged messages" :query "maildir:/UBC/Inbox flag:flagged" :key ?f)))
+                  (mu4e-maildir-shortcuts . ((:maildir "/UBC/Inbox" :key ?i)
+                                             (:maildir "/UBC/Sent" :key ?s)
+                                             (:maildir "/UBC/Draft" :key ?d)
+                                             (:maildir "/UBC/Trash" :key ?t)))))))
+
+
+  (setq sendmail-program (executable-find "msmtp")
+        send-mail-function #'smtpmail-send-it
+        smtpmail-auth-credentials (expand-file-name "~/.authinfo.gpg")
+        smtpmail-debug-info 't
+        smtpmail-stream-type 'ssl
+        smtpmail-smtp-service 465
+        mail-specify-envelope-from 't
+        mail-envelope-from 'header
+        message-sendmail-envelope-from 'header
+        message-sendmail-f-is-evil 't
+        message-sendmail-extra-arguments '("--read-envelope-from")
+        message-send-mail-function #'message-send-mail-with-sendmail)
+
+  ;; (lambda ()
+  ;;        (interactive)
+  ;;        (if (find "mu4e" persp-names-cache :test #'equal)
+  ;;            (if (equal "mu4e" persp-last-persp-name)
+  ;;                (mu4e)
+  ;;              (persp-switch "mu4e"))
+  ;;          (persp-switch "mu4e")
+  ;;          (mu4e)))
+  (miao-define-keys 'leader
+   '("o m" . mu4e)))
+
+#+end_src
+
+** org-msg
+#+begin_src emacs-lisp
+(use-package org-msg
+  :ensure t
+  :after mu4e
+  :config
+  (setq org-msg-options "html-postamble:nil H:5 num:nil ^:{} toc:nil author:nil email:nil \\n:t"
+        org-msg-startup "hidestars indent inlineimages"
+        org-msg-greeting-fmt "\nHi%s,\n\n"
+        org-msg-recipient-names '(("yayuwang@cs.ubc.ca" . "Yayu Wang"))
+        org-msg-greeting-name-limit 3
+        org-msg-default-alternatives '((new                 . (text html))
+                                       (reply-to-html	. (text html))
+                                       (reply-to-text	. (text)))
+        org-msg-convert-citation t)
+
+  (setq org-msg-enforce-css '((p nil
+  ((font-size . "12pt")))
+  (li nil
+  ((font-size . "12pt")))))
+  (setq org-msg-signature "#+begin_signature\nBest,\n\n-- *Yayu*\n#+end_signature")
+  (org-msg-mode))
+#+end_src
+
 * rime
 #+begin_src emacs-lisp
 (use-package rime
