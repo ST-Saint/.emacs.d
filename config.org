@@ -72,6 +72,7 @@
 #+end_src
 
 * miao
+
 #+begin_src emacs-lisp
 (use-package miao
   :load-path "~/Project/miao/"
@@ -79,19 +80,28 @@
   (miao-global-mode)
   (setq miao-modeline-indicators '((normal . "ಎ/ᐠ.ˬ.ᐟ\\ಎ")
                                    (insert . "ಎ/ᐠ.ꞈ.ᐟ\\ಎ")
-                                   (leader . "ಎ/ᐠ.ˍ.ᐟ\\ಎ")))
+                                   (leader . "ಎ/ᐠ.ˍ.ᐟ\\ಎ")
+                                   (bypass . "ಎ/ᐠ. .ᐟ\\ಎ")))
 
   (with-eval-after-load "doom-modeline"
     (defun doom-modeline-segment--modals ()
       (miao-indicator)))
 
   (defun delete-buffer-file ()
-   (interactive)
-   (delete-file (copy-file-name)))
+    (interactive)
+    (delete-file (copy-file-name)))
 
   (defun root-open-buffer-file ()
-   (interactive)
-   (find-file (concat "/sudo::" (copy-file-name))))
+    (interactive)
+    (find-file (concat "/sudo::" (copy-file-name))))
+
+  (defun toggle-visual-truncate-line ()
+    (interactive)
+    (if visual-line-mode
+      (progn (visual-line-mode -1)
+             (toggle-truncate-lines t))
+      (visual-line-mode t)
+      (toggle-truncate-lines nil)))
 
   (add-to-list 'isearch-forward-thing-at-point 'word)
 
@@ -260,6 +270,8 @@
 (tooltip-mode -1)           ; disable tooltips
 (menu-bar-mode -1)          ; disable the menu bar
 
+(setq-default truncate-lines t)
+(setq isearch-lazy-count t)
 (setq display-line-numbers-type 'relative)
 (global-display-line-numbers-mode)
 
@@ -290,6 +302,14 @@
 #+begin_src emacs-lisp
 (use-package rainbow-mode
   :ensure t)
+#+end_src
+
+** rainbow-delimiters
+#+begin_src emacs-lisp
+(use-package rainbow-delimiters
+  :ensure t
+  :config
+  (add-hook 'prog-mode-hook #'rainbow-delimiters-mode))
 #+end_src
 
 ** font
@@ -341,6 +361,7 @@
   (setq delete-by-moving-to-trash t)
   (setq dired-listing-switches
         "-l --almost-all --human-readable --group-directories-first --no-group")
+  (define-key dired-mode-map (kbd "j") nil)
   (bind-keys :map dirvish-mode-map
              ("b"   . dirvish-quick-access)
              ("f"   . dirvish-fd)
@@ -1164,8 +1185,7 @@
   (setq ediff-window-setup-function 'ediff-setup-windows-plain)
   :config
   (setq vc-dir-backend 'git)
-  (setq magit-display-buffer-function 'magit-display-buffer-fullframe-status-v1)
-)
+  (setq magit-display-buffer-function 'magit-display-buffer-fullcolumn-most-v1))
 #+end_src
 
 ** diff-hl
