@@ -98,10 +98,10 @@
   (defun toggle-visual-truncate-line ()
     (interactive)
     (if visual-line-mode
-      (progn (visual-line-mode -1)
-             (toggle-truncate-lines t))
-      (visual-line-mode t)
-      (toggle-truncate-lines nil)))
+        (progn (visual-line-mode -1)
+               (toggle-truncate-lines t))
+      (toggle-truncate-lines nil)
+      (visual-line-mode t)))
 
   (add-to-list 'isearch-forward-thing-at-point 'word)
 
@@ -134,7 +134,7 @@
     '("f p" . open-config-file)
     '("g g" . magit)
     '("g f" . magit-find-file)
-    '("l l" . visual-line-mode)
+    '("l l" . toggle-visual-truncate-line)
     '("<SPC>" . miao-cursor-blink)))
 #+end_src
 
