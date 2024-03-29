@@ -369,9 +369,10 @@
              ("^"   . dirvish-history-last)
              ("H"   . dirvish-history-jump) ; remapped `describe-mode'
              ("s"   . dirvish-quicksort)    ; remapped `dired-sort-toggle-or-edit'
+             ("^"   . dired-up-directory)
              ("TAB" . dirvish-subtree-toggle)
-             ("h" . dirvish-history-go-forward)
-             ("l" . dirvish-history-go-backward)
+             ("h"   . dirvish-history-go-forward)
+             ("l"   . dirvish-history-go-backward)
              ("M-l" . dirvish-ls-switches-menu)
              ("M-m" . dirvish-mark-menu)
              ("T" . dirvish-layout-toggle))
