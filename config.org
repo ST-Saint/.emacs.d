@@ -268,6 +268,7 @@
 (tool-bar-mode -1)          ; disable the toolbar
 (tooltip-mode -1)           ; disable tooltips
 (menu-bar-mode -1)          ; disable the menu bar
+(delete-selection-mode t)
 
 (setq-default truncate-lines t)
 (setq isearch-lazy-count t)
@@ -532,6 +533,13 @@
 
 
 * edit
+** electric
+*** electric-par
+#+begin_src emacs-lisp
+(add-hook 'prog-mode-hook #'electric-pair-local-mode)
+(add-hook 'prog-mode-hook #'electric-quote-local-mode)
+#+end_src
+
 ** multi-cursor
 #+begin_src emacs-lisp
 (use-package multiple-cursors
@@ -542,7 +550,6 @@
    '("m c a" . mc/mark-all-dwim)
    '("m c r" . mc/mark-all-in-region-regexp)))
 #+end_src
-
 ** yasnippet
 
 #+begin_src emacs-lisp
@@ -562,12 +569,12 @@
 #+end_src
 
 
-** parinfer
+** parinfer-rust
 #+begin_src emacs-lisp
 (use-package parinfer-rust-mode
   :ensure t
-  :hook emacs-lisp-mode
   :config
+  (add-hook 'emacs-lisp-mode-hook (lambda () (electric-pair-local-mode -1) (parinfer-rust-mode)))
   (setq parinfer-rust-check-before-enable nil))
 #+end_src
 
@@ -622,6 +629,11 @@
  (ansi-color-apply-on-region compilation-filter-start (point))
  (read-only-mode))
 (add-hook 'compilation-filter-hook 'colorize-compilation-buffer)
+#+end_src
+** checking
+#+begin_src emacs-lisp
+(use-package flycheck
+  :ensure t)
 #+end_src
 
 ** lsp
@@ -776,56 +788,26 @@
   ;;              (shell-command-to-string "agda-mode locate")))
   (defun agda-setup-cape ()
     (with-eval-after-load 'cape
-
       ;; ("equal" "≡"
       ;;  "ra" "→"
       ;;  "monus" "∸")
+      (require 'cape-char)
+      (cape-char--define agda "Agda" ?\\))
 
-      (defun cape--agda-decode-map ()
-        (let ((hash (make-hash-table :test #'equal))
-              (decode-map (agda-input-get-translations "Agda")))
-          (pcase-dolist (`(,name . ,val) (cdr decode-map))
-            (when (memq (aref name 0) '(?\\))
-              (puthash
-               name
-               (if (vectorp val) (aref val 0) val) hash)))
-          hash))
+      ;; (defun cape--agda-decode-map ()
+      ;;   (let ((hash (make-hash-table :test #'equal))
+      ;;         (decode-map (agda-input-get-translations "Agda")))
+      ;;     (pcase-dolist (`(,name . ,val) (cdr decode-map))
+      ;;       (when (memq (aref name 0) '(?\\))
+      ;;         (puthash
+      ;;          name
+      ;;          (if (vectorp val) (aref val 0) val) hash)))
+      ;;     hash))
 
-      (defvar cape--agda-hash (cape--agda-decode-map))
-
-      (setq cape-agda-prefix-required t
-            cape-agda-prefix '(?\\)
-            cape-agda-prefix-regex (concat (regexp-opt (mapcar #'char-to-string cape-agda-prefix)) "[^ \n\t]*"))
-
-
-      (defvar cape--agda-properties
-        (list :annotation-function (apply-partially #'cape-char--annotation cape--agda-hash)
-              :company-docsig (apply-partially #'cape-char--signature cape--agda-hash)
-              :exit-function (apply-partially #'cape-char--exit cape--agda-hash)
-              :company-kind (lambda (_) 'text)
-              :exclusive 'no)
-        "Completion extra properties for cape-agda.")
-
-      (defun cape-agda (&optional interactive)
-        (interactive (list t))
-        (if interactive
-            (let* ((completion-cycle-threshold cape-agda-prefix-required))
-              (when (and (memq last-input-event cape-agda-prefix)
-                         (not (looking-back cape-agda-prefix-regex (pos-bol))))
-                (self-insert-command 1 last-input-event))
-              (cape-interactive #'cape-agda))
-          (when-let ((bounds
-                      (cond
-                       ((looking-back cape-agda-prefix-regex (pos-bol))
-                        (cons (match-beginning 0) (point)))
-                       ((not cape-agda-prefix-required) (cons (point) (point))))))
-            (append
-             (list (car bounds) (cdr bounds)
-                   (cape--properties-table cape--agda-hash :category 'cape-agda))
-             cape--agda-properties))))
+      ;; (defvar cape--agda-hash (cape--agda-decode-map))
 
       (deactivate-input-method)
-      (add-to-list 'completion-at-point-functions #'cape-agda t)))
+      (add-to-list 'completion-at-point-functions #'cape-agda))
 
   (setq auto-mode-alist
         (append
@@ -939,7 +921,7 @@
      (corfu-mode 1)))
  (add-hook 'minibuffer-setup-hook #'corfu-enable-in-minibuffer)
 
- (define-key corfu-map (kbd "RET") nil)
+ ;; (define-key corfu-map (kbd "RET") nil)
   ;; Enable Corfu only for certain modes.
   ;; :hook ((prog-mode . corfu-mode)
   ;;        (shell-mode . corfu-mode)
@@ -1522,10 +1504,6 @@ variable `project-local-identifier' to be considered a project."
             ("text"
              (message "text")))))))
 
-
-
-
-
   (defun mu4e~write-body-to-html (msg)
     "Write MSG's body (either html or text) to a temporary file;
 return the filename."
@@ -1667,17 +1645,8 @@ return the filename."
         message-sendmail-extra-arguments '("--read-envelope-from")
         message-send-mail-function #'message-send-mail-with-sendmail)
 
-  ;; (lambda ()
-  ;;        (interactive)
-  ;;        (if (find "mu4e" persp-names-cache :test #'equal)
-  ;;            (if (equal "mu4e" persp-last-persp-name)
-  ;;                (mu4e)
-  ;;              (persp-switch "mu4e"))
-  ;;          (persp-switch "mu4e")
-  ;;          (mu4e)))
   (miao-define-keys 'leader
-   '("o m" . mu4e)))
-
+    '("o m" . mu4e)))
 #+end_src
 
 ** org-msg
