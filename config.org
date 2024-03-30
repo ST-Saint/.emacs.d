@@ -774,63 +774,66 @@
   :config
   ;; (load-file (let ((coding-system-for-read 'utf-8))
   ;;              (shell-command-to-string "agda-mode locate")))
+  (defun agda-setup-cape ()
+    (with-eval-after-load 'cape
 
-  (with-eval-after-load 'cape
+      ;; ("equal" "≡"
+      ;;  "ra" "→"
+      ;;  "monus" "∸")
 
-    ;; ("equal" "≡"
-    ;;  "ra" "→"
-    ;;  "monus" "∸")
+      (defun cape--agda-decode-map ()
+        (let ((hash (make-hash-table :test #'equal))
+              (decode-map (agda-input-get-translations "Agda")))
+          (pcase-dolist (`(,name . ,val) (cdr decode-map))
+            (when (memq (aref name 0) '(?\\))
+              (puthash
+               name
+               (if (vectorp val) (aref val 0) val) hash)))
+          hash))
 
-    (defun cape--agda-decode-map ()
-      (let ((hash (make-hash-table :test #'equal))
-            (decode-map (agda-input-get-translations "Agda")))
-        (pcase-dolist (`(,name . ,val) (cdr decode-map))
-          (when (memq (aref name 0) '(?\\))
-            (puthash
-             name
-             (if (vectorp val) (aref val 0) val) hash)))
-        hash))
+      (defvar cape--agda-hash (cape--agda-decode-map))
 
-    (defvar cape--agda-hash (cape--agda-decode-map))
+      (setq cape-agda-prefix-required t
+            cape-agda-prefix '(?\\)
+            cape-agda-prefix-regex (concat (regexp-opt (mapcar #'char-to-string cape-agda-prefix)) "[^ \n\t]*"))
 
-    (setq cape-agda-prefix-required t)
 
-    (defvar cape--agda-properties
-      (list :annotation-function (apply-partially #'cape-char--annotation cape--agda-hash)
-            :company-docsig (apply-partially #'cape-char--signature cape--agda-hash)
-            :exit-function (apply-partially #'cape-char--exit cape--agda-hash)
-            :company-kind (lambda (_) 'text)
-            :exclusive 'no)
-      "Completion extra properties for cape-agda.")
+      (defvar cape--agda-properties
+        (list :annotation-function (apply-partially #'cape-char--annotation cape--agda-hash)
+              :company-docsig (apply-partially #'cape-char--signature cape--agda-hash)
+              :exit-function (apply-partially #'cape-char--exit cape--agda-hash)
+              :company-kind (lambda (_) 'text)
+              :exclusive 'no)
+        "Completion extra properties for cape-agda.")
 
-    (defun cape-agda (&optional interactive)
-      (interactive (list t))
-      (if interactive
-          (let* ((prefix '(?\\))
-                 (pre-rx (concat (regexp-opt (mapcar #'char-to-string prefix)) "[^ \n\t]*"))
-                 (completion-cycle-threshold cape-agda-prefix-required))
-            (when (and (memq last-input-event prefix)
-                       (not (looking-back pre-fx (pos-bol))))
-              (self-insert-command 1 last-input-event))
-            (cape-interactive #'cape-agda))
-        (when-let ((bounds
-                    (cond
-                     ((looking-back pre-rx (pos-bol))
-                      (cons (match-beginning 0) (point)))
-                     ((not cape-agda-prefix-required) (cons (point) (point))))))
-          (append
-           (list (car bounds) (cdr bounds)
-                 (cape--properties-table cape--agda-hash :category 'cape-agda))
-           cape--agda-properties)))))
+      (defun cape-agda (&optional interactive)
+        (interactive (list t))
+        (if interactive
+            (let* ((completion-cycle-threshold cape-agda-prefix-required))
+              (when (and (memq last-input-event cape-agda-prefix)
+                         (not (looking-back cape-agda-prefix-regex (pos-bol))))
+                (self-insert-command 1 last-input-event))
+              (cape-interactive #'cape-agda))
+          (when-let ((bounds
+                      (cond
+                       ((looking-back cape-agda-prefix-regex (pos-bol))
+                        (cons (match-beginning 0) (point)))
+                       ((not cape-agda-prefix-required) (cons (point) (point))))))
+            (append
+             (list (car bounds) (cdr bounds)
+                   (cape--properties-table cape--agda-hash :category 'cape-agda))
+             cape--agda-properties))))
+
+      (deactivate-input-method)
+      (add-to-list 'completion-at-point-functions #'cape-agda t)))
 
   (setq auto-mode-alist
         (append
          '(("\\.agda\\'" . agda2-mode)
            ("\\.lagda.md\\'" . agda2-mode))
          auto-mode-alist))
-  (add-hook 'agda2-mode-hook (lambda ()
-                               (deactivate-input-method)
-                               (add-to-list 'completion-at-point-functions #'cape-agda)))
+  (add-hook 'agda2-mode-hook #'agda-setup-cape)
+
   (setq agda2-program-args '("-i.")))
 #+end_src
 
