@@ -788,12 +788,14 @@
   ;;              (shell-command-to-string "agda-mode locate")))
   (defun agda-setup-cape ()
     (with-eval-after-load 'cape
+      (require 'cape-char)
+      (cape-char--define agda "Agda" ?\\)
+
       ;; ("equal" "≡"
       ;;  "ra" "→"
-      ;;  "monus" "∸")
-      (require 'cape-char)
-      (cape-char--define agda "Agda" ?\\))
-
+      ;;  "monus" "∸"
+      ;;  "\<>" "≡⟨⟩")
+      (puthash "\\=<>" "≡⟨⟩" cape--agda-hash)
       ;; (defun cape--agda-decode-map ()
       ;;   (let ((hash (make-hash-table :test #'equal))
       ;;         (decode-map (agda-input-get-translations "Agda")))
@@ -807,7 +809,7 @@
       ;; (defvar cape--agda-hash (cape--agda-decode-map))
 
       (deactivate-input-method)
-      (add-to-list 'completion-at-point-functions #'cape-agda))
+      (add-to-list 'completion-at-point-functions #'cape-agda)))
 
   (setq auto-mode-alist
         (append
@@ -1683,8 +1685,13 @@ return the filename."
   (rime-show-candidate 'posframe)
   :config
 
-  (setq default-input-method 'rime)
-  (global-set-key (kbd "C-S-SPC") 'toggle-input-method)
+  (defun toggle-rime-im ()
+    (interactive)
+    (if (not (equal current-input-method "rime"))
+        (set-input-method 'rime)
+      (set-input-method nil)))
+
+  (global-set-key (kbd "C-S-SPC") 'toggle-rime-im)
 
   (defun rime-miao-off ()
     (unless miao-insert-mode
