@@ -809,7 +809,7 @@
       ;; (defvar cape--agda-hash (cape--agda-decode-map))
 
       (deactivate-input-method)
-      (add-to-list 'completion-at-point-functions #'cape-agda)))
+      (setq completion-at-point-functions '(cape-agda cape-dabbrev))))
 
   (setq auto-mode-alist
         (append
@@ -912,18 +912,29 @@
         corfu-scroll-margin 5
         corfu-auto-prefix 1
         corfu-separator ?\s
-        corfu-auto-delay 0.5)
+        corfu-auto-delay 0.3)
 
- (defun corfu-enable-in-minibuffer ()
-   "Enable Corfu in the minibuffer."
-   (when (local-variable-p 'completion-at-point-functions)
-     ;; (setq-local corfu-auto nil) ;; Enable/disable auto completion
-     (setq-local corfu-echo-delay nil ;; Disable automatic echo and popup
-                 corfu-popupinfo-delay nil)
-     (corfu-mode 1)))
- (add-hook 'minibuffer-setup-hook #'corfu-enable-in-minibuffer)
+ ;; (defun corfu-enable-in-minibuffer ()
+ ;;   "Enable Corfu in the minibuffer."
+ ;;   (when (local-variable-p 'completion-at-point-functions)
+ ;;     ;; (setq-local corfu-auto nil) ;; Enable/disable auto completion
+ ;;     (setq-local corfu-echo-delay nil ;; Disable automatic echo and popup
+ ;;                 corfu-popupinfo-delay nil)
+ ;;     (corfu-mode 1)))
+ ;; (add-hook 'minibuffer-setup-hook #'corfu-enable-in-minibuffer)
 
- ;; (define-key corfu-map (kbd "RET") nil)
+ (defun corfu-enable-always-in-minibuffer ()
+  "Enable Corfu in the minibuffer if Vertico/Mct are not active."
+  (unless (or (bound-and-true-p mct--active)
+              (bound-and-true-p vertico--input)
+              (eq (current-local-map) read-passwd-map))
+    ;; (setq-local corfu-auto nil) ;; Enable/disable auto completion
+    (setq-local corfu-echo-delay nil ;; Disable automatic echo and popup
+                corfu-popupinfo-delay nil)
+    (corfu-mode 1)))
+ (add-hook 'minibuffer-setup-hook #'corfu-enable-always-in-minibuffer 1)
+
+ (define-key corfu-map (kbd "RET") nil)
   ;; Enable Corfu only for certain modes.
   ;; :hook ((prog-mode . corfu-mode)
   ;;        (shell-mode . corfu-mode)
