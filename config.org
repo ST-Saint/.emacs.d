@@ -123,7 +123,7 @@
     '(";" . miao-toggle-mark-point))
   (miao-define-keys 'insert
     '("M-SPC" . miao-leader-mode))
-  (miao-define-keys 'leader
+  (miao-leader-define-keys
     '("b r" . revert-buffer)
     '("f r" . recentf)
     '("f R" . rename-visited-file)
@@ -230,7 +230,7 @@
           (pop-to-buffer (get-buffer-create scratch-buffer-name)))
         (org-mode))))
 
-  (miao-define-keys 'leader
+  (miao-leader-define-keys
     '("b s" . scratch-buffer)
     '("p s" . project-scratch)))
 #+end_src
@@ -240,7 +240,7 @@
 (use-package restart-emacs
   :ensure t
   :config
-  (miao-define-keys 'leader
+  (miao-leader-define-keys
    '("q q" . save-buffers-kill-emacs)
    '("q r" . restart-emacs)
    '("r r" . restart-emacs)))
@@ -545,7 +545,7 @@
 (use-package multiple-cursors
   :ensure t
   :config
-  (miao-define-keys 'leader
+  (miao-leader-define-keys
    '("m c l" . mc/edit-lines)
    '("m c a" . mc/mark-all-dwim)
    '("m c r" . mc/mark-all-in-region-regexp)))
@@ -619,7 +619,7 @@
 
   (add-hook 'c-mode-hook #'format-all-set-c-formatter)
   (add-hook 'java-mode-hook #'format-all-set-c-formatter)
-  (miao-define-keys 'leader
+  (miao-leader-define-keys
    '("c f" . format-all-buffer)))
 #+end_src
 ** compile
@@ -663,7 +663,7 @@
   (add-hook 'lsp-completion-mode-hook #'lsp-mode-setup-completion)
   (add-hook 'lsp-mode-hook #'lsp-enable-which-key-integration)
 
-  (miao-define-keys 'leader
+  (miao-leader-define-keys
    '("c l S" . lsp)
    '("c l s" . consult-lsp-symbols)
    '("c l d" . lsp-find-definition)
@@ -683,7 +683,7 @@
 (use-package lsp-treemacs
   :ensure t
   :config
-  (miao-define-keys 'leader
+  (miao-leader-define-keys
    '("c l E" . lsp-treemacs-errors-list)))
 #+end_src
 
@@ -1045,7 +1045,7 @@
     (let ((symbol (buffer-substring-no-properties (region-beginning) (region-end))))
       (consult-line symbol)))
 
-  (miao-define-keys 'leader
+  (miao-leader-define-keys
    '("s s" . consult-line)
    '("s S" . consult-line-at-point)
    '("s i" . consult-imenu)
@@ -1098,8 +1098,8 @@
      (python . t)
      (js . t)
      (dot . t)
-     (awk . t)
-     ))
+     (awk . t)))
+
   (if (display-graphic-p)
       (setq org-startup-indented t))
 
@@ -1131,7 +1131,7 @@
   ;; NOTE: snippet error in org-mode
   (setq org-src-tab-acts-natively nil)
 
-  (setq org-todo-keywords '((sequence "TODO(t)" "PROG(p)" "FIXME(f)" "REVIEW(r)" "HOLD(h)" "NOTE(n)" "|" "FAIL(F)" "DONE(d)" )))
+  (setq org-todo-keywords '((sequence "TODO(t)" "PROG(p)" "FIXME(f)" "REVIEW(r)" "HOLD(h)" "NOTE(n)" "|" "FAIL(F)" "DONE(d)")))
   (setq org-list-demote-modify-bullet
         '(("+"  . "-")
           ("-"  . "-")
@@ -1163,7 +1163,9 @@
   (with-eval-after-load 'visual-fill-column
     (add-hook 'org-mode-hook #'visual-fill-column-mode))
   (add-hook 'org-mode-hook #'flyspell-mode)
-  (miao-define-keys 'leader
+  (miao-leader-define-major-keys 'org-mode
+    '("s y" . org-copy-subtree))
+  (miao-leader-define-keys
    '("n c" . org-capture)
    '("n L" . org-store-link)))
 #+end_src
@@ -1240,7 +1242,7 @@
   (setq org-noter-max-short-selected-text-length most-positive-fixnum)
   (setq org-noter-doc-split-fraction '(0.6 . 0.4))
   :config
-  (miao-define-keys 'leader
+  (miao-leader-define-keys
    '("n o" . org-noter)))
 #+end_src
 
@@ -1370,7 +1372,7 @@ variable `project-local-identifier' to be considered a project."
                           (list #'project-local-try-local
                                 #'project-try-vc))
 
-  (miao-define-keys 'leader
+  (miao-leader-define-keys
    '("p p" . project-switch-project)
    '("p f" . project-find-file)
    '("p b" . project-switch-to-buffer)
@@ -1658,7 +1660,7 @@ return the filename."
         message-sendmail-extra-arguments '("--read-envelope-from")
         message-send-mail-function #'message-send-mail-with-sendmail)
 
-  (miao-define-keys 'leader
+  (miao-leader-define-keys
     '("o m" . mu4e)))
 #+end_src
 
