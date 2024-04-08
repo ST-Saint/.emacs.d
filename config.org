@@ -113,6 +113,7 @@
     '("x" . miao-delete-char)
     '("v" . miao-mark-line)
     '("q" . miao-quit-window)
+    '("Q" . miao-delete-window)
     '("w" . miao-mark-word)
     '("W" . miao-mark-symbol)
     '("o" . miao-mark-list-inner)
@@ -268,7 +269,7 @@
 (tool-bar-mode -1)          ; disable the toolbar
 (tooltip-mode -1)           ; disable tooltips
 (menu-bar-mode -1)          ; disable the menu bar
-(delete-selection-mode t)
+
 (setq scroll-conservatively 10000
       scroll-margin 5)
 
@@ -535,6 +536,12 @@
 
 
 * edit
+** emacs native
+#+begin_src emacs-lisp
+(delete-selection-mode t)
+(setq delete-selection-save-to-register 'kill)
+#+end_src
+
 ** electric
 *** electric-par
 #+begin_src emacs-lisp
@@ -936,6 +943,11 @@
     (corfu-mode 1)))
  (add-hook 'minibuffer-setup-hook #'corfu-enable-always-in-minibuffer 1)
 
+ (bind-keys :map corfu-map
+            ("RET" . nil)
+            ("M-SPC" . nil)
+            ("SPC" . corfu-insert-separator))
+
  (define-key corfu-map (kbd "RET") nil)
   ;; Enable Corfu only for certain modes.
   ;; :hook ((prog-mode . corfu-mode)
@@ -1166,7 +1178,8 @@
     (add-hook 'org-mode-hook #'visual-fill-column-mode))
   (add-hook 'org-mode-hook #'flyspell-mode)
   (miao-leader-define-major-keys 'org-mode
-    '("s y" . org-copy-subtree))
+    '("s y" . org-copy-subtree)
+    '("s i" . org-goto)
   (miao-leader-define-keys
    '("n c" . org-capture)
    '("n L" . org-store-link)))
