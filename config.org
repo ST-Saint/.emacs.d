@@ -930,6 +930,7 @@ Signal an error if the entire string was not used."
   (setq corfu-auto t
         corfu-scroll-margin 5
         corfu-auto-prefix 1
+        corfu-quit-no-match t
         corfu-separator ?\s
         corfu-auto-delay 0.3)
 
@@ -1077,6 +1078,7 @@ Signal an error if the entire string was not used."
    '("s r" . consult-ripgrep)
    '("s R" . consult-ripgrep-at-point)
    '("u SPC" . consult-mark)
+   '("p b" . consult-project-buffer)
    '("s SPC" . consult-global-mark)))
 #+end_src
 
@@ -1189,10 +1191,10 @@ Signal an error if the entire string was not used."
   (add-hook 'org-mode-hook #'flyspell-mode)
   (miao-leader-define-major-keys 'org-mode
     '("s y" . org-copy-subtree)
-    '("s i" . org-goto)
+    '("s i" . org-goto))
   (miao-leader-define-keys
-   '("n c" . org-capture)
-   '("n L" . org-store-link)))
+      '("n c" . org-capture)
+      '("n L" . org-store-link)))
 #+end_src
 
 ** org-agenda
@@ -1405,7 +1407,8 @@ variable `project-local-identifier' to be considered a project."
    '("p c" . project-compile)
    '("p d" . project-find-dir)
    '("p k" . project-kill-buffers)
-   '("p D" . project-dired)))
+   '("p D" . project-dired)
+   '("p %" . project-query-replace-regexp)))
 #+end_src
 
 
