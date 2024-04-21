@@ -58,16 +58,6 @@
 * FIXME FIX
 #+begin_src emacs-lisp
 (defun package--print-email-button (RECIPIENT))
-
-(defun package-read-from-string (str)
-  "Read a Lisp expression from STR.
-Signal an error if the entire string was not used."
-  (pcase-let ((`(,expr . ,offset) (read-from-string str)))
-    (condition-case ()
-        ;; The call to `ignore' suppresses a compiler warning.
-        (progn (ignore (read-from-string str offset))
-               (error "Can't read whole string"))
-      (end-of-file expr))))
 #+end_src
 
 * startup
@@ -233,8 +223,8 @@ Signal an error if the entire string was not used."
   (defun project-scratch ()
     (interactive)
     (let* ((project (project-name (project-current)))
-          (scratch-buffer-name (format "*scratch* <%s>" project))
-          (project-scratch-buffer (get-buffer scratch-buffer-name)))
+           (scratch-buffer-name (format "*scratch* <%s>" project))
+           (project-scratch-buffer (get-buffer scratch-buffer-name)))
       (if project-scratch-buffer
           (pop-to-buffer project-scratch-buffer)
         (progn
@@ -524,6 +514,17 @@ Signal an error if the entire string was not used."
     '("C-M-<right>" . windmove-right)))
 #+end_src
 
+** window
+#+begin_src emacs-lisp
+(use-package transpose-frame
+  :ensure t
+  :config
+  (miao-leader-define-keys
+      '("w s" . window-swap-states)
+      '("w t" . transpose-frame)
+      '("w =" . balance-windows))
+#+end_src
+
 ** winum
 #+begin_src emacs-lisp
 (use-package winum
@@ -688,7 +689,7 @@ Signal an error if the entire string was not used."
    '("c l d" . lsp-find-definition)
    '("c l r" . lsp-find-references)
    '("c l F" . lsp-format-buffer)
-   '("c l h" . lsp-ui-doc-glance)
+   '("c l h" . lsp-ui-doc-toggle)
    '("c l R" . lsp-rename)
    '("c l q" . lsp-workspace-shutdown)
    '("c l Q" . lsp-workspace-restart)
@@ -1022,9 +1023,9 @@ Signal an error if the entire string was not used."
   ;;(add-to-list 'completion-at-point-functions #'cape-rfc1345)
   (add-to-list 'completion-at-point-functions #'cape-abbrev)
   (add-to-list 'completion-at-point-functions #'cape-dict)
-  (add-to-list 'completion-at-point-functions #'cape-elisp-symbol)
+  (add-to-list 'completion-at-point-functions #'cape-elisp-symbol))
   ;;(add-to-list 'completion-at-point-functions #'cape-line)
-)
+
 #+end_src
 
 ** consult
@@ -1407,7 +1408,7 @@ variable `project-local-identifier' to be considered a project."
    '("p c" . project-compile)
    '("p d" . project-find-dir)
    '("p k" . project-kill-buffers)
-   '("p D" . project-dired)
+   '("p D" . project-forget-project)
    '("p %" . project-query-replace-regexp)))
 #+end_src
 
@@ -1493,8 +1494,7 @@ variable `project-local-identifier' to be considered a project."
   (setq auto-mode-alist
         (append
          '(("\\.http\\'" . restclient-mode))
-         auto-mode-alist))
-  )
+         auto-mode-alist)))
 #+end_src
 
 * email
