@@ -522,7 +522,7 @@
   (miao-leader-define-keys
       '("w s" . window-swap-states)
       '("w t" . transpose-frame)
-      '("w =" . balance-windows))
+      '("w =" . balance-windows)))
 #+end_src
 
 ** winum
@@ -1375,7 +1375,7 @@
     "Local, non-VC-backed project.el root directories."
     :group 'project)
 
-  (defcustom project-local-identifier ".project"
+  (defcustom project-local-identifier ".projectile"
     "Specify a single filename or a list of names."
     :type '(choice (string :tag "Single file")
                    (repeat (string :tag "Filename")))
@@ -1729,14 +1729,14 @@ return the filename."
         org-msg-recipient-names '(("yayuwang@cs.ubc.ca" . "Yayu Wang"))
         org-msg-greeting-name-limit 3
         org-msg-default-alternatives '((new                 . (text html))
-                                       (reply-to-html	. (text html))
-                                       (reply-to-text	. (text)))
+                                       (reply-to-html           . (text html))
+                                       (reply-to-text           . (text)))
         org-msg-convert-citation t)
 
   (setq org-msg-enforce-css '((p nil
-  ((font-size . "12pt")))
-  (li nil
-  ((font-size . "12pt")))))
+                                 ((font-size . "12pt")))
+                              (li nil
+                                  ((font-size . "12pt")))))
   (setq org-msg-signature "#+begin_signature\nBest,\n\n-- *Yayu*\n#+end_signature")
   (org-msg-mode))
 #+end_src
