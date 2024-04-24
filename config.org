@@ -503,6 +503,12 @@
 
 * navigate
 
+** citre
+#+begin_src emacs-lisp
+(use-package citre
+  :ensure t)
+#+end_src
+
 ** windmove
 #+begin_src emacs-lisp
 (use-package windmove
@@ -1192,7 +1198,10 @@
   (add-hook 'org-mode-hook #'flyspell-mode)
   (miao-leader-define-major-keys 'org-mode
     '("s y" . org-copy-subtree)
-    '("s i" . org-goto))
+    '("s i" . org-goto)
+    '("s A" . org-archive-subtree)
+    '("t i" . org-toggle-inline-images)
+    '("t l" . org-latex-preview))
   (miao-leader-define-keys
       '("n c" . org-capture)
       '("n L" . org-store-link)))
