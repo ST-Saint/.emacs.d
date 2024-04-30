@@ -1527,6 +1527,7 @@ variable `project-local-identifier' to be considered a project."
                  "/usr/local/share/emacs/site-lisp/mu4e/")))
   :after pinentry
   :config
+  (require 'mu4e-contrib)
   (setq mu4e-get-mail-command "mbsync -a")
   (setq mu4e-confirm-quit nil)
   (setq mu4e-hide-index-messages t)
