@@ -503,12 +503,6 @@
 
 * navigate
 
-** citre
-#+begin_src emacs-lisp
-(use-package citre
-  :ensure t)
-#+end_src
-
 ** windmove
 #+begin_src emacs-lisp
 (use-package windmove
@@ -557,6 +551,14 @@
 #+begin_src emacs-lisp
 (delete-selection-mode t)
 (setq delete-selection-save-to-register 'kill)
+#+end_src
+
+** editorconfig
+#+begin_src emacs-lisp
+(use-package editorconfig
+  :ensure t
+  :config
+  (editorconfig-mode t))
 #+end_src
 
 ** electric
@@ -1251,17 +1253,15 @@
 (use-package org-modern
   :ensure t
   :config
-  (setq
-   ;; Edit settings
-   org-auto-align-tags nil
-   org-tags-column 0
-   org-catch-invisible-edits 'show-and-error
-   ;; Org styling, hide markup etc.
-   org-modern-block-name t
-   org-modern-star '("◉")
-   org-modern-list '((?+ . "▸")
-                     (?- . "–")
-                     (?* . "▸")))
+  (setq org-auto-align-tags nil
+        ;; org-tags-column 0
+        org-catch-invisible-edits 'show-and-error
+        ;; Org styling, hide markup etc.
+        org-modern-block-name t
+        org-modern-star '("◉")
+        org-modern-list '((?+ . "▸")
+                          (?- . "–")
+                          (?* . "▸")))
 
   (global-org-modern-mode))
 #+end_src
@@ -1524,14 +1524,13 @@ variable `project-local-identifier' to be considered a project."
                 ((string-equal system-type "darwin") ; macOS
                  "/opt/homebrew/Cellar/mu/1.10.7/share/emacs/site-lisp/mu/mu4e/")
                 ((string-equal system-type "gnu/linux") ; linux
-                 "/usr/share/emacs/site-lisp/mu4e/")))
+                 "/usr/local/share/emacs/site-lisp/mu4e/")))
   :after pinentry
   :config
   (setq mu4e-get-mail-command "mbsync -a")
   (setq mu4e-confirm-quit nil)
   (setq mu4e-hide-index-messages t)
   (setq message-citation-line-format "%N @ %Y-%m-%d %H:%M :\n")
-
   (defun mu4e~read-mail-content (content-type)
     (interactive)
     (let ((mail-path (mu4e-message-readable-path)))
@@ -1625,13 +1624,13 @@ return the filename."
                               (:subject      . nil)))
 
   (setq mu4e-headers-thread-root-prefix          '(""   . "")
-        mu4e-headers-thread-first-child-prefix   '("│ " . "│ ")
-        mu4e-headers-thread-child-prefix         '("│ " . "│ ")
-        mu4e-headers-thread-last-child-prefix    '("└ " . "└ ")
-        mu4e-headers-thread-connection-prefix    '("│ " . "│ ")
+        mu4e-headers-thread-first-child-prefix   '("│  " . "│  ")
+        mu4e-headers-thread-child-prefix         '("│  " . "│  ")
+        mu4e-headers-thread-last-child-prefix    '("└  " . "└  ")
+        mu4e-headers-thread-connection-prefix    '("│  " . "│  ")
         mu4e-headers-thread-blank-prefix         '(""   . "")
         mu4e-headers-thread-orphan-prefix        '(""   . "")
-        mu4e-headers-thread-single-orphan-prefix '("│ " . "│ ")
+        mu4e-headers-thread-single-orphan-prefix '("│  " . "│  ")
         mu4e-headers-thread-duplicate-prefix     '("="  . "="))
 
   (add-hook 'mu4e-context-changed-hook #'mu4e)
@@ -1707,23 +1706,10 @@ return the filename."
         message-sendmail-extra-arguments '("--read-envelope-from")
         message-send-mail-function #'message-send-mail-with-sendmail)
 
+  (set-face-attribute 'mu4e-thread-fold-face nil :inherit 'unspecified)
+
   (miao-leader-define-keys
     '("o m" . mu4e)))
-#+end_src
-
-** mu4e thread folding
-#+begin_src emacs-lisp
-(use-package mu4e-thread-folding
-  :ensure nil
-  :vc (:url "git@github.com:ST-Saint/mu4e-thread-folding.git" :branch "master")
-  :config
-  (setq mu4e-thread-folding-keep-faces t
-        mu4e-thread-folding-child-prefix-string " | ")
-  (add-hook 'mu4e-headers-mode-hook #'mu4e-thread-folding-mode)
-  (add-to-list 'mu4e-header-info-custom
-               '(:empty . (:name "Empty"
-                                 :shortname ""
-                                 :function (lambda (msg) "  ")))))
 #+end_src
 
 ** org-msg
