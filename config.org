@@ -348,7 +348,7 @@
 
 ** dirvish
 #+begin_src emacs-lisp
-(use-package all-the-icons
+(use-package nerd-icons
   :ensure t)
 
 (use-package dirvish
@@ -360,7 +360,7 @@
         dirvish-use-header-line nil
         dirvish-mode-line-height 23)
   (setq dirvish-attributes
-        '(all-the-icons file-time file-size collapse subtree-state vc-state git-msg))
+        '(nerd-icons file-time file-size collapse subtree-state vc-state git-msg))
   (setq delete-by-moving-to-trash t)
   (setq dired-listing-switches
         "-l --almost-all --human-readable --group-directories-first --no-group")
@@ -382,7 +382,6 @@
              ("T" . dirvish-layout-toggle))
 
   (dirvish-override-dired-mode))
-
 #+end_src
 
 ** dashboard
