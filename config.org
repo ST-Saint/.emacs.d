@@ -271,7 +271,7 @@
 (menu-bar-mode -1)          ; disable the menu bar
 
 (setq scroll-conservatively 10000
-      scroll-margin 5)
+      scroll-margin 3)
 
 (setq-default truncate-lines t)
 (setq isearch-lazy-count t)
@@ -295,8 +295,8 @@
   :ensure t
   :config
   (load-theme 'doom-one t)
-  ;; (eval-after-load 'hl-line
-  ;;   (set-face-attribute 'hl-line nil :inherit nil :background "gray8"))
+  (eval-after-load 'hl-line
+    (set-face-attribute 'hl-line nil :inherit nil :background "#1c1e24"))
   (set-face-attribute 'region nil :background "#4F5766"))
 #+end_src
 
@@ -488,6 +488,7 @@
           ("FAIL"   . "#EE6666")
           ("DONE"   . "#808080"))) ;;
   (add-hook 'org-mode-hook #'hl-todo-mode)
+  (add-hook 'rainbow-mode-hook (hl-line-mode (if rainbow-mode -1 1)))
   (global-hl-todo-mode t))
 #+end_src
 
@@ -512,7 +513,11 @@
     '("C-M-<down>" . windmove-down)
     '("C-M-<up>". windmove-up)
     '("C-M-<left>" . windmove-left)
-    '("C-M-<right>" . windmove-right)))
+    '("C-M-<right>" . windmove-right)
+    '("C-S-h" . windmove-left)
+    '("C-S-l" . windmove-right)
+    '("C-S-j" . windmove-down)
+    '("C-S-k" . windmove-up)))
 #+end_src
 
 ** window
@@ -745,7 +750,7 @@
           (lambda (arg) (call-interactively #'dap-hydra)))
   (setq lsp-java-format-on-type-enabled nil)
   (setq lsp-java-format-comments-enabled nil)
-  (setq lsp-java-java-path "/usr/lib/jvm/java-17-openjdk/bin/java")
+  (setq lsp-java-java-path "/usr/lib/jvm/java-21-openjdk/bin/java")
   (setq lsp-java-configuration-runtimes '[(:name "JavaSE-1.8"
                                            :path "/usr/lib/jvm/java-8-openjdk/"
                                            :default t)
@@ -1201,6 +1206,7 @@
   (add-hook 'org-mode-hook #'flyspell-mode)
   (miao-leader-define-major-keys 'org-mode
     '("s y" . org-copy-subtree)
+    '("s w" . org-cut-subtree)
     '("s i" . org-goto)
     '("s A" . org-archive-subtree)
     '("t i" . org-toggle-inline-images)
@@ -1717,7 +1723,8 @@ return the filename."
 ** org-msg
 #+begin_src emacs-lisp
 (use-package org-msg
-  :ensure t
+  :ensure nil
+  :vc (:url "git@github.com:danielfleischer/org-msg.git" :branch "1.12")
   :after mu4e
   :config
   (setq org-msg-options "html-postamble:nil H:5 num:nil ^:{} toc:nil author:nil email:nil \\n:t"
