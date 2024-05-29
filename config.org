@@ -349,9 +349,7 @@
 ** dirvish
 #+begin_src emacs-lisp
 (use-package nerd-icons
-  :ensure t
-  :custom
-  (nerd-icons-font-family "SauceCodePro Nerd Font Mono"))
+  :ensure t)
 
 (use-package dirvish
   :ensure t
