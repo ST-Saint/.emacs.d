@@ -503,6 +503,18 @@
 
 * navigate
 
+** better-jumper
+#+begin_src emacs-lisp
+(use-package better-jumper
+  :ensure t
+  :config
+  (better-jumper-mode t)
+  (setq better-jumper-use-savehist t)
+  (miao-define-keys 'normal
+    '("M-o" . better-jumper-jump-backward)
+    '("M-i" . better-jumper-jump-forward)))
+#+end_src
+
 ** windmove
 #+begin_src emacs-lisp
 (use-package windmove
