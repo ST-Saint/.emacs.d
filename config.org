@@ -1496,8 +1496,9 @@ variable `project-local-identifier' to be considered a project."
   (add-hook 'pdf-view-mode-hook 'auto-revert-mode)
   (set-face-attribute 'pdf-view-region nil :inherit 'highlight))
 #+end_src
+
 ** org-noter-pdftools
-#+begin_src emacs-lisp :tangle no
+#+begin_src emacs-lisp
 (use-package org-pdftools
   :ensure nil
   :vc (:url "git@github.com:ST-Saint/org-pdftools.git" :branch "master")
