@@ -503,16 +503,25 @@
 
 * navigate
 
-** better-jumper
+** mark
 #+begin_src emacs-lisp
-(use-package better-jumper
+(setq mark-ring-max 256
+      global-mark-ring-max 256
+      set-mark-command-repeat-pop t)
+
+
+(use-package dogears
   :ensure t
+  ;; These bindings are optional, of course:
   :config
-  (better-jumper-mode t)
-  (setq better-jumper-use-savehist t)
+  (dogears-mode t)
+  (miao-leader-define-keys
+      '("s m" . dogears-go)
+      '("s d" . dogears-list)
+      '("s D" . dogears-sidebar))
   (miao-define-keys 'normal
-    '("M-o" . better-jumper-jump-backward)
-    '("M-i" . better-jumper-jump-forward)))
+   '("M-o" . dogears-back)
+   '("M-i" . dogears-forward)))
 #+end_src
 
 ** windmove
@@ -1070,41 +1079,68 @@
   (setq consult-preview-key 'any)
 
   (consult-customize
-   consult-theme :preview-key '(:debounce 0.2 any)
-   consult-ripgrep consult-git-grep consult-grep
-   consult-bookmark consult-recent-file consult-xref
-   consult--source-bookmark consult--source-file-register
-   consult--source-recent-file consult--source-project-recent-file
-   ;; :preview-key "M-."
-   :preview-key '(:debounce 0.4 any))
+   consult-theme consult-ripgrep consult-git-grep consult-grep
+   consult-bookmark consult-xref
+   consult-mark consult-global-mark consult-dogears
+   consult--source-bookmark
+   :preview-key '(:debounce 0.2 any)
+   consult-recent-file consult--source-recent-file
+   consult--source-file-register consult--source-project-recent-file
+   :preview-key "M-.")
 
-  (setq consult-narrow-key "<")
+  (defvar consult--source-dogears
+    `(:name     "Dogears"
+      :narrow   ?d
+      :category 'dogears
+      :items    (lambda ()
+                  (mapcar
+                   (lambda (place)
+                     (propertize (dogears--format-record place)
+                                 'consult--candidate place))
+                   dogears-list))
+      :action   (lambda (cand)
+                  (dogears-go (get-text-property 0 'consult--candidate cand)))
+      :state  ,#'consult--buffer-state))
 
-  (global-set-key (kbd "M-g M-g") #'consult-goto-line)
-  (global-set-key (kbd "M-y") #'consult-yank-pop)
+ (defun consult-dogears ()
+   (interactive)
+   (consult--multi '(consult--source-dogears)))
 
-  (defun consult-ripgrep-at-point ()
-    (interactive)
-    (miao-mark-symbol)
-    (let ((symbol (buffer-substring-no-properties (region-beginning) (region-end))))
-      (consult-ripgrep nil symbol)))
+ (defun consult-format-mark (mark)
+   (interactive)
+   (format "Buffer: %s, Position: %d"
+                                 (buffer-name (marker-buffer mark))
+                                 (marker-position mark)))
 
-  (defun consult-line-at-point ()
-    (interactive)
-    (miao-mark-symbol)
-    (let ((symbol (buffer-substring-no-properties (region-beginning) (region-end))))
-      (consult-line symbol)))
+ (add-to-list 'consult-buffer-sources 'consult--source-mark 'append)
 
-  (miao-leader-define-keys
-   '("s s" . consult-line)
-   '("s S" . consult-line-at-point)
-   '("s i" . consult-imenu)
-   '("f r" . consult-recent-file)
-   '("s r" . consult-ripgrep)
-   '("s R" . consult-ripgrep-at-point)
-   '("u SPC" . consult-mark)
-   '("p b" . consult-project-buffer)
-   '("s SPC" . consult-global-mark)))
+ (setq consult-narrow-key "<")
+
+ (global-set-key (kbd "M-g M-g") #'consult-goto-line)
+ (global-set-key (kbd "M-y") #'consult-yank-pop)
+
+ (defun consult-ripgrep-at-point ()
+   (interactive)
+   (miao-mark-symbol)
+   (let ((symbol (buffer-substring-no-properties (region-beginning) (region-end))))
+     (consult-ripgrep nil symbol)))
+
+ (defun consult-line-at-point ()
+   (interactive)
+   (miao-mark-symbol)
+   (let ((symbol (buffer-substring-no-properties (region-beginning) (region-end))))
+     (consult-line symbol)))
+
+ (miao-leader-define-keys
+      '("s s" . consult-line)
+    '("s S" . consult-line-at-point)
+    '("s i" . consult-imenu)
+    '("f r" . consult-recent-file)
+    '("s r" . consult-ripgrep)
+    '("s R" . consult-ripgrep-at-point)
+    '("u SPC" . consult-mark)
+    '("p b" . consult-project-buffer)
+    '("s SPC" . consult-global-mark)))
 #+end_src
 
 ** marginalia
@@ -1748,9 +1784,11 @@ return the filename."
         org-msg-convert-citation t)
 
   (setq org-msg-enforce-css '((p nil
-                                 ((font-size . "12pt")))
+                                 ((font-size . "12pt")
+                                  (line-height . "1.5em")))
                               (li nil
-                                  ((font-size . "12pt")))))
+                                  ((font-size . "12pt")
+                                   (line-height . "1.5em")))))
   (setq org-msg-signature "#+begin_signature\nBest,\n\n-- *Yayu*\n#+end_signature")
   (org-msg-mode))
 #+end_src
