@@ -503,25 +503,24 @@
 
 * navigate
 
-** mark
+** dogears
 #+begin_src emacs-lisp
 (setq mark-ring-max 256
       global-mark-ring-max 256
       set-mark-command-repeat-pop t)
-
 
 (use-package dogears
   :ensure t
   ;; These bindings are optional, of course:
   :config
   (dogears-mode t)
-  (miao-leader-define-keys
-      '("s m" . dogears-go)
-      '("s d" . dogears-list)
-      '("s D" . dogears-sidebar))
+  (miao-define-keys 'leader
+    '("s m" . dogears-go)
+    '("s D" . dogears-list)
+    '("s d" . consult-dogears))
   (miao-define-keys 'normal
-   '("M-o" . dogears-back)
-   '("M-i" . dogears-forward)))
+    '("M-o" . dogears-back)
+    '("M-i" . dogears-forward)))
 #+end_src
 
 ** windmove
@@ -1076,20 +1075,12 @@
 
   :config
   (add-hook 'completion-list-mode #'consult-preview-at-point-mode)
-  (setq consult-preview-key 'any)
-
-  (consult-customize
-   consult-theme consult-ripgrep consult-git-grep consult-grep
-   consult-bookmark consult-xref
-   consult-mark consult-global-mark consult-dogears
-   consult--source-bookmark
-   :preview-key '(:debounce 0.2 any)
-   consult-recent-file consult--source-recent-file
-   consult--source-file-register consult--source-project-recent-file
-   :preview-key "M-.")
+  (setq consult-preview-key 'any
+        consult-narrow-key "<")
 
   (defvar consult--source-dogears
-    `(:name     "Dogears"
+    `(
+      :name     "Dogears"
       :narrow   ?d
       :category 'dogears
       :items    (lambda ()
@@ -1098,41 +1089,59 @@
                      (propertize (dogears--format-record place)
                                  'consult--candidate place))
                    dogears-list))
-      :action   (lambda (cand)
-                  (dogears-go (get-text-property 0 'consult--candidate cand)))
-      :state  ,#'consult--buffer-state))
+      :action   ,#'consult--dogears-jump
+      :state    ,#'consult--dogears-state))
 
- (defun consult-dogears ()
-   (interactive)
-   (consult--multi '(consult--source-dogears)))
+  (defun consult--dogears-state ()
+    (consult--state-with-return
+     (consult--dogears-preview)
+     #'consult--dogears-jump)
 
- (defun consult-format-mark (mark)
-   (interactive)
-   (format "Buffer: %s, Position: %d"
-                                 (buffer-name (marker-buffer mark))
-                                 (marker-position mark)))
+    (defun consult--dogears-preview ()
+      (lambda (action cand)
+        (when cand
+          (consult-dogear-jump cand)))))
 
- (add-to-list 'consult-buffer-sources 'consult--source-mark 'append)
+  (defun consult--dogears-jump (cand)
+    (when cand
+        (let* ((dogear (get-text-property 0 'consult--candidate cand))
+               (buffer (get-buffer (cdr (assoc 'buffer dogear))))
+               (pos (cdr (assoc 'position dogear))))
+          (switch-to-buffer buffer)
+          (goto-char pos))))
 
- (setq consult-narrow-key "<")
+  (defun consult-dogears ()
+    (interactive)
+    (consult--multi '(consult--source-dogears)))
 
- (global-set-key (kbd "M-g M-g") #'consult-goto-line)
- (global-set-key (kbd "M-y") #'consult-yank-pop)
 
- (defun consult-ripgrep-at-point ()
-   (interactive)
-   (miao-mark-symbol)
-   (let ((symbol (buffer-substring-no-properties (region-beginning) (region-end))))
-     (consult-ripgrep nil symbol)))
+  (consult-customize
+   consult-theme consult-ripgrep consult-git-grep consult-grep
+   consult-bookmark consult-xref
+   consult-mark consult-global-mark consult-dogears
+   consult--source-bookmark
+   :preview-key '(:debounce 0.1 any)
+   consult-recent-file consult--source-recent-file
+   consult--source-file-register consult--source-project-recent-file
+   :preview-key "M-.")
 
- (defun consult-line-at-point ()
-   (interactive)
-   (miao-mark-symbol)
-   (let ((symbol (buffer-substring-no-properties (region-beginning) (region-end))))
-     (consult-line symbol)))
+  (global-set-key (kbd "M-g M-g") #'consult-goto-line)
+  (global-set-key (kbd "M-y") #'consult-yank-pop)
 
- (miao-leader-define-keys
-      '("s s" . consult-line)
+  (defun consult-ripgrep-at-point ()
+    (interactive)
+    (miao-mark-symbol)
+    (let ((symbol (buffer-substring-no-properties (region-beginning) (region-end))))
+      (consult-ripgrep nil symbol)))
+
+  (defun consult-line-at-point ()
+    (interactive)
+    (miao-mark-symbol)
+    (let ((symbol (buffer-substring-no-properties (region-beginning) (region-end))))
+      (consult-line symbol)))
+
+  (miao-define-keys 'leader
+    '("s s" . consult-line)
     '("s S" . consult-line-at-point)
     '("s i" . consult-imenu)
     '("f r" . consult-recent-file)
