@@ -1095,12 +1095,12 @@
   (defun consult--dogears-state ()
     (consult--state-with-return
      (consult--dogears-preview)
-     #'consult--dogears-jump)
+     #'consult--dogears-jump))
 
-    (defun consult--dogears-preview ()
+  (defun consult--dogears-preview ()
       (lambda (action cand)
         (when cand
-          (consult-dogear-jump cand)))))
+          (consult--dogears-jump cand))))
 
   (defun consult--dogears-jump (cand)
     (when cand
@@ -1132,13 +1132,15 @@
     (interactive)
     (miao-mark-symbol)
     (let ((symbol (buffer-substring-no-properties (region-beginning) (region-end))))
-      (consult-ripgrep nil symbol)))
+     (deactivate-mark)
+     (consult-ripgrep nil symbol)))
 
   (defun consult-line-at-point ()
     (interactive)
     (miao-mark-symbol)
     (let ((symbol (buffer-substring-no-properties (region-beginning) (region-end))))
-      (consult-line symbol)))
+     (deactivate-mark)
+     (consult-line symbol)))
 
   (miao-define-keys 'leader
     '("s s" . consult-line)
