@@ -112,6 +112,7 @@
     '("f" . forward-word)
     '("x" . miao-delete-char)
     '("v" . miao-mark-line)
+    '("V" . miao-mark-line)
     '("q" . miao-quit-window)
     '("Q" . miao-delete-window)
     '("w" . miao-mark-word)
@@ -276,7 +277,6 @@
 (setq-default truncate-lines t)
 (setq isearch-lazy-count t)
 (setq display-line-numbers-type 'relative)
-(global-display-line-numbers-mode)
 
 ;; disable line numbers for some modes
 (dolist (mode '(term-mode-hook
@@ -1326,7 +1326,6 @@
         org-modern-list '((?+ . "▸")
                           (?- . "–")
                           (?* . "▸")))
-
   (global-org-modern-mode))
 #+end_src
 
