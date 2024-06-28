@@ -1814,7 +1814,8 @@ return the filename."
   (rime-user-data-dir "~/.config/ibus/rime")
   (rime-show-candidate 'posframe)
   :config
-
+  (bind-keys :map rime-mode-map
+        ("C-`" . rime-send-keybinding))
   (defun toggle-rime-im ()
     (interactive)
     (if (not (equal current-input-method "rime"))
