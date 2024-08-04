@@ -514,6 +514,13 @@
   :ensure t
   ;; These bindings are optional, of course:
   :config
+  (setq dogears-functions
+        (append
+         dogears-functions
+         '(lsp-find-definition lsp-find-references
+                               consult-imenu
+                               consult-ripgrep
+                               consult-line)))
   (dogears-mode t)
   (miao-define-keys 'leader
     '("s m" . dogears-go)
@@ -548,6 +555,9 @@
       '("w s" . window-swap-states)
       '("w t" . transpose-frame)
       '("w =" . balance-windows)))
+
+(bind-keys ("C-<tab>" . other-window)
+           ("C-<iso-lefttab>" . (lambda () (interactive) (other-window -1))))
 #+end_src
 
 ** winum
