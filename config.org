@@ -517,7 +517,7 @@
   (setq dogears-functions
         (append
          dogears-functions
-         '(lsp-find-definition lsp-find-references
+         '(miao-cursor-blink lsp-find-definition lsp-find-references
                                consult-imenu
                                consult-ripgrep
                                consult-line)))
