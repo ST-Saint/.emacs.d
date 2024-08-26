@@ -672,7 +672,7 @@
   :config
 
   (defun format-all-set-c-formatter ()
-    (let ((format-all-directory (file-name-directory (buffer-file-name))))
+    (let ((format-all-directory (file-name-directory (or (buffer-file-name) "~/"))))
       (setq retry 10)
       (while (and (> retry 0)
                   (not (file-exists-p (concat format-all-directory ".clang-format"))))
