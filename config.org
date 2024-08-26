@@ -1445,7 +1445,7 @@
     (interactive)
     (magit-todos-list (project-root (project-current t))))
 
-  (setq project-switch-commands '((persp-show-persps "" "<SPC>")
+  (setq project-switch-commands '((project-dired "" "<SPC>")
                                   (persp-show-persps "" "<RET>")
                                   (project-find-file "File file" ?f)
                                   (project-find-dir "Find directory" ?d)
