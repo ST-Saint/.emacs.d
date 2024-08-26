@@ -517,10 +517,12 @@
   (setq dogears-functions
         (append
          dogears-functions
-         '(miao-cursor-blink lsp-find-definition lsp-find-references
-                               consult-imenu
-                               consult-ripgrep
-                               consult-line)))
+         '(miao-cursor-blink miao-leader-mode
+                             lsp-find-definition
+                             lsp-find-references
+                             consult-imenu
+                             consult-ripgrep
+                             consult-line)))
   (dogears-mode t)
   (miao-define-keys 'leader
     '("s m" . dogears-go)
@@ -1123,8 +1125,7 @@
 
   (defun consult-dogears ()
     (interactive)
-    (consult--multi '(consult--source-dogears)))
-
+    (consult--multi '(consult--source-dogears) :sort nil))
 
   (consult-customize
    consult-theme consult-ripgrep consult-git-grep consult-grep
