@@ -622,6 +622,49 @@ Signal an error if the entire string was not used."
    '("m c a" . mc/mark-all-dwim)
    '("m c r" . mc/mark-all-in-region-regexp)))
 #+end_src
+
+** tempel
+#+begin_src emacs-lisp
+(use-package tempel
+  :ensure t
+  ;; Require trigger prefix before template name when completing.
+  :custom
+  (tempel-trigger-prefix "`")
+
+  ;; :bind (("<tab>" . tempel-complete))
+  ;; :bind (("M-+" . tempel-complete) ;; Alternative tempel-expand
+  ;;        ("M-*" . tempel-insert))
+
+  :config
+
+  ;; Setup completion at point
+  (defun tempel-setup-capf ()
+    ;; Add the Tempel Capf to `completion-at-point-functions'.
+    ;; `tempel-expand' only triggers on exact matches. Alternatively use
+    ;; `tempel-complete' if you want to see all matches, but then you
+    ;; should also configure `tempel-trigger-prefix', such that Tempel
+    ;; does not trigger too often when you don't expect it. NOTE: We add
+    ;; `tempel-expand' *before* the main programming mode Capf, such
+    ;; that it will be tried first.
+    (setq-local completion-at-point-functions
+                (cons #'tempel-complete
+                      completion-at-point-functions)))
+
+  (add-hook 'conf-mode-hook 'tempel-setup-capf)
+  (add-hook 'prog-mode-hook 'tempel-setup-capf)
+  (add-hook 'text-mode-hook 'tempel-setup-capf)
+
+  ;; Optionally make the Tempel templates available to Abbrev,
+  ;; either locally or globally. `expand-abbrev' is bound to C-x '.
+  ;; (add-hook 'prog-mode-hook #'tempel-abbrev-mode)
+  ;; (global-tempel-abbrev-mode)
+)
+
+(use-package tempel-collection
+  :ensure t
+  :after tempel)
+#+end_src
+
 ** yasnippet
 
 #+begin_src emacs-lisp
@@ -639,7 +682,6 @@ Signal an error if the entire string was not used."
   :after yasnippet
   :ensure t)
 #+end_src
-
 
 ** parinfer-rust
 #+begin_src emacs-lisp
