@@ -769,6 +769,24 @@ Signal an error if the entire string was not used."
   ;; (setq-local completion-at-point-functions (list (cape-capf-buster #'lsp-completion-at-point)))
   (setq lsp-enable-file-watchers nil)
   (setq lsp-enable-on-type-formatting nil)
+  (setq lsp-enable-symbol-highlighting t
+        lsp-ui-doc-enable t
+        lsp-ui-doc-show-with-cursor nil
+        lsp-ui-doc-show-with-mouse nil
+        lsp-lens-enable nil
+        lsp-headerline-breadcrumb-enable t
+        lsp-ui-sideline-enable t
+        lsp-ui-sideline-show-code-actions t
+        lsp-ui-sideline-show-hover nil
+        lsp-modeline-code-actions-enable nil
+        lsp-diagnostics-provider :flycheck
+        lsp-ui-sideline-show-diagnostics t
+        lsp-eldoc-enable-hover t
+        lsp-modeline-diagnostics-enable nil
+        lsp-signature-auto-activate t
+        lsp-signature-render-documentation nil
+        lsp-completion-show-detail t
+        lsp-completion-show-kind t)
 
   (defun lsp-mode-setup-completion ()
     (setf (alist-get 'styles (alist-get 'lsp-capf completion-category-defaults))
