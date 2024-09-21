@@ -116,6 +116,7 @@ Signal an error if the entire string was not used."
 
   (miao-define-keys 'normal
     '("b" . backward-word)
+    '("e" . forward-word)
     '("f" . forward-word)
     '("x" . miao-delete-char)
     '("v" . miao-mark-line)
@@ -602,7 +603,17 @@ Signal an error if the entire string was not used."
 (use-package editorconfig
   :ensure t
   :config
-  (editorconfig-mode t))
+  (editorconfig-mode t)
+  (setq editorconfig-indentation-alist
+        (append '((LaTeX-mode . editorconfig-set-indentation-latex-mode)
+                  (bibtex-mode bibtex-field-indentation))
+                 editorconfig-indentation-alist)))
+
+(use-package editorconfig-custom-majormode
+  :ensure t
+  :config
+  (add-hook 'editorconfig-custom-hooks
+          'editorconfig-custom-majormode))
 #+end_src
 
 ** electric
@@ -734,7 +745,12 @@ Signal an error if the entire string was not used."
   (add-hook 'c-mode-hook #'format-all-set-c-formatter)
   (add-hook 'java-mode-hook #'format-all-set-c-formatter)
   (miao-leader-define-keys
-   '("c f" . format-all-buffer)))
+   '("c f" . format-all-buffer))
+  (miao-leader-define-major-keys 'LaTeX-mode
+    '("c f" . LaTeX-fill-buffer))
+  (miao-leader-define-major-keys 'bibtex-mode)
+  '("c f" . bibtex-reformat))
+
 #+end_src
 ** compile
 #+begin_src emacs-lisp
@@ -962,7 +978,7 @@ Signal an error if the entire string was not used."
 ** latex
 
 #+begin_src emacs-lisp
-(use-package tex
+(use-package auctex
   :ensure auctex
   :config
   (add-hook 'LaTeX-mode-hook #'flyspell-mode)
@@ -1878,7 +1894,10 @@ return the filename."
                                   (line-height . "1.5em")))
                               (li nil
                                   ((font-size . "12pt")
-                                   (line-height . "1.5em")))))
+                                   (line-height . "1.5em")))
+                              (code nil
+                                    ((background-color . "#818b981f")))))
+
   (setq org-msg-signature "#+begin_signature\nBest,\n\n-- *Yayu*\n#+end_signature")
   (org-msg-mode))
 #+end_src
