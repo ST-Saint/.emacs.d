@@ -748,10 +748,10 @@ Signal an error if the entire string was not used."
    '("c f" . format-all-buffer))
   (miao-leader-define-major-keys 'LaTeX-mode
     '("c f" . LaTeX-fill-buffer))
-  (miao-leader-define-major-keys 'bibtex-mode)
-  '("c f" . bibtex-reformat))
-
+  (miao-leader-define-major-keys 'bibtex-mode
+    '("c f" . bibtex-reformat)))
 #+end_src
+
 ** compile
 #+begin_src emacs-lisp
 (defun colorize-compilation-buffer ()
