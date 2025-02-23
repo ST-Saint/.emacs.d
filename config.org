@@ -88,7 +88,8 @@ Signal an error if the entire string was not used."
   (setq miao-modeline-indicators '((normal . "ಎ/ᐠ.ˬ.ᐟ\\ಎ")
                                    (insert . "ಎ/ᐠ.ꞈ.ᐟ\\ಎ")
                                    (leader . "ಎ/ᐠ.ˍ.ᐟ\\ಎ")
-                                   (bypass . "ಎ/ᐠ. .ᐟ\\ಎ")))
+                                   (bypass . "ಎ/ᐠ. .ᐟ\\ಎ")
+                                   (miacro . "ಎ/ᐠ｡ꞈ｡ᐟ\\ಎ")))
 
   (with-eval-after-load "doom-modeline"
     (defun doom-modeline-segment--modals ()
@@ -129,6 +130,8 @@ Signal an error if the entire string was not used."
     '("O" . miao-mark-list)
     '("n" . miao-next-item)
     '("N" . miao-prev-item)
+    '("g" . miao-miacro-ignite)
+    '("G" . miao-miacro-go)
     '("," . pop-to-mark-command)
     '("." . miao-mark-string-inner)
     '(";" . miao-toggle-mark-point))
@@ -145,6 +148,8 @@ Signal an error if the entire string was not used."
     '("f p" . open-config-file)
     '("g g" . magit)
     '("g f" . magit-find-file)
+    '("m a" . miao-mark-all-symbol)
+    '("m l" . miao-mark-all-lines)
     '("l l" . toggle-visual-truncate-line)
     '("<SPC>" . miao-cursor-blink)))
 #+end_src
@@ -179,6 +184,8 @@ Signal an error if the entire string was not used."
 (setq recentf-max-saved-items nil)
 
 (setq-default indent-tabs-mode nil)
+
+(setq enable-local-variables :safe)
 
 (setq byte-compile-warnings nil
       native-comp-async-report-warnings-errors nil)
@@ -351,10 +358,16 @@ Signal an error if the entire string was not used."
 #+begin_src emacs-lisp
 (use-package doom-modeline
   :ensure t
+  :init (doom-modeline-mode t)
   :config
   (setq doom-modeline-project-detection 'project)
   (setq doom-modeline-buffer-file-name-style 'truncate-with-project)
-  (doom-modeline-mode 't))
+  (setq doom-modeline-display-default-persp-name t)
+  (doom-modeline-def-modeline 'miao
+   '(eldoc bar window-number persp-name modals matches follow buffer-info remote-host buffer-position word-count selection-info)
+   '(compilation objed-state misc-info battery grip irc mu4e gnus github debug repl lsp minor-modes input-method indent-info buffer-encoding major-mode process vcs check time))
+  (doom-modeline-set-modeline 'miao 'default)
+  (setq doom-modeline-mode-alist nil))
 #+end_src
 
 ** dirvish
@@ -463,8 +476,7 @@ Signal an error if the entire string was not used."
   :ensure t
   :config
   (add-hook 'prog-mode-hook #'symbol-overlay-mode)
-  (set-face-background 'symbol-overlay-default-face nil)
-  (set-face-attribute 'symbol-overlay-default-face nil :underline t :inherit 'region))
+  (set-face-attribute 'symbol-overlay-default-face nil :background nil :distant-foreground nil :underline '(:color foreground-color :style double-line :position t) :inherit nil))
 #+end_src
 
 ** highlight-indent
@@ -535,9 +547,7 @@ Signal an error if the entire string was not used."
                              consult-line)))
   (dogears-mode t)
   (miao-define-keys 'leader
-    '("s m" . dogears-go)
-    '("s D" . dogears-list)
-    '("s d" . consult-dogears))
+    '("s m" . consult-dogears))
   (miao-define-keys 'normal
     '("M-o" . dogears-back)
     '("M-i" . dogears-forward)))
@@ -646,6 +656,16 @@ Signal an error if the entire string was not used."
    '("m c r" . mc/mark-all-in-region-regexp)))
 #+end_src
 
+** iedit
+#+begin_src emacs-lisp
+(use-package iedit
+  :ensure t
+  :config
+  (miao-leader-define-keys
+    '("m i" . iedit)))
+#+end_src
+
+
 ** tempel
 #+begin_src emacs-lisp
 (use-package tempel
@@ -753,6 +773,27 @@ Signal an error if the entire string was not used."
   (flycheck-vale-setup))
 #+end_src
 
+#+begin_src emacs-lisp
+(use-package lsp-grammarly
+  :ensure t
+  :hook ((org-mode . (lambda ()
+                       (require 'lsp-grammarly)
+                       (lsp)))
+         (LaTeX-mode . (lambda ()
+                        (require 'lsp-grammarly)
+                        (lsp)))))
+#+end_src
+
+
+** atomic-chrome
+#+begin_src emacs-lisp
+(use-package atomic-chrome
+  :ensure t
+  :config
+  (atomic-chrome-start-server)
+  (setq atomic-chrome-buffer-open-style 'frame))
+#+end_src
+
 * code
 ** format
 #+begin_src emacs-lisp
@@ -771,10 +812,15 @@ Signal an error if the entire string was not used."
 
   (add-hook 'c-mode-hook #'format-all-set-c-formatter)
   (add-hook 'java-mode-hook #'format-all-set-c-formatter)
+
   (miao-leader-define-keys
-   '("c f" . format-all-buffer))
+      '("c f" . format-all-buffer))
   (miao-leader-define-major-keys 'LaTeX-mode
-    '("c f" . LaTeX-fill-buffer))
+    '("c f" . (lambda ()
+                (interactive)
+                (lsp-disconnect)
+                (LaTeX-fill-buffer t)
+                (lsp))))
   (miao-leader-define-major-keys 'bibtex-mode
     '("c f" . bibtex-reformat)))
 #+end_src
@@ -810,8 +856,9 @@ Signal an error if the entire string was not used."
 
   ;; Optionally configure the cape-capf-buster.
   ;; (setq-local completion-at-point-functions (list (cape-capf-buster #'lsp-completion-at-point)))
-  (setq lsp-enable-file-watchers nil)
-  (setq lsp-enable-on-type-formatting nil)
+  (setq lsp-enable-file-watchers nil
+        lsp-enable-on-type-formatting nil
+        lsp-enable-indentation nil)
   (setq lsp-enable-symbol-highlighting t
         lsp-ui-doc-enable t
         lsp-ui-doc-show-with-cursor nil
@@ -1272,12 +1319,17 @@ Signal an error if the entire string was not used."
      (deactivate-mark)
      (consult-line symbol)))
 
+  (defun consult-ripgrep-dir ()
+    (interactive)
+    (consult-ripgrep default-directory))
+
   (miao-define-keys 'leader
     '("s s" . consult-line)
     '("s S" . consult-line-at-point)
     '("s i" . consult-imenu)
     '("f r" . consult-recent-file)
     '("s r" . consult-ripgrep)
+    '("s d" . consult-ripgrep-dir)
     '("s R" . consult-ripgrep-at-point)
     '("u SPC" . consult-mark)
     '("p b" . consult-project-buffer)
@@ -1475,6 +1527,17 @@ Signal an error if the entire string was not used."
   (miao-leader-define-keys
    '("n o" . org-noter)))
 #+end_src
+** org-mind-map
+#+begin_src emacs-lisp
+(use-package org-mind-map
+  :init
+  (require 'ox-org)
+  :ensure t
+  :config
+  (setq org-mind-map-engine "dot")
+  (setq org-mind-map/rankdir "LR"))
+#+end_src
+
 
 * magit
 
@@ -1567,6 +1630,7 @@ Signal an error if the entire string was not used."
                                   (persp-show-persps "" "<RET>")
                                   (project-find-file "File file" ?f)
                                   (project-find-dir "Find directory" ?d)
+                                  (consult-ripgrep "Search" ?r)
                                   (project-open-magit "Magit" ?g)
                                   (project-open-magit-todos "Todos" ?t)))
 
@@ -1577,7 +1641,7 @@ Signal an error if the entire string was not used."
     "Local, non-VC-backed project.el root directories."
     :group 'project)
 
-  (defcustom project-local-identifier ".projectile"
+  (defcustom project-local-identifier ".project"
     "Specify a single filename or a list of names."
     :type '(choice (string :tag "Single file")
                    (repeat (string :tag "Filename")))
@@ -1612,6 +1676,108 @@ variable `project-local-identifier' to be considered a project."
    '("p k" . project-kill-buffers)
    '("p D" . project-forget-project)
    '("p %" . project-query-replace-regexp)))
+#+end_src
+
+
+** workspace
+
+*** persp-mode
+#+begin_src emacs-lisp
+(use-package persp-mode
+  :ensure t
+  ;; :custom
+  ;; (persp-mode-prefix-key nil)
+  ;; (persp-sort 'created)
+  ;; (persp-modestring-short t)
+  :config
+  (setq persp-previous-persp-name nil)
+  (setq persp-nil-name "default")
+  (setq persp-autokill-buffer-on-remove 'kill)
+
+  (defun persp-show-persps ()
+    (interactive)
+    (message (concat persp-last-persp-name
+                     " ----- "
+                     "[ "
+                     (s-join " | " persp-names-cache)
+                     " ]")))
+
+  (defun project-switch-project (dir)
+    "\"Switch\" to another project by running an Emacs command.
+  The available commands are presented as a dispatch menu
+  made from `project-switch-commands'.
+
+  When called in a program, it will use the project corresponding
+  to directory DIR."
+    (interactive (list (project-prompt-project-dir)))
+    (let ((command (if (symbolp project-switch-commands)
+                       project-switch-commands
+                     (project--switch-project-command))))
+      (let ((project-current-directory-override dir))
+        (let ((project-root (project-root (project-current))))
+          (when project-root
+            (persp-switch (file-name-nondirectory (directory-file-name project-root)))))
+        (call-interactively command))))
+  (setq persp-autokill-buffer-on-remove 'kill-weak)
+
+ (defun open-config-persp ()
+     (interactive)
+     (persp-switch ".emacs.d"))
+
+ (defun open-config-file ()
+   (interactive)
+   (let ((config-file (concat (file-truename user-emacs-directory) "config.org")))
+     (if (equal config-file (buffer-file-name))
+         (delete-other-windows)
+       (persp-switch ".emacs.d")
+       (find-file config-file))))
+
+ (defun persp-save-previous-persp-name (name frame)
+   (unless (equal name persp-last-persp-name)
+     (setq persp-previous-persp-name persp-last-persp-name)))
+
+ (add-hook 'persp-before-switch-functions #'persp-save-previous-persp-name)
+
+ (defun persp-switch-last ()
+   (interactive)
+   (persp-switch persp-previous-persp-name))
+
+ (defun persp-move-left ()
+   (interactive)
+   (let ((pos (cl-position persp-last-persp-name persp-names-cache)))
+     (unless (< pos 1)
+       (cl-rotatef (nth (1- pos) persp-names-cache) (nth pos persp-names-cache))))
+   (persp-show-persps))
+
+ (defun persp-move-right ()
+   (interactive)
+   (let ((pos (cl-position persp-last-persp-name persp-names-cache)))
+     (unless (= pos (length persp-names-cache))
+       (cl-rotatef (nth (1+ pos) persp-names-cache) (nth pos persp-names-cache))))
+   (persp-show-persps))
+
+ (miao-leader-define-keys
+  '("f p" . open-config-file)
+  '("f P" . open-config-persp)
+  '("w s" . persp-switch)
+  '("w w" . persp-show-persps)
+  ;; '("w b" . persp-scratch-buffer)
+  '("TAB s" . persp-switch)
+  '("TAB p" . persp-switch)
+  '("TAB n" . persp-switch)
+  '("TAB SPC" . persp-switch)
+  '("p s" . persp-switch)
+  '("TAB `" . persp-switch-last)
+  '("TAB j" . persp-move-left)
+  '("TAB k" . persp-move-right)
+  '("TAB h" . persp-prev)
+  '("TAB l" . persp-next)
+  '("TAB TAB" . persp-show-persps)
+  '("TAB b" . persp-switch-to-buffer)
+  '("," . persp-switch-to-buffer)
+  '("TAB d" . persp-kill)
+  '("TAB D" . (lambda () (interactive) (persp-kill (persp-last-persp-name)))))
+ (persp-mode t))
 #+end_src
 
 
@@ -1954,7 +2120,7 @@ return the filename."
         (set-input-method 'rime)
       (set-input-method nil)))
 
-  (global-set-key (kbd "C-S-SPC") 'toggle-rime-im)
+  (global-set-key (kbd "C-M-SPC") 'toggle-rime-im)
 
   (defun rime-miao-off ()
     (unless miao-insert-mode
