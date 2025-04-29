@@ -119,6 +119,7 @@ Signal an error if the entire string was not used."
     '("b" . backward-word)
     '("e" . forward-word)
     '("f" . forward-word)
+    '("t" . miao-till)
     '("x" . miao-delete-char)
     '("v" . miao-mark-line)
     '("V" . display-line-numbers-mode)
@@ -367,6 +368,7 @@ Signal an error if the entire string was not used."
    '(eldoc bar window-number persp-name modals matches follow buffer-info remote-host buffer-position word-count selection-info)
    '(compilation objed-state misc-info battery grip irc mu4e gnus github debug repl lsp minor-modes input-method indent-info buffer-encoding major-mode process vcs check time))
   (doom-modeline-set-modeline 'miao 'default)
+  (setq doom-modeline-always-visible-segments '(persp-name))
   (setq doom-modeline-mode-alist nil))
 #+end_src
 
@@ -375,9 +377,20 @@ Signal an error if the entire string was not used."
 (use-package nerd-icons
   :ensure t)
 
+
+(use-package diredfl
+  :ensure t
+  :hook
+  ((dired-mode . diredfl-mode)
+   ;; highlight parent and directory preview as well
+   (dirvish-directory-view-mode . diredfl-mode))
+  :config
+  (set-face-attribute 'diredfl-dir-name nil :bold t))
+
 (use-package dirvish
   :ensure t
   :config
+  (dirvish-override-dired-mode)
   (setq dirvish-mode-line-format
         '(:left (sort symlink) :right (omit yank index)))
   (setq dirvish-use-mode-line t
@@ -389,23 +402,30 @@ Signal an error if the entire string was not used."
   (setq dired-listing-switches
         "-l --almost-all --human-readable --group-directories-first --no-group")
   (define-key dired-mode-map (kbd "j") nil)
-  (bind-keys :map dirvish-mode-map
-             ("b"   . dirvish-quick-access)
-             ("f"   . dirvish-fd)
-             ("y"   . dirvish-yank-menu)
-             ("N"   . dirvish-narrow)
-             ("^"   . dirvish-history-last)
-             ("H"   . dirvish-history-jump) ; remapped `describe-mode'
-             ("s"   . dirvish-quicksort)    ; remapped `dired-sort-toggle-or-edit'
-             ("^"   . dired-up-directory)
-             ("TAB" . dirvish-subtree-toggle)
-             ("h"   . dirvish-history-go-forward)
-             ("l"   . dirvish-history-go-backward)
-             ("M-l" . dirvish-ls-switches-menu)
-             ("M-m" . dirvish-mark-menu)
-             ("T" . dirvish-layout-toggle))
-
-  (dirvish-override-dired-mode))
+  (bind-keys
+           :map 'dirvish-mode-map
+           ([remap dired-sort-toggle-or-edit] . dirvish-quicksort)
+           ([remap dired-do-redisplay] . dirvish-ls-switches-menu)
+           ([remap dired-do-copy] . dirvish-yank-menu)
+           ("?"   . dirvish-dispatch)
+           ("q"   . dirvish-quit)
+           ("a"   . dirvish-quick-access)
+           ("f"   . dirvish-file-info-menu)
+           ("y"   . dirvish-yank-menu)
+           ("s"   . dirvish-quicksort)
+           ("h"   . dirvish-history-jump)
+           ("v"   . dirvish-vc-menu)
+           ("TAB" . dirvish-subtree-toggle)
+           ("M-." . dirvish-fd)
+           ("M-t" . dirvish-layout-toggle)
+           ("M-b" . dirvish-history-go-backward)
+           ("M-f" . dirvish-history-go-forward)
+           ("M-n" . dirvish-narrow)
+           ("M-l" . dirvish-ls-switches-menu)
+           ("M-m" . dirvish-mark-menu)
+           ("M-s" . dirvish-setup-menu)
+           ("M-e" . dirvish-emerge-menu)
+           ("M-j" . dirvish-fd-jump)))
 #+end_src
 
 ** dashboard
@@ -776,10 +796,7 @@ Signal an error if the entire string was not used."
 #+begin_src emacs-lisp
 (use-package lsp-grammarly
   :ensure t
-  :hook ((org-mode . (lambda ()
-                       (require 'lsp-grammarly)
-                       (lsp)))
-         (LaTeX-mode . (lambda ()
+  :hook ((LaTeX-mode . (lambda ()
                         (require 'lsp-grammarly)
                         (lsp)))))
 #+end_src
@@ -1364,7 +1381,7 @@ Signal an error if the entire string was not used."
         ("C-M-<return>" . org-insert-subheading))
   :init
   (setq org-directory "~/Project/org/")
-  (setq org-agenda-files '("~/Project/org/todo.org"))
+  (setq org-agenda-files `(,(concat org-directory "todo.org") ,(concat org-directory "calendar.org")))
   (setq org-default-notes-file (concat org-directory "notes.org"))
 
   (org-babel-do-load-languages
@@ -1451,7 +1468,7 @@ Signal an error if the entire string was not used."
     '("t i" . org-toggle-inline-images)
     '("t l" . org-latex-preview))
   (miao-leader-define-keys
-      '("n c" . org-capture)
+      '("n C" . org-capture)
       '("n L" . org-store-link)))
 #+end_src
 
@@ -1527,6 +1544,20 @@ Signal an error if the entire string was not used."
   (miao-leader-define-keys
    '("n o" . org-noter)))
 #+end_src
+
+** org-wild-notifier
+#+begin_src emacs-lisp
+(use-package org-wild-notifier
+  :ensure t
+  :config
+  (setq alert-default-style 'libnotify
+         org-wild-notifier-keyword-whitelist nil
+         org-wild-notifier-alert-time '(30 5 1 0)
+         org-wild-notifier-notification-title "Org-Notifier")
+  (org-wild-notifier-mode t))
+#+end_src
+
+
 ** org-mind-map
 #+begin_src emacs-lisp
 (use-package org-mind-map
@@ -1663,8 +1694,8 @@ variable `project-local-identifier' to be considered a project."
         (cons 'local root)))
 
   (customize-set-variable 'project-find-functions
-                          (list #'project-local-try-local
-                                #'project-try-vc))
+                          (list #'project-try-vc
+                                #'project-local-try-local))
 
   (miao-leader-define-keys
    '("p p" . project-switch-project)
@@ -1693,10 +1724,12 @@ variable `project-local-identifier' to be considered a project."
   (setq persp-previous-persp-name nil)
   (setq persp-nil-name "default")
   (setq persp-autokill-buffer-on-remove 'kill)
+  (setq persp-auto-resume-time -1)
 
   (defun persp-show-persps ()
     (interactive)
-    (message (concat persp-last-persp-name
+    (message (concat (or persp-last-persp-name
+                         persp-nil-name)
                      " ----- "
                      "[ "
                      (s-join " | " persp-names-cache)
@@ -1759,8 +1792,6 @@ variable `project-local-identifier' to be considered a project."
  (miao-leader-define-keys
   '("f p" . open-config-file)
   '("f P" . open-config-persp)
-  '("w s" . persp-switch)
-  '("w w" . persp-show-persps)
   ;; '("w b" . persp-scratch-buffer)
   '("TAB s" . persp-switch)
   '("TAB p" . persp-switch)
@@ -1807,15 +1838,16 @@ variable `project-local-identifier' to be considered a project."
              ("C-." . org-noter-pdftools-activate-org-note)
              ("M-." . org-noter-pdftools-embed-org-note-to-pdf))
   (bind-keys :map pdf-view-mode-map
-             ("C-c m i i" . org-noter-pdftools-insert-precise-note-underline)
-             ("C-c m i u" . org-noter-pdftools-insert-precise-note-underline)
-             ("C-c m i h" . org-noter-pdftools-insert-precise-note-highlight)
-             ("C-c m i H" . (lambda () (interactive) (org-noter-pdftools-insert-precise-note-highlight t)))
-             ("C-c m i s" . org-noter-pdftools-insert-precise-note-squiggly)
              ("C-a" . pdf-view-align-left)
              ("C-e" . pdf-view-align-right)
-             ("M-i" . org-noter-pdftools-insert-precise-note-underline)
              ("C-l" . pdf-view-center-in-window))
+
+  (miao-leader-define-major-keys 'pdf-view-mode
+    '("i u" . org-noter-pdftools-insert-precise-note-underline)
+    '("i k" . org-noter-pdftools-insert-precise-note-keyunderstand)
+    '("i h" . org-noter-pdftools-insert-precise-note-highlight)
+    '("i s" . org-noter-pdftools-insert-precise-note-squiggly)
+    '("i S" . org-noter-pdftools-insert-precise-note-strikeout))
 
   (setq org-noter-pdftools-insert-content-heading nil)
 
@@ -2102,6 +2134,70 @@ return the filename."
   (setq org-msg-signature "#+begin_signature\nBest,\n\n-- *Yayu*\n#+end_signature")
   (org-msg-mode))
 #+end_src
+
+* calendar
+
+** calw
+#+begin_src emacs-lisp
+(use-package calfw
+  :ensure t
+  :config
+  (use-package calfw-org
+    :ensure t)
+  (setq calendar-week-start-day 0)
+  (setq cfw:fchar-junction ?╋
+      cfw:fchar-vertical-line ?┃
+      cfw:fchar-horizontal-line ?━
+      cfw:fchar-left-junction ?┣
+      cfw:fchar-right-junction ?┫
+      cfw:fchar-top-junction ?┯
+      cfw:fchar-top-left-corner ?┏
+      cfw:fchar-top-right-corner ?┓)
+  (unbind-key "C-v" cfw:calendar-mode-map)
+  (unbind-key "M-v" cfw:calendar-mode-map))
+
+(use-package calfw-blocks
+  :ensure nil
+  :vc (:url "https://github.com/ml729/calfw-blocks" :rev "0fe8290")
+  :config
+  (defun open-calendar-agenda ()
+    (interactive)
+    (cfw:open-calendar-buffer
+     :contents-sources
+     (list
+      (cfw:org-create-source "medium purple"))
+     :view 'block-week))
+  (setq calfw-blocks-lines-per-hour 2)
+  (miao-leader-define-keys
+   '("c a" . open-calendar-agenda)))
+#+end_src
+
+
+** google calendar
+#+begin_src emacs-lisp
+(use-package org-gcal
+  :ensure t
+  :init
+  (setq org-gcal-client-id ""
+      org-gcal-client-secret ""
+      org-gcal-fetch-file-alist `(("st.saint.wyy@gmail.com" . ,(concat org-directory "calendar.org"))))
+  :config
+  (setq org-gcal-recurring-events-mode 'nested)
+  (setq plstore-cache-passphrase-for-symmetric-encryption t)
+  (setq org-gcal-up-days 7
+        org-gcal-down-days 30)
+  (add-to-list 'plstore-encrypt-to '"BE9945C2FDE35D11")
+
+  (defun org-calendar ()
+    (interactive)
+    (let ((calendar-file (concat org-directory "calendar.org")))
+      (find-file calendar-file)
+      (org-gcal-sync)))
+
+  (miao-leader-define-keys
+   '("n c" . org-calendar)))
+#+end_src
+
 
 * rime
 #+begin_src emacs-lisp
