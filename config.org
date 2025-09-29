@@ -1726,6 +1726,14 @@ variable `project-local-identifier' to be considered a project."
   (setq persp-autokill-buffer-on-remove 'kill)
   (setq persp-auto-resume-time -1)
 
+  ;; FIXME
+  (defun treemacs--remove-treemacs-window-in-new-frames (location-type _frame-or-window _persp)
+    (when (eq location-type 'frame)
+      (-when-let (w (--first (treemacs-is-treemacs-window? it)
+                             (window-list)))
+        (unless (assoc (treemacs-scope->current-scope treemacs--current-scope-type) treemacs--scope-storage)
+          (delete-window w)))))
+
   (defun persp-show-persps ()
     (interactive)
     (message (concat (or persp-last-persp-name
