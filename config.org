@@ -827,6 +827,17 @@ Signal an error if the entire string was not used."
         (setq format-all-directory (concat format-all-directory "../")))
       (setq-local format-all-formatters `(("C" (clang-format ,(concat "-style=file:" (concat format-all-directory ".clang-format"))))))))
 
+  (define-format-all-formatter tex-fmt
+    (:executable "tex-fmt")
+    (:install "cargo install tex-fmt")
+    (:languages "LaTeX")
+    (:features)
+    (:format (format-all--buffer-easy executable "-s")))
+
+  (defun format-all-set-tex-formatter ()
+    (setq format-all-formatters `(("tex" (tex-fmt)))))
+
+  (add-hook 'LaTeX-mod-hook #'format-all-set-tex-formatter)
   (add-hook 'c-mode-hook #'format-all-set-c-formatter)
   (add-hook 'java-mode-hook #'format-all-set-c-formatter)
 
@@ -1252,7 +1263,6 @@ Signal an error if the entire string was not used."
   (add-to-list 'completion-at-point-functions #'cape-dict)
   (add-to-list 'completion-at-point-functions #'cape-elisp-symbol))
   ;; (add-to-list 'completion-at-point-functions #'cape-line)
-
 #+end_src
 
 ** consult
@@ -1498,17 +1508,19 @@ Signal an error if the entire string was not used."
       "  now ─────────────────────────────────────────────────")
 
 
+(setq org-agenda-clockreport-parameter-plist '(:link t :maxlevel 4))
+
 (miao-define-keys 'leader
  '("n a" . org-agenda)
  '("n t" . open-org-todo-file)
- '("n f" . open-org-todo-files)
- )
+ '("n f" . open-org-todo-files))
+
 
 
 (use-package org-super-agenda
-  :ensure t
+  :ensure t)
   ;; TODO: set up org-super-agenda-groups
-  )
+
 #+end_src
 
 ** org-modern
@@ -1557,6 +1569,36 @@ Signal an error if the entire string was not used."
   (org-wild-notifier-mode t))
 #+end_src
 
+
+** org-pomodoro
+#+begin_src emacs-lisp
+(use-package org-pomodoro
+  :ensure t
+  :config
+  (setq org-pomodoro-manual-break 't
+        org-pomodoro-audio-player "paplay"
+        org-pomodoro-start-sound-p 't
+        org-pomodoro-ticking-sound-p 't
+        org-pomodoro-overtime-sound-p 't
+        org-pomodoro-bell-sound `,(concat org-directory "ping-bing.wav")
+        org-pomodoro-ticking-sound `,(concat org-directory "rain.wav")
+        org-pomodoro-ticking-frequency 15
+        org-pomodoro-ticking-sound-states '(:pomodoro :overtime)
+        org-pomodoro-start-sound org-pomodoro-bell-sound
+        org-pomodoro-finished-sound org-pomodoro-bell-sound
+        org-pomodoro-overtime-sound org-pomodoro-bell-sound
+        org-pomodoro-long-break-sound org-pomodoro-bell-sound
+        org-pomodoro-short-break-sound org-pomodoro-bell-sound
+        org-pomodoro-overtime-sound org-pomodoro-bell-sound
+        org-pomodoro-overtime-sound-args nil
+        org-pomodoro-start-sound-args nil
+        org-pomodoro-ticking-sound-args nil
+        org-pomodoro-finished-sound-args nil
+        org-pomodoro-long-break-sound-args nil
+        org-pomodoro-short-break-sound-args nil)
+  (miao-leader-define-keys
+   '("n p" . org-pomodoro)))
+#+end_src
 
 ** org-mind-map
 #+begin_src emacs-lisp
@@ -1871,8 +1913,7 @@ variable `project-local-identifier' to be considered a project."
 
 (use-package ssh-deploy
   :ensure t
-  :hook ((after-save . ssh-deploy-after-save)
-         (find-file . ssh-deploy-find-file))
+  :hook ((find-file . ssh-deploy-find-file))
   :config
   (ssh-deploy-line-mode) ;; If you want mode-line feature
   (ssh-deploy-add-menu)) ;; If you want menu-bar feature
