@@ -1017,7 +1017,19 @@ Signal an error if the entire string was not used."
  :config
  (add-hook 'c-mode-hook 'lsp)
  (add-hook 'c++-mode-hook 'lsp))
+
+(use-package cmake-mode
+ :ensure t)
 #+end_src
+
+** python
+#+begin_src emacs-lisp :tangle no
+(use-package elpy
+  :ensure t
+  :init
+  (elpy-enable))
+#+end_src
+
 
 ** proof-general
 #+begin_src emacs-lisp
@@ -1079,6 +1091,17 @@ Signal an error if the entire string was not used."
   (setq agda2-program-args '("-i.")))
 #+end_src
 
+** fstar
+#+begin_src emacs-lisp
+(use-package fstar-mode
+  :ensure t
+  :config
+  (add-to-list 'auto-mode-alist '("\\.fsi?\\'" . fstar-mode))
+  (add-hook 'fstar-mode-hook (lambda () (corfu-mode -1)))
+  (setq fstar-executable "/home/yayu/.opam/ocaml-variants.4.14.0+options/bin/fstar.exe"))
+#+end_src
+
+
 ** sml
 #+begin_src emacs-lisp
 (use-package sml-mode
@@ -1108,6 +1131,13 @@ Signal an error if the entire string was not used."
   :config
   (add-hook 'latex-mode-hook 'magic-latex-buffer))
 #+end_src
+
+** yaml
+#+begin_src emacs-lisp
+(use-package yaml-mode
+  :ensure t)
+#+end_src
+
 
 * completion
 ** vertico
@@ -1557,16 +1587,15 @@ Signal an error if the entire string was not used."
    '("n o" . org-noter)))
 #+end_src
 
-** org-wild-notifier
+** org-alter
 #+begin_src emacs-lisp
-(use-package org-wild-notifier
+(use-package org-alert
   :ensure t
   :config
-  (setq alert-default-style 'libnotify
-         org-wild-notifier-keyword-whitelist nil
-         org-wild-notifier-alert-time '(30 5 1 0)
-         org-wild-notifier-notification-title "Org-Notifier")
-  (org-wild-notifier-mode t))
+  (setq alert-default-style 'libnotify)
+  (setq org-alert-interval 300
+      org-alert-notify-cutoff 10
+      org-alert-notify-after-event-cutoff 10))
 #+end_src
 
 
@@ -1846,14 +1875,15 @@ variable `project-local-identifier' to be considered a project."
   '("TAB s" . persp-switch)
   '("TAB p" . persp-switch)
   '("TAB n" . persp-switch)
-  '("TAB SPC" . persp-switch)
+  '("TAB SPC" . persp-show-persps)
   '("p s" . persp-switch)
+  '("p S" . project-scratch)
   '("TAB `" . persp-switch-last)
   '("TAB j" . persp-move-left)
   '("TAB k" . persp-move-right)
   '("TAB h" . persp-prev)
   '("TAB l" . persp-next)
-  '("TAB TAB" . persp-show-persps)
+  '("TAB TAB" . persp-switch)
   '("TAB b" . persp-switch-to-buffer)
   '("," . persp-switch-to-buffer)
   '("TAB d" . persp-kill)
@@ -1913,10 +1943,11 @@ variable `project-local-identifier' to be considered a project."
 
 (use-package ssh-deploy
   :ensure t
-  :hook ((find-file . ssh-deploy-find-file))
+  :hook ((after-save . ssh-deploy-after-save)
+         (find-file . ssh-deploy-find-file))
   :config
-  (ssh-deploy-line-mode) ;; If you want mode-line feature
-  (ssh-deploy-add-menu)) ;; If you want menu-bar feature
+  (ssh-deploy-line-mode)
+  (ssh-deploy-add-menu))
 #+end_src
 
 ** gpg
@@ -2102,38 +2133,57 @@ return the filename."
                                      (:name "Last month" :query "maildir:/gmail/All date:4w..now" :key ?m)
                                      (:name "Messages with attachments" :query "maildir:/gmail/All flag:attach" :key ?a)
                                      (:name "Flagged messages" :query "maildir:/gmail/All flag:flagged" :key ?f)))
-                  (mu4e-maildir-shortcuts . ( (:maildir "/gmail/INBOX" :key ?b)
+                  (mu4e-maildir-shortcuts . ( (:maildir "/gmail/INBOX" :key ?i)
                                               (:maildir "/gmail/sent"  :key ?s)
                                               (:maildir "/gmail/drafts"      :key ?d)
                                               (:maildir "/gmail/trash"      :key ?t)
-                                              (:maildir "/gmail/all"   :key ?a)))))
+                                              (:maildir "/gmail/all"   :key ?a)))))))
 
+  (require 'cl-lib)
 
-         (make-mu4e-context
-          :name "ubc"
-          :match-func (lambda (msg)
-                        (when msg
-                          (string-match-p "/UBC" (mu4e-message-field msg :maildir))))
-          :vars '((user-mail-address . "yayuwang@cs.ubc.ca")
-                  (user-full-name . "Yayu Wang")
-                  (smtpmail-smtp-user "yayuwang@cs.ubc.ca")
-                  (smtpmail-smtp-server "mail.cs.ubc.ca")
-                  (mu4e-sent-folder       . "/UBC/Sent")
-                  (mu4e-drafts-folder     . "/UBC/Draft")
-                  (mu4e-trash-folder      . "/UBC/Trash")
-                  (mu4e-refile-folder     . "/UBC/All")
-                  (mu4e-bookmarks . (
-                                     (:name "Unread messages" :query "maildir:/UBC/Inbox flag:unread AND NOT flag:trashed" :key ?u)
-                                     (:name "Today's messages" :query "maildir:/UBC/Inbox date:today..now" :key ?t)
-                                     (:name "Last 7 days" :query "maildir:/UBC/Inbox date:7d..now" :key ?w)
-                                     (:name "Last month" :query "maildir:/UBC/Inbox date:4w..now" :key ?m)
-                                     (:name "Messages with attachments" :query "maildir:/UBC/Inbox flag:attach" :key ?a)
-                                     (:name "Flagged messages" :query "maildir:/UBC/Inbox flag:flagged" :key ?f)))
-                  (mu4e-maildir-shortcuts . ((:maildir "/UBC/Inbox" :key ?i)
-                                             (:maildir "/UBC/Sent" :key ?s)
-                                             (:maildir "/UBC/Draft" :key ?d)
-                                             (:maildir "/UBC/Trash" :key ?t)))))))
+  (defun miao-bypass-unbind-keys (mode keys)
+   "From `miao-bypass-keymap-hash`, remove KEYS for MODE.
+MODE is a major-mode symbol, KEYS is a list of character literals, e.g. (?b ?j)."
+   (let ((km (gethash mode miao-bypass-keymap-hash)))
+     (when (and (listp km) (eq (car km) 'keymap))
+       (puthash
+        mode
+        (cons 'keymap
+              (cl-remove-if
+               (lambda (x) (memq (car x) keys))
+               (cdr km)))
+        miao-bypass-keymap-hash))))
 
+  (defun mu4e-unbind-miao-bypass-keys ()
+    (miao-bypass-unbind-keys 'mu4e-main-mode '(?b ?j))
+    (remove-hook 'mu4e-main-rendered-hook #'mu4e-unbind-miao-bypass-keys))
+
+  (add-hook 'mu4e-main-rendered-hook #'mu4e-unbind-miao-bypass-keys)
+
+  (make-mu4e-context
+   :name "ubc"
+   :match-func (lambda (msg)
+                 (when msg
+                   (string-match-p "/UBC" (mu4e-message-field msg :maildir))))
+   :vars '((user-mail-address . "yayuwang@cs.ubc.ca")
+           (user-full-name . "Yayu Wang")
+           (smtpmail-smtp-user "yayuwang@cs.ubc.ca")
+           (smtpmail-smtp-server "mail.cs.ubc.ca")
+           (mu4e-sent-folder       . "/UBC/Sent")
+           (mu4e-drafts-folder     . "/UBC/Draft")
+           (mu4e-trash-folder      . "/UBC/Trash")
+           (mu4e-refile-folder     . "/UBC/All")
+           (mu4e-bookmarks . (
+                              (:name "Unread messages" :query "maildir:/UBC/Inbox flag:unread AND NOT flag:trashed" :key ?u)
+                              (:name "Today's messages" :query "maildir:/UBC/Inbox date:today..now" :key ?t)
+                              (:name "Last 7 days" :query "maildir:/UBC/Inbox date:7d..now" :key ?w)
+                              (:name "Last month" :query "maildir:/UBC/Inbox date:4w..now" :key ?m)
+                              (:name "Messages with attachments" :query "maildir:/UBC/Inbox flag:attach" :key ?a)
+                              (:name "Flagged messages" :query "maildir:/UBC/Inbox flag:flagged" :key ?f)))
+           (mu4e-maildir-shortcuts . ((:maildir "/UBC/Inbox" :key ?i)
+                                      (:maildir "/UBC/Sent" :key ?s)
+                                      (:maildir "/UBC/Draft" :key ?d)
+                                      (:maildir "/UBC/Trash" :key ?t)))))
 
   (setq sendmail-program (executable-find "msmtp")
         send-mail-function #'smtpmail-send-it
@@ -2157,8 +2207,7 @@ return the filename."
 ** org-msg
 #+begin_src emacs-lisp
 (use-package org-msg
-  :ensure nil
-  :vc (:url "git@github.com:danielfleischer/org-msg.git" :branch "1.12")
+  :ensure t
   :after mu4e
   :config
   (setq org-msg-options "html-postamble:nil H:5 num:nil ^:{} toc:nil author:nil email:nil \\n:t"
