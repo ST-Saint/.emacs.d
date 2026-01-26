@@ -252,7 +252,7 @@ Signal an error if the entire string was not used."
 
   (miao-leader-define-keys
     '("b s" . scratch-buffer)
-    '("p s" . project-scratch)))
+    '("p S" . project-scratch)))
 #+end_src
 
 ** restart
