@@ -2007,7 +2007,9 @@ variable `project-local-identifier' to be considered a project."
                 ((string-equal system-type "darwin") ; macOS
                  "/opt/homebrew/Cellar/mu/1.10.7/share/emacs/site-lisp/mu/mu4e/")
                 ((string-equal system-type "gnu/linux") ; linux
-                 "/usr/local/share/emacs/site-lisp/mu4e/")))
+                 (cond
+                   ((file-directory-p "/usr/local/share/emacs/site-lisp/mu4e/") "/usr/local/share/emacs/site-lisp/mu4e/")
+                   ((file-directory-p "/usr/share/emacs/site-lisp/mu4e/") "/usr/share/emacs/site-lisp/mu4e/")))))
   :after pinentry
   :config
   (require 'mu4e-contrib)
