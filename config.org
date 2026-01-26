@@ -638,6 +638,12 @@ Signal an error if the entire string was not used."
 #+begin_src emacs-lisp
 (delete-selection-mode t)
 (setq delete-selection-save-to-register 'kill)
+
+(defun kill-ring-save-goto-beginning (&rest _)
+  (when (use-region-p)
+    (goto-char (region-beginning))))
+
+(advice-add 'kill-ring-save :after #'kill-ring-save-goto-beginning)
 #+end_src
 
 ** editorconfig
