@@ -1015,6 +1015,11 @@ Signal an error if the entire string was not used."
 #+end_src
 
 * language
+** treesit
+#+begin_src emacs-lisp
+(use-package treesit-auto
+  :ensure t)
+#+end_src
 
 ** cc
 #+begin_src emacs-lisp
