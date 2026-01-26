@@ -1958,8 +1958,7 @@ variable `project-local-identifier' to be considered a project."
   :hook ((after-save . ssh-deploy-after-save)
          (find-file . ssh-deploy-find-file))
   :config
-  (ssh-deploy-line-mode)
-  (ssh-deploy-add-menu))
+  (ssh-deploy-line-mode))
 #+end_src
 
 ** gpg
