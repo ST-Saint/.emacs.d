@@ -758,7 +758,8 @@ Signal an error if the entire string was not used."
   :ensure t
   :config
   (add-hook 'emacs-lisp-mode-hook (lambda () (electric-pair-local-mode -1) (parinfer-rust-mode)))
-  (setq parinfer-rust-check-before-enable nil))
+  (setq parinfer-rust-check-before-enable t
+        parinfer-rust-auto-download t))
 #+end_src
 
 
