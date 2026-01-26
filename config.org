@@ -844,9 +844,9 @@ Signal an error if the entire string was not used."
   (defun format-all-set-tex-formatter ()
     (setq format-all-formatters `(("tex" (tex-fmt)))))
 
-  (add-hook 'LaTeX-mod-hook #'format-all-set-tex-formatter)
   (add-hook 'c-mode-hook #'format-all-set-c-formatter)
   (add-hook 'java-mode-hook #'format-all-set-c-formatter)
+  (add-hook 'LaTeX-mode-hook #'format-all-set-tex-formatter)
 
   (miao-leader-define-keys
       '("c f" . format-all-buffer))
