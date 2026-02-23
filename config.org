@@ -165,6 +165,11 @@ Signal an error if the entire string was not used."
 
 (setq compilation-scroll-output t)
 
+
+(setq whitespace-style
+      '(face tabs spaces trailing lines newline empty
+             space-mark tab-mark newline-mark missing-newline-at-eof))
+
 (add-hook 'before-save-hook #'whitespace-cleanup)
 
 (add-hook 'prog-mode-hook #'visual-line-mode)
@@ -597,6 +602,12 @@ Signal an error if the entire string was not used."
       '("w s" . window-swap-states)
       '("w t" . transpose-frame)
       '("w =" . balance-windows)))
+
+(defun focus-new-window (new-window &rest _)
+  (select-window new-window))
+
+(advice-add 'split-window-below :after #'focus-new-window)
+(advice-add 'split-window-right :after #'focus-new-window)
 
 (bind-keys ("C-<tab>" . other-window)
            ("C-<iso-lefttab>" . (lambda () (interactive) (other-window -1))))
