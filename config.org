@@ -889,6 +889,7 @@ Signal an error if the entire string was not used."
 
 #+begin_src emacs-lisp
 (use-package lsp-mode
+  :ensure t
   :custom
   (lsp-completion-provider :none) ;; we use Corfu!
 
