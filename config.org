@@ -1960,17 +1960,16 @@ variable `project-local-identifier' to be considered a project."
 
 * remote
 
+
 ** ssh-deploy
 #+begin_src emacs-lisp
 (use-package async
   :ensure t)
 
-(use-package ssh-deploy
+(use-package copy-file-on-save
   :ensure t
-  :hook ((after-save . ssh-deploy-after-save)
-         (find-file . ssh-deploy-find-file))
   :config
-  (ssh-deploy-line-mode))
+  (global-copy-file-on-save-mode))
 #+end_src
 
 ** gpg
