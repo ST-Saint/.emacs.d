@@ -165,6 +165,7 @@ Signal an error if the entire string was not used."
 
 (setq compilation-scroll-output t)
 
+(setq-default tab-width 4)
 
 (setq whitespace-style
       '(face tabs spaces trailing lines newline empty
