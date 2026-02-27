@@ -1996,8 +1996,12 @@ variable `project-local-identifier' to be considered a project."
   :config
   (setq tramp-allow-unsafe-temporary-files t))
 
+(use-package msgpack
+  :ensure t)
+
 (use-package tramp-rpc
   :ensure nil
+  :after msgpack
   :load-path "~/.emacs.d/github/emacs-tramp-rpc/lisp")
 #+end_src
 
