@@ -603,11 +603,13 @@ Signal an error if the entire string was not used."
       '("w t" . transpose-frame)
       '("w =" . balance-windows)))
 
-(defun focus-new-window (new-window &rest _)
-  (select-window new-window))
+(defun focus-new-window (new-window)
+  (when (window-live-p new-window)
+    (select-window new-window))
+  new-window)
 
-(advice-add 'split-window-below :after #'focus-new-window)
-(advice-add 'split-window-right :after #'focus-new-window)
+(advice-add 'split-window-below :filter-return #'focus-new-window)
+(advice-add 'split-window-right :filter-return #'focus-new-window)
 
 (bind-keys ("C-<tab>" . other-window)
            ("C-<iso-lefttab>" . (lambda () (interactive) (other-window -1))))
