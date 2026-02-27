@@ -1653,6 +1653,12 @@ Signal an error if the entire string was not used."
    '("n p" . org-pomodoro)))
 #+end_src
 
+** literate-calc-mode
+#+begin_src emacs-lisp
+(use-package literate-calc-mode
+  :ensure t)
+#+end_src
+
 ** org-mind-map
 #+begin_src emacs-lisp
 (use-package org-mind-map
@@ -1959,7 +1965,6 @@ variable `project-local-identifier' to be considered a project."
 #+end_src
 
 * remote
-
 
 ** ssh-deploy
 #+begin_src emacs-lisp
