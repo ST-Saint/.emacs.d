@@ -334,8 +334,10 @@ Signal an error if the entire string was not used."
 
 ** color
 #+begin_src emacs-lisp
-(use-package rainbow-mode
-  :ensure t)
+(use-package colorful-mode
+  :ensure t
+  :config
+  (global-colorful-mode))
 #+end_src
 
 ** rainbow-delimiters
