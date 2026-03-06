@@ -93,7 +93,13 @@ Signal an error if the entire string was not used."
 
   (with-eval-after-load "doom-modeline"
     (defun doom-modeline-segment--modals ()
-      (miao-indicator)))
+      (miao-indicator))
+    (add-hook 'miao-normal-mode-hook #'miao-update-modeline-box)
+    (add-hook 'miao-insert-mode-hook #'miao-update-modeline-box)
+    (add-hook 'miao-leader-mode-hook #'miao-update-modeline-box)
+    (add-hook 'miao-bypass-mode-hook #'miao-update-modeline-box)
+    (add-hook 'window-selection-change-functions
+              (lambda (&rest _) (miao-update-modeline-box))))
 
   (defun delete-buffer-file ()
     (interactive)
@@ -192,7 +198,7 @@ Signal an error if the entire string was not used."
 
 (setq-default indent-tabs-mode nil)
 
-(setq enable-local-variables :safe)
+(setq enable-local-variables t)
 
 (setq byte-compile-warnings nil
       native-comp-async-report-warnings-errors nil)
@@ -371,7 +377,7 @@ Signal an error if the entire string was not used."
   (setq doom-modeline-buffer-file-name-style 'truncate-with-project)
   (setq doom-modeline-display-default-persp-name t)
   (doom-modeline-def-modeline 'miao
-   '(eldoc bar window-number persp-name modals matches follow buffer-info remote-host buffer-position word-count selection-info)
+   '(eldoc window-number persp-name modals matches follow buffer-info remote-host buffer-position word-count selection-info)
    '(compilation objed-state misc-info battery grip irc mu4e gnus github debug repl lsp minor-modes input-method indent-info buffer-encoding major-mode process vcs check time))
   (doom-modeline-set-modeline 'miao 'default)
   (setq doom-modeline-always-visible-segments '(persp-name))
@@ -1040,13 +1046,13 @@ Signal an error if the entire string was not used."
 ** cc
 #+begin_src emacs-lisp
 (use-package cc-mode
- :ensure nil
- :config
- (add-hook 'c-mode-hook 'lsp)
- (add-hook 'c++-mode-hook 'lsp))
+  :ensure nil
+  :config
+  (add-hook 'c-mode-hook 'lsp)
+  (add-hook 'c++-mode-hook 'lsp))
 
 (use-package cmake-mode
- :ensure t)
+  :ensure t)
 #+end_src
 
 ** python
