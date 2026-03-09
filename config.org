@@ -543,7 +543,6 @@ Signal an error if the entire string was not used."
           ("FAIL"   . "#EE6666")
           ("DONE"   . "#808080"))) ;;
   (add-hook 'org-mode-hook #'hl-todo-mode)
-  (add-hook 'rainbow-mode-hook (hl-line-mode (if rainbow-mode -1 1)))
   (global-hl-todo-mode t))
 #+end_src
 
