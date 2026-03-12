@@ -1455,7 +1455,7 @@ Signal an error if the entire string was not used."
         ("C-M-<return>" . org-insert-subheading))
   :init
   (setq org-directory "~/Project/org/")
-  (setq org-agenda-files `(,(concat org-directory "todo.org") ,(concat org-directory "calendar.org")))
+  (setq org-agenda-files `(,(concat org-directory "todo.org") ,(concat org-directory "Calendar.org")))
   (setq org-default-notes-file (concat org-directory "notes.org"))
 
   (org-babel-do-load-languages
@@ -2325,17 +2325,17 @@ MODE is a major-mode symbol, KEYS is a list of character literals, e.g. (?b ?j).
   :init
   (setq org-gcal-client-id ""
       org-gcal-client-secret ""
-      org-gcal-fetch-file-alist `(("st.saint.wyy@gmail.com" . ,(concat org-directory "calendar.org"))))
+      org-gcal-fetch-file-alist `(("st.saint.wyy@gmail.com" . ,(concat org-directory "Calendar.org"))))
   :config
   (setq org-gcal-recurring-events-mode 'nested)
   (setq plstore-cache-passphrase-for-symmetric-encryption t)
-  (setq org-gcal-up-days 7
-        org-gcal-down-days 30)
+  (setq org-gcal-up-days 1
+        org-gcal-down-days 14)
   (add-to-list 'plstore-encrypt-to '"BE9945C2FDE35D11")
 
   (defun org-calendar ()
     (interactive)
-    (let ((calendar-file (concat org-directory "calendar.org")))
+    (let ((calendar-file (concat org-directory "Calendar.org")))
       (find-file calendar-file)
       (org-gcal-sync)))
 
