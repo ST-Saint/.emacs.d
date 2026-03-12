@@ -338,6 +338,9 @@ Signal an error if the entire string was not used."
 (use-package colorful-mode
   :ensure t
   :config
+  (setq colorful-use-prefix nil
+        colorful-highlight-in-comments t
+        colorful-only-strings 'only-prog)
   (global-colorful-mode))
 #+end_src
 
