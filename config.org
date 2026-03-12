@@ -6,6 +6,7 @@
 #+begin_src emacs-lisp
 ;; -*- lexical-binding: t -*-
 (setq custom-file (concat (file-name-as-directory user-emacs-directory) "custom.el"))
+(load custom-file)
 
 (defun org-babel-tangle-config ()
   (when (string-equal (buffer-file-name) (concat (file-truename user-emacs-directory) "config.org"))
