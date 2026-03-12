@@ -129,7 +129,7 @@ Signal an error if the entire string was not used."
     '("x" . miao-delete-char)
     '("v" . miao-mark-line)
     '("V" . display-line-numbers-mode)
-    '("q" . miao-quit-window)
+    '("q" . miao-cycle-buffer)
     '("Q" . miao-delete-window)
     '("w" . miao-mark-word)
     '("W" . miao-mark-symbol)
@@ -510,7 +510,7 @@ Signal an error if the entire string was not used."
   :ensure t
   :config
   (add-hook 'prog-mode-hook #'symbol-overlay-mode)
-  (set-face-attribute 'symbol-overlay-default-face nil :background nil :distant-foreground nil :underline '(:color foreground-color :style double-line :position t) :inherit nil))
+  (set-face-attribute 'symbol-overlay-default-face nil :background 'unspecified :distant-foreground 'unspecified :underline '(:color foreground-color :style double-line :position t) :inherit nil))
 #+end_src
 
 ** highlight-indent
