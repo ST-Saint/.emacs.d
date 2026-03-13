@@ -100,6 +100,8 @@ Signal an error if the entire string was not used."
     (add-hook 'miao-leader-mode-hook #'miao-update-modeline-box)
     (add-hook 'miao-bypass-mode-hook #'miao-update-modeline-box)
     (add-hook 'window-selection-change-functions
+              (lambda (&rest _) (miao-update-modeline-box)))
+    (add-hook 'window-buffer-change-functions
               (lambda (&rest _) (miao-update-modeline-box))))
 
   (defun delete-buffer-file ()
