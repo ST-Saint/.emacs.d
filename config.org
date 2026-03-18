@@ -1060,7 +1060,7 @@ Signal an error if the entire string was not used."
          . font-lock-function-name-face)
         ("\\[[^]]+\\]" . font-lock-type-face)                     ;; memory region
         ("\\([A-Za-z0-9_./-]+\\.\\(?:c\\|cc\\|cpp\\|cxx\\|C\\|h\\|hh\\|hpp\\|hxx\\):[0-9]+\\)" . font-lock-string-face)  ;; file:line
-        ("\\([A-Za-z0-9_:~]+\\)*=" 1 font-lock-variable-name-face)))        ;; arguments
+        ("\\([A-Za-z0-9_:~]+\\) *=" 1 font-lock-variable-name-face)))        ;; arguments
 
 (with-eval-after-load 'org
   (add-to-list 'org-src-lang-modes '("backtrace" . backtrace)))
