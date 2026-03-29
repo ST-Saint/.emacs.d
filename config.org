@@ -572,7 +572,8 @@ Signal an error if the entire string was not used."
       set-mark-command-repeat-pop t)
 
 (use-package dogears
-  :ensure t
+  :ensure nil
+  :load-path "~/Project/dogears/"
   ;; These bindings are optional, of course:
   :config
   (setq dogears-functions
