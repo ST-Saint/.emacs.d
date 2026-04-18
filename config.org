@@ -2017,10 +2017,11 @@ variable `project-local-identifier' to be considered a project."
 (use-package async
   :ensure t)
 
-(use-package copy-file-on-save
-  :ensure t
+(use-package esync
+  :ensure nil
+  :load-path "~/Project/esync/"
   :config
-  (global-copy-file-on-save-mode))
+  (global-esync-mode))
 #+end_src
 
 ** gpg
