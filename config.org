@@ -672,6 +672,19 @@ Signal an error if the entire string was not used."
     (goto-char (region-beginning))))
 
 (advice-add 'kill-ring-save :after #'kill-ring-save-goto-beginning)
+
+(defadvice find-file (around find-file-line-number activate)
+  "Support file:line format in find-file."
+  (let* ((name (ad-get-arg 0))
+         (match (and (stringp name)
+                     (string-match "\\(.*\\):\\([0-9]+\\)$" name))))
+    (if match
+        (let ((file (match-string 1 name))
+              (line (string-to-number (match-string 2 name))))
+          (ad-set-arg 0 file)
+          ad-do-it
+          (goto-line line))
+      ad-do-it)))
 #+end_src
 
 ** editorconfig
