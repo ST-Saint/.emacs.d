@@ -768,12 +768,18 @@ Signal an error if the entire string was not used."
 (use-package tempel
   :ensure t
   ;; Require trigger prefix before template name when completing.
+  :demand t
   :custom
   (tempel-trigger-prefix "`")
 
   ;; :bind (("<tab>" . tempel-complete))
   ;; :bind (("M-+" . tempel-complete) ;; Alternative tempel-expand
   ;;        ("M-*" . tempel-insert))
+
+  :bind (:map tempel-map
+         ("<tab>" . tempel-next)
+         ("<backtab>" . tempel-previous)
+         ("C-M-g" . tempel-abort)
 
   :config
 
@@ -792,13 +798,23 @@ Signal an error if the entire string was not used."
 
   (add-hook 'conf-mode-hook 'tempel-setup-capf)
   (add-hook 'prog-mode-hook 'tempel-setup-capf)
-  (add-hook 'text-mode-hook 'tempel-setup-capf)
+  (add-hook 'text-mode-hook 'tempel-setup-capf))
 
   ;; Optionally make the Tempel templates available to Abbrev,
   ;; either locally or globally. `expand-abbrev' is bound to C-x '.
   ;; (add-hook 'prog-mode-hook #'tempel-abbrev-mode)
   ;; (global-tempel-abbrev-mode)
-)
+
+(use-package lsp-snippet-tempel
+  :ensure nil
+  :vc (:url "https://github.com/svaante/lsp-snippet.git" :branch "main")
+  :after (lsp-mode tempel)
+  :init
+  (add-to-list 'load-path "~/.emacs.d/elpa/lsp-snippet-tempel")
+  :config
+  (require 'lsp-snippet)
+  (require 'lsp-snippet-tempel)
+  (lsp-snippet-tempel-lsp-mode-init))
 
 (use-package tempel-collection
   :ensure t
@@ -807,7 +823,7 @@ Signal an error if the entire string was not used."
 
 ** yasnippet
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
 (use-package yasnippet
   :ensure t
   :config
@@ -966,6 +982,7 @@ Signal an error if the entire string was not used."
   (setq lsp-enable-file-watchers nil
         lsp-enable-on-type-formatting nil
         lsp-enable-indentation nil)
+
   (setq lsp-enable-symbol-highlighting t
         lsp-ui-doc-enable t
         lsp-ui-doc-show-with-cursor nil
