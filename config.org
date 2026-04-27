@@ -120,6 +120,20 @@ Signal an error if the entire string was not used."
       (toggle-truncate-lines nil)
       (visual-line-mode t)))
 
+  (defvar line-number-styles '(t relative nil)
+    "Cycle order: absolute → relative → none")
+
+  (defun cycle-line-numbers ()
+     (interactive)
+     (let* ((idx (or (cl-position display-line-numbers line-number-styles) 0)))
+           (next (nth (mod (1+ idx) (length line-number-styles))
+                      line-number-styles))
+         (setq-local display-line-numbers next)
+         (message "Line numbers: %s"
+                    (cond ((eq next 'relative) "relative")
+                          ((eq next t)         "absolute")
+                          (t                   "off")))))
+
   (add-to-list 'isearch-forward-thing-at-point 'word)
 
   (define-key minibuffer-mode-map (kbd "C-M-<backspace>") #'backward-kill-sexp)
@@ -131,7 +145,7 @@ Signal an error if the entire string was not used."
     '("t" . miao-till)
     '("x" . miao-delete-char)
     '("v" . miao-mark-line)
-    '("V" . display-line-numbers-mode)
+    '("V" . cycle-line-numbers)
     '("q" . miao-cycle-buffer)
     '("Q" . miao-delete-window)
     '("w" . miao-mark-word)
@@ -310,14 +324,30 @@ Signal an error if the entire string was not used."
 (setq-default truncate-lines t)
 (setq isearch-lazy-count t)
 (setq-default case-fold-search t)
-(setq display-line-numbers-type 'relative)
+(setq display-line-numbers-type t)
+
+(defcustom line-number-large-file-threshold 5000
+  "Lines threshold above which line numbers are disabled."
+  :type 'integer)
+
+(defun line-number-too-large-p ()
+  (> (buffer-size) (* line-number-large-file-threshold 80)))
+
+(defun setup-line-numbers ()
+  "Enable relative line numbers, skip large files."
+  (if (line-number-too-large-p)
+      (display-line-numbers-mode -1)
+    (display-line-numbers-mode 1)))
+
+(add-hook 'prog-mode-hook #'setup-line-numbers)
+(add-hook 'text-mode-hook #'setup-line-numbers)
 
 ;; disable line numbers for some modes
 (dolist (mode '(term-mode-hook
                 vterm-mode-hook
                 dired-mode-hook
                 treemacs-mode-hook
-                dashboard-mook-hook
+                dashboard-mode-hook
                 so-long-mode-hook
                 pdf-view-mode-hook))
   (add-hook mode (lambda () (display-line-numbers-mode -1))))
