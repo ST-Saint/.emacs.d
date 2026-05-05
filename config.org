@@ -780,7 +780,7 @@ Signal an error if the entire string was not used."
   :bind (:map tempel-map
          ("<tab>" . tempel-next)
          ("<backtab>" . tempel-previous)
-         ("C-M-g" . tempel-abort)
+         ("C-M-g" . tempel-abort))
 
   :config
 
