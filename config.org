@@ -2097,7 +2097,10 @@ variable `project-local-identifier' to be considered a project."
 (use-package tramp-rpc
   :ensure nil
   :after msgpack
-  :load-path "~/.emacs.d/github/emacs-tramp-rpc/lisp")
+  :load-path "~/.emacs.d/github/emacs-tramp-rpc/lisp"
+  :config
+  (add-to-list 'warning-suppress-types '(unlock-file))
+  (setq tramp-rpc-deploy-git-build-policy 'release))
 #+end_src
 
 ** restclient
