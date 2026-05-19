@@ -778,8 +778,8 @@ Signal an error if the entire string was not used."
   ;;        ("M-*" . tempel-insert))
 
   :bind (:map tempel-map
-         ("<tab>" . tempel-next)
-         ("<backtab>" . tempel-previous)
+         ("<return>" . tempel-next)
+         ("S-<return>" . tempel-previous)
          ("C-M-g" . tempel-abort))
 
   :config
