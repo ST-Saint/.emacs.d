@@ -1953,24 +1953,62 @@ variable `project-local-identifier' to be considered a project."
                      "[ "
                      (s-join " | " persp-names-cache)
                      " ]")))
+ (defun persp-qualified-name (root)
+     "parent/leaf form of ROOT."
+     (concat (file-name-nondirectory
+              (directory-file-name (file-name-directory root)))
+             "/"
+             (file-name-nondirectory root)))
 
-  (defun project-switch-project (dir)
-    "\"Switch\" to another project by running an Emacs command.
+ (defun persp-name-for-project (project-root)
+    "Return a persp name for PROJECT-ROOT. If another project persp already
+  owns the leaf name, rename it to parent/leaf and qualify this one too,
+  so both projects are disambiguated symmetrically."
+    (let* ((root (file-truename (directory-file-name project-root)))
+           (leaf (file-name-nondirectory root)))
+      (or
+       ;; Already have a persp for this exact root — reuse it.
+       (cl-some (lambda (name)
+                  (let ((p (persp-get-by-name name)))
+                    (when (and (perspective-p p)
+                               (equal (persp-parameter 'project-root p) root))
+                      name)))
+                persp-names-cache)
+       ;; Leaf taken by *another* project persp? Rename it, qualify ours.
+       (let* ((existing (persp-get-by-name leaf))
+              (existing-root (and (perspective-p existing)
+                                  (persp-parameter 'project-root existing))))
+         (cond
+          ((and existing-root (not (equal existing-root root)))
+           (persp-rename (persp-qualified-name existing-root) existing)
+           (persp-qualified-name root))
+          ;; Leaf taken by a non-project persp — just qualify ours.
+          ((perspective-p existing) (persp-qualified-name root))
+          ;; Free.
+          (t leaf))))))
+
+ (defun project-switch-project (dir)
+   "\"Switch\" to another project by running an Emacs command.
   The available commands are presented as a dispatch menu
   made from `project-switch-commands'.
 
   When called in a program, it will use the project corresponding
   to directory DIR."
-    (interactive (list (project-prompt-project-dir)))
-    (let ((command (if (symbolp project-switch-commands)
-                       project-switch-commands
-                     (project--switch-project-command))))
-      (let ((project-current-directory-override dir))
-        (let ((project-root (project-root (project-current))))
-          (when project-root
-            (persp-switch (file-name-nondirectory (directory-file-name project-root)))))
-        (call-interactively command))))
-  (setq persp-autokill-buffer-on-remove 'kill-weak)
+   (interactive (list (project-prompt-project-dir)))
+   (let ((command (if (symbolp project-switch-commands)
+                      project-switch-commands
+                    (project--switch-project-command))))
+     (let ((project-current-directory-override dir))
+       (let ((project-root (project-root (project-current))))
+         (when project-root
+           (let* ((root (file-truename (directory-file-name project-root)))
+                  (name (persp-name-for-project root)))
+             (persp-switch name)
+             (let ((p (persp-get-by-name name)))
+               (when (perspective-p p)
+                 (set-persp-parameter 'project-root root p))))))
+       (call-interactively command))))
+ (setq persp-autokill-buffer-on-remove 'kill-weak)
 
  (defun open-config-persp ()
      (interactive)
