@@ -1257,6 +1257,19 @@ Signal an error if the entire string was not used."
 #+end_src
 
 
+** markdown
+
+#+begin_src emacs-lisp
+(use-package grip-mode
+  :ensure t
+  :config
+  (setq grip-command 'go-grip) ;; auto, grip, go-grip or mdopen
+  (miao-leader-define-major-keys 'org-mode
+    '("m g" . grip-mode))
+  (miao-leader-define-major-keys 'markdown-mode
+    '("m g" . grip-mode)))
+#+end_src
+
 * completion
 ** vertico
 #+begin_src emacs-lisp
