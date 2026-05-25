@@ -503,7 +503,10 @@ Signal an error if the entire string was not used."
     (interactive)
     (switch-to-buffer dashboard-buffer-name)
     (delete-other-windows))
-  (dashboard-setup-startup-hook))
+  (dashboard-setup-startup-hook)
+
+  (miao-leader-define-keys
+    '("d d" . dashboard)))
 #+end_src
 
 ** visual-fill-column
