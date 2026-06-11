@@ -213,6 +213,11 @@ Signal an error if the entire string was not used."
 
 (setq recentf-max-saved-items nil)
 
+(run-at-time (* 5 60) (* 5 60)
+             (lambda () (let ((inhibit-message t)
+                              (save-silently t))
+                          (recentf-save-list))))
+
 (setq-default indent-tabs-mode nil)
 
 (setq enable-local-variables t)
@@ -630,6 +635,7 @@ Signal an error if the entire string was not used."
 ** windmove
 #+begin_src emacs-lisp
 (use-package windmove
+  :ensure nil
   :config
   (miao-define-keys '(normal insert)
     '("C-M-<down>" . windmove-down)
@@ -868,7 +874,12 @@ Signal an error if the entire string was not used."
 ** undo-fu
 #+begin_src emacs-lisp
 (use-package undo-fu
-  :ensure t)
+  :ensure t
+  :config
+  (setq undo-limit        (* 64 (* 1024 1024))    ; 64 MB
+        undo-strong-limit (* 128 (* 1024 1024))   ; 128 MB
+        undo-outer-limit  (* 1024 (* 1024 1024))) ; 1024 MB
+
 (use-package undo-fu-session
   :ensure t
   :config
@@ -1793,7 +1804,8 @@ Signal an error if the entire string was not used."
   (setq ediff-window-setup-function 'ediff-setup-windows-plain)
   :config
   (setq vc-dir-backend 'git)
-  (setq magit-display-buffer-function 'magit-display-buffer-fullcolumn-most-v1))
+  (setq magit-display-buffer-function 'magit-display-buffer-fullcolumn-most-v1)
+  (keymap-set magit-diff-section-map "C-<return>" #'magit-diff-visit-worktree-file-other-window))
 #+end_src
 
 ** diff-hl
@@ -1871,7 +1883,7 @@ Signal an error if the entire string was not used."
     (interactive)
     (magit-todos-list (project-root (project-current t))))
 
-  (setq project-switch-commands '((project-dired "" "<SPC>")
+  (setq project-switch-commands '((persp-show-persps "" "<SPC>")
                                   (persp-show-persps "" "<RET>")
                                   (project-find-file "File file" ?f)
                                   (project-find-dir "Find directory" ?d)
@@ -1938,7 +1950,9 @@ variable `project-local-identifier' to be considered a project."
   (setq persp-previous-persp-name nil)
   (setq persp-nil-name "default")
   (setq persp-autokill-buffer-on-remove 'kill)
-  (setq persp-auto-resume-time -1)
+  (setq persp-auto-resume-time 1.0)
+  (setq persp-auto-save-opt 2)
+  (setq persp-save-dir (expand-file-name "persp-confs/" user-emacs-directory))
 
   ;; FIXME
   (defun treemacs--remove-treemacs-window-in-new-frames (location-type _frame-or-window _persp)
