@@ -878,7 +878,7 @@ Signal an error if the entire string was not used."
   :config
   (setq undo-limit        (* 64 (* 1024 1024))    ; 64 MB
         undo-strong-limit (* 128 (* 1024 1024))   ; 128 MB
-        undo-outer-limit  (* 1024 (* 1024 1024))) ; 1024 MB
+        undo-outer-limit  (* 1024 (* 1024 1024)))) ; 1024 MB
 
 (use-package undo-fu-session
   :ensure t
