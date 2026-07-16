@@ -213,6 +213,14 @@ Signal an error if the entire string was not used."
 
 (setq recentf-max-saved-items nil)
 
+(defun recentf-merge-before-save (orig-fun &rest args)
+  (let ((current recentf-list))
+    (ignore-errors (recentf-load-list))
+    (setq recentf-list (delete-dups (append current recentf-list))))
+  (apply orig-fun args))
+
+(advice-add 'recentf-save-list :around #'recentf-merge-before-save)
+
 (run-at-time (* 5 60) (* 5 60)
              (lambda () (let ((inhibit-message t)
                               (save-silently t))
@@ -1311,6 +1319,9 @@ Signal an error if the entire string was not used."
 
 (use-package savehist
   :init
+  (setq history-length 10000)
+  (setq history-delete-duplicates t)
+  (setq savehist-additional-variables '(file-name-history))
   (savehist-mode))
 #+end_src
 
@@ -2016,7 +2027,8 @@ variable `project-local-identifier' to be considered a project."
                       project-switch-commands
                     (project--switch-project-command))))
      (let ((project-current-directory-override dir))
-       (let ((project-root (project-root (project-current))))
+       (let* ((pr (project-current))
+              (project-root (and pr (project-root pr))))
          (when project-root
            (let* ((root (file-truename (directory-file-name project-root)))
                   (name (persp-name-for-project root)))
@@ -2140,6 +2152,9 @@ variable `project-local-identifier' to be considered a project."
   :ensure nil
   :load-path "~/Project/esync/"
   :config
+  (miao-leader-define-keys
+   '("f s" . esync-upload)
+   '("f d" . esync-download))
   (global-esync-mode))
 #+end_src
 
