@@ -1485,6 +1485,329 @@ Signal an error if the entire string was not used."
   ;; (add-to-list 'completion-at-point-functions #'cape-line)
 #+end_src
 
+** pl-symbols
+
+#+begin_src emacs-lisp
+(defvar pl-symbol-rules
+  '(;; (SYMBOL DESCRIPTION NAME...) -- first name is canonical
+    ;; reduction and evaluation
+    ("→"  "steps to (small-step)"        "stepsto" "steps" "to" "->")
+    ("⟶"  "reduces to"                   "reduces" "longto" "-->")
+    ("⟶*" "reduces in zero or more steps" "multistep" "steps*" "rtc")
+    ("⇓"  "evaluates to (big-step)"      "evalsto" "evaluates" "bigstep" "Down")
+    ("⇑"  "diverges"                     "diverges" "Up")
+    ("⇝"  "leads to"                     "leadsto" "~>")
+    ("↦"  "maps to"                      "mapsto" "|->")
+    ("↪"  "embeds into (injection)"      "embeds" "injects" "hookto")
+    ("↠"  "surjects onto"                "surjects" "onto" "headto")
+    ("←"  "from"                         "from" "<-")
+    ("↑"  "up"                           "uparrow")
+    ("↓"  "down"                         "downarrow")
+    ;; implication
+    ("⇒"  "implies"                      "implies" "=>")
+    ("⇐"  "follows from"                 "followsfrom" "Leftarrow")
+    ("⇔"  "if and only if"               "iff" "<=>")
+    ("⟹"  "implies (long)"               "Longto" "==>")
+    ;; judgments
+    ("⊢"  "entails; derives (provable)"  "entails" "derives" "proves" "vdash" "|-")
+    ("⊨"  "satisfies; models (semantic)" "satisfies" "models" "vDash" "|=")
+    ("⊬"  "does not derive"              "nentails" "nvdash")
+    ("⊭"  "does not satisfy"             "nmodels")
+    ("⊩"  "forces (Kripke, realizability)" "forces" "Vdash")
+    ("⊣"  "is left adjoint to"           "adjoint" "dashv")
+    ;; equality and equivalence
+    ("≡"  "definitionally equal"         "equiv" "==" "identical")
+    ("≢"  "not equivalent"               "nequiv")
+    ("≜"  "is defined as"                "defas" "defined" "triangleq")
+    ("≈"  "approximately equal"          "approx")
+    ("∼"  "bisimilar; related"           "bisim" "related" "sim")
+    ("≃"  "equivalent"                   "simeq" "weakequiv")
+    ("≅"  "isomorphic"                   "iso" "isomorphic" "cong")
+    ("≠"  "not equal"                    "neq" "/=")
+    ;; orders and lattices
+    ("⊑"  "approximates (domain order)"  "approximates" "lessdefined" "sqsubseteq")
+    ("⊒"  "is approximated by"           "sqsupseteq")
+    ("⊏"  "strictly approximates"        "sqsubset")
+    ("⊐"  "strictly above"               "sqsupset")
+    ("⊔"  "join; least upper bound"      "join" "lub" "sqcup")
+    ("⊓"  "meet; greatest lower bound"   "meet" "glb" "sqcap")
+    ("≤"  "less than or equal"           "leq")
+    ("≥"  "greater than or equal"        "geq")
+    ("≪"  "much less than"               "ll")
+    ("≫"  "much greater than"            "gg")
+    ("≺"  "precedes (termination order)" "prec" "smaller")
+    ("≻"  "succeeds"                     "succ")
+    ("⪯"  "is simulated by"              "simulatedby" "preceq")
+    ("⪰"  "simulates"                    "simulates" "succeq")
+    ;; logic
+    ("∀"  "for all"                      "forall" "all")
+    ("∃"  "there exists"                 "exists" "ex")
+    ("∄"  "there is no"                  "nexists")
+    ("¬"  "negation"                     "neg" "not")
+    ("∧"  "conjunction (and)"            "and" "wedge")
+    ("∨"  "disjunction (or)"             "or" "vee")
+    ("⊤"  "top; true"                    "top" "true")
+    ("⊥"  "bottom; false; divergence"    "bot" "bottom" "false" "undefined")
+    ;; sets
+    ("∈"  "is a member of"               "in" "member" "elem")
+    ("∉"  "is not a member of"           "notin")
+    ("∋"  "contains element"             "ni")
+    ("⊆"  "subset of"                    "subseteq" "subset")
+    ("⊂"  "proper subset of"             "psubset")
+    ("⊇"  "superset of"                  "supseteq")
+    ("⊃"  "proper superset of"           "psupset")
+    ("∪"  "union"                        "union" "cup")
+    ("∩"  "intersection"                 "inter" "cap")
+    ("∅"  "empty set"                    "emptyset" "empty")
+    ("∖"  "set difference"               "setminus" "difference")
+    ("⊎"  "disjoint union"               "disjointunion" "uplus")
+    ("×"  "cartesian product; pair type" "cross" "times" "pairtype")
+    ;; connectives and structure
+    ("∘"  "function composition"         "compose" "comp" "circ")
+    ("⊕"  "coproduct; direct sum"        "coproduct" "oplus" "choice")
+    ("⊗"  "tensor; multiplicative conj"  "tensor" "otimes")
+    ("⊸"  "linear implication (lollipop)" "lolli" "linimp" "lollipop")
+    ("∗"  "separating conjunction"       "sepconj" "sep")
+    ("-∗" "separating implication (wand)" "wand" "magicwand")
+    ("∥"  "parallel composition"         "par" "parallel")
+    ("·"  "concatenation; application"   "cdot" "concat")
+    ;; modal and step-indexed
+    ("□"  "always; persistently"         "always" "box" "persistently")
+    ("◇"  "eventually; possibly"         "eventually" "diamond" "possibly")
+    ("▷"  "later (step-indexed)"         "later" "triangleright")
+    ;; binders and fixpoints
+    ("λ"  "lambda abstraction"           "lambda" "lam" "fn")
+    ("Λ"  "type abstraction (big lambda)" "tyabs" "Lambda")
+    ("μ"  "least fixpoint; recursive type" "lfp" "mu" "rec")
+    ("ν"  "greatest fixpoint; restriction" "gfp" "nu" "restrict")
+    ;; metavariables with conventional roles
+    ("Γ"  "typing context"               "ctx" "context" "Gamma")
+    ("Δ"  "second context"               "Delta")
+    ("Σ"  "signature; store; dependent sum" "Sigma" "sig" "store")
+    ("Π"  "dependent product"            "Pi" "pitype")
+    ("σ"  "substitution; state"          "subst" "sigma")
+    ("ρ"  "environment"                  "env" "rho")
+    ("τ"  "type"                         "type" "tau")
+    ("κ"  "kind; continuation"           "kind" "kappa")
+    ("ε"  "empty string; epsilon"        "emptystring" "eps" "epsilon")
+    ("θ"  "substitution (theta)"         "theta")
+    ("φ"  "formula (phi)"                "formula" "phi")
+    ("ψ"  "formula (psi)"                "psi")
+    ("α"  "alpha; type variable"         "alpha")
+    ("β"  "beta (reduction)"             "beta")
+    ("γ"  "gamma"                        "gamma")
+    ("δ"  "delta (reduction)"            "delta")
+    ("ζ"  "zeta"                         "zeta")
+    ("η"  "eta (expansion)"              "eta")
+    ("ι"  "iota"                         "iota")
+    ("ξ"  "xi"                           "xi")
+    ("π"  "pi; projection"               "pi")
+    ("χ"  "chi"                          "chi")
+    ("ω"  "omega"                        "omega")
+    ("Θ"  "Theta"                        "Theta")
+    ("Φ"  "Phi"                          "Phi")
+    ("Ψ"  "Psi"                          "Psi")
+    ("Ω"  "Omega; nontermination"        "Omega")
+    ;; brackets
+    ("⟦"  "denotation bracket, open"     "denot" "[[" "semopen")
+    ("⟧"  "denotation bracket, close"    "]]" "semclose")
+    ("⟨"  "configuration/tuple, open"    "config" "tuple" "langle")
+    ("⟩"  "configuration/tuple, close"   "rangle")
+    ("⟪"  "double angle, open"           "<<")
+    ("⟫"  "double angle, close"          ">>")
+    ("⌈"  "ceiling, open"                "lceil")
+    ("⌉"  "ceiling, close"               "rceil")
+    ("⌊"  "floor, open; erasure"         "lfloor")
+    ("⌋"  "floor, close"                 "rfloor")
+    ;; number sets
+    ("ℕ"  "natural numbers"              "nat" "NN")
+    ("ℤ"  "integers"                     "integers" "ZZ")
+    ("ℚ"  "rationals"                    "rationals" "QQ")
+    ("ℝ"  "reals"                        "reals" "RR")
+    ("ℂ"  "complex numbers"              "CC")
+    ("𝔹"  "booleans"                     "bool" "BB")
+    ;; misc
+    ("∎"  "end of proof (QED)"           "qed" "tombstone")
+    ("⋯"  "horizontal ellipsis"          "cdots")
+    ("⋮"  "vertical ellipsis"            "vdots")
+    ("…"  "ellipsis"                     "ldots")
+    ("∞"  "infinity"                     "infty")
+    ("∂"  "partial derivative"           "partial")
+    ("∇"  "nabla"                        "nabla")
+    ("∑"  "summation"                    "sum")
+    ("∏"  "product"                      "prod")
+    ("∫"  "integral"                     "integral")
+    ("√"  "square root"                  "sqrt")
+    ("∝"  "proportional to"              "propto")
+    ("⟂"  "orthogonal; perpendicular"    "perp")
+    ("†"  "dagger; adjoint"              "dagger")
+    ("•"  "bullet"                       "bullet")
+    ("⋆"  "star"                         "star"))
+  "Rules mapping PL concepts to Unicode symbols.
+Each element is (SYMBOL DESCRIPTION NAME...).  Every NAME completes to
+SYMBOL after a \\ prefix; the first NAME is the canonical one.")
+
+(defvar pl-symbol-hash (make-hash-table :test #'equal)
+  "Hash of \\NAME to symbol.  Doubles as the completion table.")
+(defvar pl-symbol-doc-hash (make-hash-table :test #'equal)
+  "Hash of \\NAME to description.")
+(defvar pl-symbol-alias-hash (make-hash-table :test #'equal)
+  "Hash of symbol to its list of concept \\NAMEs.")
+(defvar pl-symbol-latex-hash (make-hash-table :test #'equal)
+  "Hash of symbol to its list of LaTeX commands.")
+
+(defvar pl-symbol-latex-overrides
+  '(("ℕ" "\\mathbb{N}") ("ℤ" "\\mathbb{Z}") ("ℚ" "\\mathbb{Q}")
+    ("ℝ" "\\mathbb{R}") ("ℂ" "\\mathbb{C}") ("𝔹" "\\mathbb{B}")
+    ("⟦" "\\llbracket") ("⟧" "\\rrbracket")
+    ("⟪" "\\langle\\langle") ("⟫" "\\rangle\\rangle")
+    ("⟹" "\\Longrightarrow") ("⪯" "\\preceq") ("⪰" "\\succeq")
+    ("-∗" "\\wand") ("⟂" "\\perp") ("⟶*" "\\longrightarrow^*"))
+  "Manual (SYMBOL LATEX...) rows for glyphs the TeX input method lacks.")
+
+(defvar pl-symbol--tex-reverse
+  (condition-case err
+      (progn
+        (require 'cape-char)
+        ;; Invert the TeX input method (\\alpha -> α) to get α -> \\alpha,
+        ;; reusing the same authoritative data that backs `cape-tex'.
+        (let ((fwd (cape-char--translation "TeX" '(?\\)))
+              (rev (make-hash-table :test #'equal)))
+          (when fwd
+            (maphash (lambda (name val)
+                       (let ((s (if (stringp val) val (char-to-string val))))
+                         (push name (gethash s rev))))
+                     fwd))
+          rev))
+    (error (message "pl-symbol: TeX names unavailable: %S" err)
+           (make-hash-table :test #'equal)))
+  "Hash of symbol to the LaTeX commands the TeX input method maps onto it.")
+
+(defun pl-symbol--latex-for (sym)
+  "LaTeX commands for SYM: manual overrides first, then TeX-derived."
+  (delete-dups
+   (append (cdr (assoc sym pl-symbol-latex-overrides))
+           ;; \\Bbb{N} is redundant with the nicer \\mathbb{N} override.
+           (seq-remove (lambda (n) (string-match-p "Bbb" n))
+                       (reverse (gethash sym pl-symbol--tex-reverse))))))
+
+(defun pl-symbol-refresh ()
+  "Rebuild the lookup tables from `pl-symbol-rules'.
+Concept names are registered first and win every collision; letter-only
+LaTeX commands are then added where they don't clash.  Warn only about
+two concept names that disagree."
+  (clrhash pl-symbol-hash)
+  (clrhash pl-symbol-doc-hash)
+  (clrhash pl-symbol-alias-hash)
+  (clrhash pl-symbol-latex-hash)
+  ;; Pass 1: concept names (authoritative).
+  (pcase-dolist (`(,sym ,desc . ,names) pl-symbol-rules)
+    (dolist (name names)
+      (let ((key (concat "\\" name)))
+        (when-let* ((prev (gethash key pl-symbol-hash))
+                    ((not (equal prev sym))))
+          (warn "pl-symbol: `%s' maps to both %s and %s" key prev sym))
+        (puthash key sym pl-symbol-hash)
+        (puthash key desc pl-symbol-doc-hash)))
+    (puthash sym (mapcar (lambda (n) (concat "\\" n)) names) pl-symbol-alias-hash))
+  ;; Pass 2: LaTeX commands (added only where the key is still free).
+  (pcase-dolist (`(,sym ,desc . ,_names) pl-symbol-rules)
+    (let ((latex (pl-symbol--latex-for sym)))
+      (puthash sym latex pl-symbol-latex-hash)
+      (dolist (l latex)
+        (when (and (string-match-p "\\`\\\\[A-Za-z]+\\'" l)
+                   (not (gethash l pl-symbol-hash)))
+          (puthash l sym pl-symbol-hash)
+          (puthash l desc pl-symbol-doc-hash))))))
+
+(pl-symbol-refresh)
+
+(defconst pl-symbol--zwsp #x200b
+  "Zero-width space, appended to keep LaTeX candidate strings unique.")
+
+(defvar pl-symbol--dyn (make-hash-table :test #'equal)
+  "Per-call map of candidate string to (INSERT SYM DESC KIND).")
+
+(defun pl-symbol--annotation (cand)
+  (pcase (gethash cand pl-symbol--dyn)
+    (`(,_ ,sym ,desc :sym) (format "  %s  %s " sym (or desc "")))
+    (`(,ins ,_ ,_ :tex)    (format "  %s  LaTeX " ins))))
+
+(defun pl-symbol--docsig (cand)
+  (pcase (gethash cand pl-symbol--dyn)
+    (`(,_ ,sym ,desc :sym) (format "%s  %s" sym (or desc "")))
+    (`(,ins ,_ ,desc :tex) (format "%s  (LaTeX)  %s" ins (or desc "")))))
+
+(defun pl-symbol--doc-buffer (cand)
+  "Documentation buffer shown by `corfu-popupinfo-mode'."
+  (when-let* ((entry (gethash cand pl-symbol--dyn))
+              (sym (nth 1 entry)))
+    (with-current-buffer (get-buffer-create " *pl-symbol-doc*")
+      (erase-buffer)
+      (insert sym "  " (or (nth 2 entry) "") "\n\n"
+              "Inserts: " (nth 0 entry)
+              (if (eq (nth 3 entry) :tex) "  (LaTeX literal)" "  (symbol)") "\n\n"
+              "Names: " (string-join (gethash sym pl-symbol-alias-hash) "  ") "\n"
+              "LaTeX: " (let ((l (gethash sym pl-symbol-latex-hash)))
+                          (if l (string-join l "  ") "—"))
+              "\n\n"
+              (mapconcat (lambda (c)
+                           (format "U+%04X  %s" c
+                                   (or (get-char-code-property c 'name) "")))
+                         (string-to-list sym) "\n"))
+      (goto-char (point-min))
+      (current-buffer))))
+
+(defun pl-symbol--exit (cand status)
+  (when-let* (((not (eq status 'exact)))
+              (entry (gethash cand pl-symbol--dyn)))
+    (delete-region (max (point-min) (- (point) (length cand))) (point))
+    (insert (nth 0 entry))))
+
+(defun pl-symbol-capf (&optional interactive)
+  "Complete a PL symbol after a \\ prefix, offering the glyph and its LaTeX."
+  (interactive (list t))
+  (if interactive
+      (let (completion-cycle-threshold)
+        (cape-interactive #'pl-symbol-capf))
+    ;; In TeX buffers \alpha should stay \alpha, not become α.
+    (unless (derived-mode-p 'tex-mode 'latex-mode)
+      (when (looking-back "\\\\[^ \n\t]*" (pos-bol))
+        (let ((beg (match-beginning 0))
+              (tok (match-string-no-properties 0))
+              (cands nil))
+          (clrhash pl-symbol--dyn)
+          (maphash
+           (lambda (nm sym)
+             (when (string-prefix-p tok nm)
+               (let ((desc (gethash nm pl-symbol-doc-hash))
+                     (i 0))
+                 ;; glyph row
+                 (puthash nm (list sym sym desc :sym) pl-symbol--dyn)
+                 (push nm cands)
+                 ;; LaTeX literal rows, kept unique with zero-width spaces
+                 (dolist (l (gethash sym pl-symbol-latex-hash))
+                   (let ((key (concat nm (make-string (setq i (1+ i))
+                                                      pl-symbol--zwsp))))
+                     (puthash key (list l sym desc :tex) pl-symbol--dyn)
+                     (push key cands))))))
+           pl-symbol-hash)
+          (when cands
+            (list beg (point) (nreverse cands)
+                  :annotation-function #'pl-symbol--annotation
+                  :company-docsig #'pl-symbol--docsig
+                  :company-doc-buffer #'pl-symbol--doc-buffer
+                  :exit-function #'pl-symbol--exit
+                  :company-kind (lambda (_) 'text)
+                  :category 'pl-symbol
+                  :exclusive 'no)))))))
+
+(with-eval-after-load 'cape
+  (add-to-list 'completion-at-point-functions #'pl-symbol-capf))
+
+(keymap-global-set "C-c \\" #'pl-symbol-capf)
+#+end_src
+
 ** consult
 #+begin_src emacs-lisp
 (use-package consult
