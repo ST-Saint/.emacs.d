@@ -1264,6 +1264,21 @@ Signal an error if the entire string was not used."
   :ensure t)
 #+end_src
 
+** codeql
+
+#+begin_src emacs-lisp
+(use-package emacs-codeql
+  :ensure t
+  :vc (:url "https://github.com/anticomputer/emacs-codeql.git" :branch "main")
+  :init
+  (setq codeql-transient-binding "C-c q")
+  (setq codeql-configure-eglot-lsp t)
+  (let ((codeql-bin "~/Project/codeql"))
+    (add-to-list 'exec-path codeql-bin)
+    (setenv "PATH" (concat codeql-bin path-separator (getenv "PATH")))
+    (setq codeql-cli (expand-file-name "codeql" codeql-bin))))
+#+end_src
+
 ** latex
 
 #+begin_src emacs-lisp
