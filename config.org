@@ -723,17 +723,26 @@ Signal an error if the entire string was not used."
 (advice-add 'kill-ring-save :after #'kill-ring-save-goto-beginning)
 
 (defadvice find-file (around find-file-line-number activate)
-  "Support file:line format in find-file."
-  (let* ((name (ad-get-arg 0))
-         (match (and (stringp name)
-                     (string-match "\\(.*\\):\\([0-9]+\\)$" name))))
-    (if match
-        (let ((file (match-string 1 name))
-              (line (string-to-number (match-string 2 name))))
-          (ad-set-arg 0 file)
-          ad-do-it
-          (goto-line line))
-      ad-do-it)))
+  "Support file:line[:column] format in find-file."
+  (let ((name (ad-get-arg 0)))
+    (cond
+     ((and (stringp name)
+           (string-match "\\`\\(.*\\):\\([0-9]+\\):\\([0-9]+\\)\\'" name))
+      (let ((file (match-string 1 name))
+            (line (string-to-number (match-string 2 name)))
+            (col  (string-to-number (match-string 3 name))))
+        (ad-set-arg 0 file)
+        ad-do-it
+        (goto-line line)
+        (move-to-column (max 0 (1- col)))))
+     ((and (stringp name)
+           (string-match "\\`\\(.*\\):\\([0-9]+\\)\\'" name))
+      (let ((file (match-string 1 name))
+            (line (string-to-number (match-string 2 name))))
+        (ad-set-arg 0 file)
+        ad-do-it
+        (goto-line line)))
+     (t ad-do-it))))
 #+end_src
 
 ** editorconfig
