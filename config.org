@@ -125,15 +125,15 @@ Signal an error if the entire string was not used."
     "Cycle order: absolute → relative → none")
 
   (defun cycle-line-numbers ()
-     (interactive)
-     (let* ((idx (or (cl-position display-line-numbers line-number-styles) 0)))
+    (interactive)
+    (let* ((idx (or (cl-position display-line-numbers line-number-styles) 0))
            (next (nth (mod (1+ idx) (length line-number-styles))
-                      line-number-styles))
-         (setq-local display-line-numbers next)
-         (message "Line numbers: %s"
-                    (cond ((eq next 'relative) "relative")
-                          ((eq next t)         "absolute")
-                          (t                   "off")))))
+                      line-number-styles)))
+      (setq-local display-line-numbers next)
+      (message "Line numbers: %s"
+               (cond ((eq next 'relative) "relative")
+                     ((eq next t)         "absolute")
+                     (t                   "off")))))
 
   (add-to-list 'isearch-forward-thing-at-point 'word)
 
