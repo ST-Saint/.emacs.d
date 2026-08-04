@@ -1198,6 +1198,12 @@ Signal an error if the entire string was not used."
 #+end_src
 
 
+** go
+#+begin_src emacs-lisp
+(use-package go-mode
+  :ensure t)
+#+end_src
+
 ** agda
 #+begin_src emacs-lisp
 (use-package agda2
