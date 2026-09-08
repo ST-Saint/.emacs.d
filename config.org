@@ -227,6 +227,18 @@ Signal an error if the entire string was not used."
                               (save-silently t))
                           (recentf-save-list))))
 
+(if (boundp 'save-place-autosave-interval)
+    (customize-set-variable 'save-place-autosave-interval (* 5 60))
+  (run-at-time (* 5 60) (* 5 60)
+               (lambda ()
+                 (when save-place-mode
+                   (let ((inhibit-message t)
+                         (save-silently t))
+                     (dolist (buf (buffer-list))
+                       (with-current-buffer buf
+                         (ignore-errors (save-place-to-alist))))
+                     (save-place-alist-to-file))))))
+
 (setq-default indent-tabs-mode nil)
 
 (setq enable-local-variables t)
@@ -1352,8 +1364,21 @@ Signal an error if the entire string was not used."
   :init
   (setq history-length 10000)
   (setq history-delete-duplicates t)
-  (setq savehist-additional-variables '(file-name-history))
+
+  (add-hook 'savehist-save-hook
+            (lambda ()
+              (dolist (v '(bookmark-history))
+                (when (and (boundp v) (> (length (symbol-value v)) 300))
+                  (set v (take 300 (symbol-value v)))))))
   (savehist-mode))
+
+(defun project-find-file-history-from-recentf (orig-fun &rest args)
+  (let ((file-name-history (if (bound-and-true-p recentf-mode)
+                               recentf-list
+                             file-name-history)))
+    (apply orig-fun args)))
+
+(advice-add 'project-find-file-in :around #'project-find-file-history-from-recentf)
 #+end_src
 
 ** orderless
@@ -1866,10 +1891,10 @@ two concept names that disagree."
    consult-theme consult-ripgrep consult-git-grep consult-grep
    consult-bookmark consult-xref
    consult-mark consult-global-mark consult-dogears
-   consult--source-bookmark
+   consult-source-bookmark
    :preview-key '(:debounce 0.1 any)
-   consult-recent-file consult--source-recent-file
-   consult--source-file-register consult--source-project-recent-file
+   consult-recent-file consult-source-recent-file
+   consult-source-file-register consult-source-project-recent-file
    :preview-key "M-.")
 
   (global-set-key (kbd "M-g M-g") #'consult-goto-line)
@@ -2170,7 +2195,34 @@ two concept names that disagree."
   :config
   (setq vc-dir-backend 'git)
   (setq magit-display-buffer-function 'magit-display-buffer-fullcolumn-most-v1)
-  (keymap-set magit-diff-section-map "C-<return>" #'magit-diff-visit-worktree-file-other-window))
+  (keymap-set magit-diff-section-map "C-<return>" #'magit-diff-visit-worktree-file-other-window)
+  (defun magit-diff-wrap-long-lines ()
+   (setq truncate-lines nil
+         word-wrap t))
+
+  (dolist (hook '(magit-status-mode-hook
+                  magit-diff-mode-hook
+                  magit-revision-mode-hook
+                  magit-stash-mode-hook))
+    (add-hook hook #'magit-diff-wrap-long-lines)))
+#+end_src
+
+** magit-delta
+#+begin_src emacs-lisp
+(use-package magit-delta
+  :ensure t
+  :hook (magit-mode . magit-delta-mode)
+  :config
+  (setq magit-delta-hide-plus-minus-markers t)
+  (setq magit-delta-default-dark-theme "zenburn")
+  (setq magit-delta-delta-args
+        `("--color-only"
+          "--max-line-distance" "0.6"
+          "--true-color" ,(if xterm-color--support-truecolor "always" "never")
+          "--plus-style" "syntax #2e493d"
+          "--minus-style" "syntax #5f343a"
+          "--plus-emph-style" "syntax #3d5f47"
+          "--minus-emph-style" "syntax #7b3f45")))
 #+end_src
 
 ** diff-hl
@@ -2315,9 +2367,11 @@ variable `project-local-identifier' to be considered a project."
   (setq persp-previous-persp-name nil)
   (setq persp-nil-name "default")
   (setq persp-autokill-buffer-on-remove 'kill)
-  (setq persp-auto-resume-time 1.0)
+  (setq persp-auto-resume-time -1)
   (setq persp-auto-save-opt 2)
   (setq persp-save-dir (expand-file-name "persp-confs/" user-emacs-directory))
+  (setq persp-load-buffer-handle-missing-file-functions
+        (list (lambda (_savelist) 'skip)))
 
   ;; FIXME
   (defun treemacs--remove-treemacs-window-in-new-frames (location-type _frame-or-window _persp)
@@ -2818,27 +2872,27 @@ MODE is a major-mode symbol, KEYS is a list of character literals, e.g. (?b ?j).
   (use-package calfw-org
     :ensure t)
   (setq calendar-week-start-day 0)
-  (setq cfw:fchar-junction ?╋
-      cfw:fchar-vertical-line ?┃
-      cfw:fchar-horizontal-line ?━
-      cfw:fchar-left-junction ?┣
-      cfw:fchar-right-junction ?┫
-      cfw:fchar-top-junction ?┯
-      cfw:fchar-top-left-corner ?┏
-      cfw:fchar-top-right-corner ?┓)
-  (unbind-key "C-v" cfw:calendar-mode-map)
-  (unbind-key "M-v" cfw:calendar-mode-map))
+  (setq calfw-fchar-junction ?╋
+      calfw-fchar-vertical-line ?┃
+      calfw-fchar-horizontal-line ?━
+      calfw-fchar-left-junction ?┣
+      calfw-fchar-right-junction ?┫
+      calfw-fchar-top-junction ?┯
+      calfw-fchar-top-left-corner ?┏
+      calfw-fchar-top-right-corner ?┓)
+  (unbind-key "C-v" calfw-calendar-mode-map)
+  (unbind-key "M-v" calfw-calendar-mode-map))
 
 (use-package calfw-blocks
   :ensure nil
-  :vc (:url "https://github.com/ml729/calfw-blocks" :rev "0fe8290")
+  :vc (:url "https://github.com/haji-ali/calfw-blocks" :rev "87937b7c7523b6d314bf9e21310924c94f182954")
   :config
   (defun open-calendar-agenda ()
     (interactive)
-    (cfw:open-calendar-buffer
+    (calfw-open-calendar-buffer
      :contents-sources
      (list
-      (cfw:org-create-source "medium purple"))
+      (calfw-org-create-source nil "org-agenda" "medium purple"))
      :view 'block-week))
   (setq calfw-blocks-lines-per-hour 2)
   (miao-leader-define-keys
