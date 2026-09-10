@@ -2195,16 +2195,12 @@ two concept names that disagree."
   :config
   (setq vc-dir-backend 'git)
   (setq magit-display-buffer-function 'magit-display-buffer-fullcolumn-most-v1)
-  (keymap-set magit-diff-section-map "C-<return>" #'magit-diff-visit-worktree-file-other-window)
-  (defun magit-diff-wrap-long-lines ()
-   (setq truncate-lines nil
-         word-wrap t))
-
-  (dolist (hook '(magit-status-mode-hook
-                  magit-diff-mode-hook
-                  magit-revision-mode-hook
-                  magit-stash-mode-hook))
-    (add-hook hook #'magit-diff-wrap-long-lines)))
+  (setq magit-diff-highlight-hunk-body nil)
+  (setq magit-diff-paint-whitespace nil)
+  (setq magit-diff-expansion-threshold 1.0)
+  (setq magit-refresh-status-buffer nil)
+  (setq magit-show-long-lines-warning nil)
+  (keymap-set magit-diff-section-map "C-<return>" #'magit-diff-visit-worktree-file-other-window))
 #+end_src
 
 ** magit-delta
@@ -2389,6 +2385,13 @@ variable `project-local-identifier' to be considered a project."
                      "[ "
                      (s-join " | " persp-names-cache)
                      " ]")))
+
+  (defun persp-show-persps-after-activate (type _frame-or-window _persp)
+    "Show the persp list after a frame-level switch."
+    (when (eq type 'frame)
+      (persp-show-persps)))
+
+  (add-hook 'persp-activated-functions #'persp-show-persps-after-activate)
  (defun persp-qualified-name (root)
      "parent/leaf form of ROOT."
      (concat (file-name-nondirectory
@@ -2488,17 +2491,18 @@ variable `project-local-identifier' to be considered a project."
   '("f P" . open-config-persp)
   ;; '("w b" . persp-scratch-buffer)
   '("TAB s" . persp-switch)
-  '("TAB p" . persp-switch)
-  '("TAB n" . persp-switch)
-  '("TAB SPC" . persp-show-persps)
+  '("TAB p" . persp-prev)
+  '("TAB n" . persp-next)
+  '("TAB SPC" . persp-switch)
   '("p s" . persp-switch)
   '("p S" . project-scratch)
   '("TAB `" . persp-switch-last)
+  '("TAB q" . persp-switch-last)
   '("TAB j" . persp-move-left)
   '("TAB k" . persp-move-right)
   '("TAB h" . persp-prev)
   '("TAB l" . persp-next)
-  '("TAB TAB" . persp-switch)
+  '("TAB TAB" . persp-show-persps)
   '("TAB b" . persp-switch-to-buffer)
   '("," . persp-switch-to-buffer)
   '("TAB d" . persp-kill)
