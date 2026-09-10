@@ -107,11 +107,11 @@ Signal an error if the entire string was not used."
 
   (defun delete-buffer-file ()
     (interactive)
-    (delete-file (copy-file-name)))
+    (delete-file (copy-buffer-path)))
 
   (defun root-open-buffer-file ()
     (interactive)
-    (find-file (concat "/sudo::" (copy-file-name))))
+    (find-file (concat "/sudo::" (copy-buffer-path))))
 
   (defun toggle-visual-truncate-line ()
     (interactive)
@@ -167,7 +167,7 @@ Signal an error if the entire string was not used."
     '("f r" . recentf)
     '("f R" . rename-visited-file)
     '("f f" . find-file)
-    '("f y" . copy-file-name)
+    '("f y" . copy-buffer-path)
     '("f D" . delete-buffer-file)
     '("f U" . root-open-buffer-file)
     '("f p" . open-config-file)
@@ -261,23 +261,27 @@ Signal an error if the entire string was not used."
 (setq read-process-output-max (* 1024 1024)) ;; 1mb
 (setq gc-cons-threshold 100000000)
 
-(defun copy-file-name ()
+(defun copy-buffer-path ()
   (interactive)
-  (let ((path nil))
-    (if (eq major-mode 'dired-mode)
-        (setq path (dired-current-directory))
-      (setq path (buffer-file-name)))
-    (message path)
+  (let* ((file (cond
+                ((derived-mode-p 'dired-mode)
+                 (or (dired-get-filename nil t) (dired-current-directory)))
+                ((derived-mode-p 'magit-mode)
+                 (or (magit-toplevel) default-directory))
+                ((bound-and-true-p magit-buffer-file-name))
+                ((buffer-file-name (buffer-base-buffer)))))
+         (path (if file (expand-file-name file) (buffer-name))))
     (kill-new path)
+    (message "%s" path)
     path))
 
 (defun delete-current-file ()
   (interactive)
-  (delete-file (copy-file-name)))
+  (delete-file (copy-buffer-path)))
 
 (defun open-current-file-as-root ()
   (interactive)
-  (find-file (concat "/sudo::" (copy-file-name))))
+  (find-file (concat "/sudo::" (copy-buffer-path))))
 
 (defun date-time()
   (interactive)
